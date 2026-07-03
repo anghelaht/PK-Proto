@@ -168,7 +168,7 @@ function setCommandContext(context = "version") {
   commandContextMeta.textContent = "Version 12.3.123";
   commandStatus.hidden = false;
   commandStatus.className = "new-label status success";
-  commandStatus.innerHTML = `<span class="fluent icon-check"></span> Upload successful`;
+  commandStatus.innerHTML = `<span class="fluent icon-check"></span> Upload success`;
   commandInlineControls.innerHTML = "";
   renderContextCommands("version");
 }
