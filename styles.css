@@ -658,6 +658,12 @@ select:disabled {
   color: var(--blue-dark);
 }
 
+.version span.status.success,
+.version.active span.status.success,
+.command-context-left .new-label.status.success {
+  color: var(--green);
+}
+
 .status-menu {
   display: none;
   position: absolute;
