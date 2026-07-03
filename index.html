@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PacKit Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="desktop">
+      <section class="app-window" aria-label="PacKit prototype">
+        <header class="titlebar">
+          <div class="brand">
+            <img class="packit-logo" src="./assets/figma/packit-logo.svg" alt="PacKit" />
+            <span class="trial">TRIAL</span>
+            <span class="workspace">Workspace 1 Name</span>
+          </div>
+          <nav class="title-actions" aria-label="Workspace actions">
+            <button class="ghost-btn" type="button"><span class="fluent icon-add"></span> New</button>
+            <button class="ghost-btn" type="button"><span class="fluent icon-folder"></span> Open</button>
+          </nav>
+          <div class="account">
+            <button class="icon-btn" type="button" aria-label="Theme"><span class="fluent icon-moon"></span></button>
+            <button class="icon-btn" type="button" aria-label="Feedback"><span class="fluent icon-feedback"></span></button>
+            <button class="tenant" type="button">tenant1@microsoft.com</button>
+            <div class="window-controls" aria-hidden="true"><span>−</span><span>□</span><span>×</span></div>
+          </div>
+        </header>
+
+        <div class="shell" id="shell">
+          <aside class="rail" aria-label="Primary navigation">
+            <button class="rail-btn active" type="button" aria-label="Applications"><span class="fluent icon-folder"></span></button>
+            <button class="rail-btn" type="button" aria-label="Catalog"><span class="fluent icon-tools"></span></button>
+            <div class="rail-spacer"></div>
+            <button class="rail-btn" type="button" aria-label="Help"><span class="fluent icon-info"></span></button>
+            <button class="rail-btn" type="button" aria-label="Settings"><span class="fluent icon-settings"></span></button>
+          </aside>
+
+          <aside class="sidebar" aria-label="PacKit sections">
+            <button class="nav-row" type="button"><span class="fluent icon-dashboard"></span> Dashboard</button>
+            <button class="nav-row active" type="button"><span class="fluent icon-list"></span> Applications List</button>
+            <button class="nav-row" type="button"><span class="fluent icon-lock"></span> Digital Signature</button>
+          </aside>
+
+          <section class="workspace-view list-view active" id="listView">
+            <div class="toolbar">
+              <button class="primary-btn" type="button" id="addApplication"><span class="fluent icon-add-circle"></span> Add application</button>
+              <label class="search">
+                <span class="sr-only">Search applications</span>
+                <input id="applicationSearch" placeholder="Search applications" aria-label="Search applications" />
+                <button class="clear-search" id="clearApplicationSearch" type="button" aria-label="Clear search" hidden><span class="fluent icon-dismiss"></span></button>
+                <button type="button" aria-label="Search"><span class="fluent icon-search"></span></button>
+              </label>
+              <div class="view-toggles" aria-label="View mode">
+                <button class="round active" type="button" aria-label="List view"><span class="fluent icon-list"></span></button>
+                <button class="round" type="button" aria-label="Grid view"><span class="fluent icon-grid"></span></button>
+              </div>
+              <button class="filter-chip" type="button" id="updatesFilter"><span class="fluent icon-download"></span> Updates Available</button>
+              <div class="status-filter">
+                <button class="filter-chip" type="button" id="statusFilter">All statuses<span class="fluent icon-chevron-down"></span></button>
+                <div class="status-menu" id="statusMenu" aria-hidden="true">
+                  <button type="button" data-status="all">All statuses</button>
+                  <button type="button" data-status="success">Uploaded to Intune</button>
+                  <button type="button" data-status="issue">Configuration issues</button>
+                  <button type="button" data-status="failed">Upload failed</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="list-card">
+              <div class="app-list" id="appList" aria-label="Applications"></div>
+            </div>
+          </section>
+
+          <section class="workspace-view detail-view" id="detailView">
+            <aside class="version-panel">
+              <button class="back-link" type="button" id="backToList"><span class="fluent icon-chevron-left"></span> Back to Applications</button>
+              <div class="mini-app">
+                <span class="app-icon-tile" style="--tile-bg: #005fb8;">CF</span>
+                <div>
+                  <strong>Contoso Finance Tools</strong>
+                  <small>Published by Contoso</small>
+                </div>
+                <button class="more-btn" type="button" aria-label="More"><span class="fluent icon-more"></span></button>
+              </div>
+              <button class="version active" type="button">12.3.123 <span>New</span></button>
+              <button class="version" type="button">12.3.122 <span><span class="fluent icon-check"></span> Upload success</span></button>
+              <button class="version" type="button">12.3.121 <span><span class="fluent icon-check"></span> Upload success</span></button>
+              <button class="version" type="button">12.3.120 <span><span class="fluent icon-check"></span> Upload success</span></button>
+              <button class="version" type="button">12.3.119 <span><span class="fluent icon-check"></span> Upload success</span></button>
+              <nav class="app-level-nav" aria-label="Application level navigation">
+                <span class="app-nav-kicker"><span class="fluent icon-eye"></span> Manage & Observe</span>
+                <button class="app-nav-item" type="button" data-app-section="updateStrategy">Update Strategy</button>
+                <button class="app-nav-item" type="button" data-app-section="history">History & Logs</button>
+              </nav>
+            </aside>
+
+            <article class="detail-main">
+              <section class="context-command-region" aria-label="Version commands">
+                <div class="command-context-left">
+                  <span class="app-icon-tile small" id="commandAppIcon" style="--tile-bg: #005fb8;">CF</span>
+                  <span class="command-version-title">
+                    <strong id="commandAppName">Contoso Finance Tools</strong>
+                    <small id="commandContextMeta">Version 12.3.123</small>
+                  </span>
+                  <span class="command-inline-controls" id="commandInlineControls"></span>
+                  <span class="new-label" id="commandStatus">New</span>
+                </div>
+                <div class="command-bar" id="contextCommandBar" data-command-context="version"></div>
+              </section>
+
+              <nav class="tabs" aria-label="Application tabs">
+                <button class="tab active" type="button" data-tab="information"><span class="fluent icon-info"></span> Application Information</button>
+                <button class="tab" type="button" data-tab="assignments"><span class="fluent icon-people"></span> Assignments</button>
+                <button class="tab" type="button" data-tab="detection"><span class="fluent icon-settings"></span> Detection</button>
+                <button class="tab" type="button" data-tab="scope"><span class="fluent icon-tag"></span> Scope Tags</button>
+                <button class="tab" type="button" data-tab="wrapper"><img class="tab-img-icon" src="./assets/figma/icon-psadt.png" alt="" /> Wrapper</button>
+              </nav>
+
+              <div class="tab-panel active" id="informationPanel">
+                <section class="expander">
+                  <header><strong>Application Name & Description</strong><button type="button">⌃</button></header>
+                  <div class="form-grid">
+                    <label>Name<input value="Contoso Finance Tools" /></label>
+                    <label>Vendor<input value="Contoso" /></label>
+                    <label class="wide">Description<input value="Finance workstation utilities packaged for Intune deployment" /></label>
+                    <label>Application Icon<span class="icon-field"><span class="app-icon-tile small" style="--tile-bg: #005fb8;">CF</span></span></label>
+                  </div>
+                </section>
+                <section class="expander">
+                  <header><strong>Package Information</strong><button type="button">⌃</button></header>
+                  <div class="form-grid">
+                    <label>Version<input value="12.3.123" /></label>
+                    <label>Product Code<span class="readonly">{0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1} ⧉</span></label>
+                    <label>Architecture<span class="readonly">x86</span></label>
+                    <label class="wide">Install Command<input value="“Deploy Application.exe”" /></label>
+                    <label class="wide">Uninstall Command<input value="“Deploy Application.exe” - DeploymentType Uninstall" /></label>
+                  </div>
+                  <div class="info-bar"><span class="info-badge"><span class="fluent icon-info"></span></span> Package install commands are automatically synced in the Wrapper <button type="button"><span class="fluent icon-dismiss"></span></button></div>
+                  <div class="source-row">
+                    <strong>Source Folder</strong>
+                    <span>C:\Users\anghe\Desktop\Your Workspace-Files\Google.Chrome\Google Chrome_141.0.7390.123_Machine_Arm64...</span>
+                    <button type="button"><span class="fluent icon-folder"></span></button>
+                  </div>
+                  <div class="winget-row">
+                    <div><strong>WinGet Catalog Integration</strong><small>Link this package to a WinGet catalog entry for automatic updates</small></div>
+                    <label><span class="fluent icon-check"></span><select><option>Google Chrome</option><option>Skype for Business</option></select></label>
+                  </div>
+                </section>
+                <section class="resources">
+                  <strong>Resources</strong>
+                  <span>10 items</span>
+                  <span>85.1 MB</span>
+                    <button type="button"><span class="fluent icon-refresh"></span></button>
+                </section>
+              </div>
+
+              <div class="tab-panel wrapper-panel" id="wrapperPanel">
+                <div class="wrapper-empty" id="wrapperEmptyState">
+                  <div class="wrapper-illustration" aria-hidden="true">
+                    <span class="package-card"></span>
+                    <span class="add-badge"><span class="fluent icon-add"></span></span>
+                  </div>
+                  <h2>Need a custom wrapper for this package?</h2>
+                  <p>This action will create a custom PSADT for this package version</p>
+                  <div class="template-picker">
+                    <label>PSADT Template</label>
+                    <button type="button"><span class="fluent icon-folder"></span> PSADT v4.1.8_2(GitHub)<span class="fluent icon-chevron-down"></span></button>
+                  </div>
+                  <button class="primary-btn" type="button" id="wrapWithPsadt">Wrap with PSADT</button>
+                </div>
+                <div class="wrapper-configured" id="wrapperConfiguredState" hidden>
+                  <section class="expander">
+                    <header><strong>PSADT Commands</strong><button type="button">⌃</button></header>
+                    <div class="template-row">
+                      <span>Used PSADT Template</span>
+                      <button type="button"><img class="service-icon" src="./assets/figma/icon-psadt.png" alt="" /> PSADT v4.1.8_2(GitHub)</button>
+                    </div>
+                    <div class="form-grid single">
+                      <label>Install Command<input value="“Deploy Application.exe”" /></label>
+                      <label>Uninstall Command<input value="“Deploy Application.exe” - DeploymentType Uninstall" /></label>
+                    </div>
+                    <div class="source-row">
+                      <strong>Source Folder</strong>
+                      <span>C:\Users\anghe\Desktop\Your Workspace-Files\Google.Chrome\Google Chrome_141.0.7390.123_Machine_Arm64.exe\</span>
+                      <button type="button"><span class="fluent icon-folder"></span></button>
+                    </div>
+                  </section>
+                  <section class="script-editor">
+                    <header>
+                      <strong>{ } PowerShell Script Editor</strong>
+                      <span>(Loaded)</span>
+                      <button type="button">⌃</button>
+                    </header>
+                    <div class="editor-tools">
+                      <button type="button">Load Script</button>
+                      <button type="button" disabled>Save Script</button>
+                      <select aria-label="Script theme"><option>Light</option><option>Dark</option></select>
+                    </div>
+                    <pre><code>20
+21  .PARAMETER SuppressRebootPassThru
+22  Suppresses the 3010 return code (requires restart) from being passed back to the parent process.
+23  If 3010 is passed back to SCCM, a reboot prompt will be triggered.
+24
+25  .PARAMETER TerminalServerMode
+26  Changes to "user install mode" and back to "user execute mode" for installing/uninstalling applications.
+27
+28  .PARAMETER DisableLogging
+29  Disables logging to file for the script.
+30
+31  .EXAMPLE
+32  PowerShell.exe -File Invoke-AppDeployToolkit.ps1
+33
+34  .EXAMPLE
+35  PowerShell.exe -File Invoke-AppDeployToolkit.ps1 -DeployMode Silent
+36
+37  .EXAMPLE
+38  PowerShell.exe -File Invoke-AppDeployToolkit.ps1 -DeploymentType Uninstall</code></pre>
+                    <footer>Script loaded successfully</footer>
+                  </section>
+                </div>
+              </div>
+
+              <div class="tab-panel assignment-panel" id="assignmentsPanel">
+                <div class="panel-actions">
+                  <span>Add assignments:</span>
+                  <button type="button"><span class="fluent icon-add"></span> Add Available</button>
+                  <button type="button"><span class="fluent icon-add"></span> Add Required</button>
+                  <button type="button"><span class="fluent icon-add"></span> Add Uninstall</button>
+                </div>
+                <section class="assignment-section">
+                  <header><strong>Available</strong><button type="button">Edit</button></header>
+                  <div class="data-list">
+                    <div class="list-heading">Group</div>
+                    <div class="data-row"><span>BBN</span><button type="button" aria-label="Remove BBN"><span class="fluent icon-dismiss"></span></button></div>
+                    <div class="data-row"><span>CAPHYON SRL</span><button type="button" aria-label="Remove CAPHYON SRL"><span class="fluent icon-dismiss"></span></button></div>
+                    <div class="data-row"><span>Testers</span><button type="button" aria-label="Remove Testers"><span class="fluent icon-dismiss"></span></button></div>
+                  </div>
+                </section>
+                <section class="assignment-section">
+                  <header><strong>Required</strong><button type="button">Edit</button></header>
+                  <div class="data-list">
+                    <div class="list-heading">Group</div>
+                    <div class="data-row"><span>BBN</span><button type="button" aria-label="Remove BBN"><span class="fluent icon-dismiss"></span></button></div>
+                    <div class="data-row"><span>Testers</span><button type="button" aria-label="Remove Testers"><span class="fluent icon-dismiss"></span></button></div>
+                  </div>
+                </section>
+                <div class="license-warning"><span class="fluent icon-warning"></span> This feature requires a commercial license. However, feel free to explore and try it for evaluation purposes. <button type="button">More details</button></div>
+              </div>
+
+              <div class="tab-panel detection-panel" id="detectionPanel">
+                <section class="expander">
+                  <header><strong>Operating System Configuration</strong><button type="button">⌃</button></header>
+                  <div class="form-grid two">
+                    <label>Operating System Architecture<select><option>64-bit</option><option>32-bit</option></select></label>
+                    <label>Minimum Operating System<input value="Windows 10 1607" /></label>
+                  </div>
+                </section>
+                <section class="expander">
+                  <header><strong>Detection Method</strong><button type="button">⌃</button></header>
+                  <div class="form-grid single">
+                    <label>Rules format<select><option>Use a custom detection script</option><option>Configure rules manually</option></select></label>
+                  </div>
+                  <div class="source-row">
+                    <span>C:\Users\anghe\Desktop\Your Workspace-Files\DetectionScripts\google_chrome_detection.ps1</span>
+                    <button type="button"><span class="fluent icon-folder"></span> Browse</button>
+                  </div>
+                  <div class="editor-tools">
+                    <button type="button">Load Template</button>
+                    <button type="button" aria-label="More"><span class="fluent icon-more"></span></button>
+                  </div>
+                  <pre class="detection-code"><code>45  # Export installed applications to JSON format
+46  & winget.exe export -o $TempExportFile --accept-source-agreements | Out-Null
+47
+48  # Parse JSON content
+49  $jsonContent = Get-Content $TempExportFile -Raw | ConvertFrom-Json
+50
+51  # Extract package collection
+52  $installedPackages = $jsonContent.Sources.Packages
+53
+54  # Clean up temporary file</code></pre>
+                  <footer class="file-status"><span class="fluent icon-info"></span> File selection canceled</footer>
+                </section>
+              </div>
+
+              <div class="tab-panel scope-panel" id="scopePanel">
+                <section class="assignment-section">
+                  <header><strong>Scope Tags</strong><button type="button">Edit</button></header>
+                  <div class="scope-tags">
+                    <span>Default</span>
+                    <span>Packaging</span>
+                    <span>Endpoint Engineering</span>
+                  </div>
+                  <div class="data-list">
+                    <div class="list-heading">Assigned scope tags</div>
+                    <div class="data-row"><span>Default</span><button type="button" aria-label="Remove Default"><span class="fluent icon-dismiss"></span></button></div>
+                    <div class="data-row"><span>Packaging</span><button type="button" aria-label="Remove Packaging"><span class="fluent icon-dismiss"></span></button></div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="app-panel update-strategy-panel" id="updateStrategyPanel">
+                <section class="strategy-empty-state" id="strategyChoicePanel">
+                  <div class="strategy-choice-card">
+                    <h2>When PacKit detects a new version, how should it behave?</h2>
+                    <p>Choose whether packagers should handle updates manually or let PacKit prepare the update workflow for review.</p>
+                    <div class="strategy-choice-options" aria-label="Update strategy behaviour">
+                      <div class="choice-option">
+                        <span>
+                          <strong>Notify only</strong>
+                          <small>PacKit alerts you when an update is found. Packaging and publishing stay manual.</small>
+                        </span>
+                        <span class="selected-choice-label"><span class="fluent icon-check"></span> Selected</span>
+                      </div>
+                      <div class="choice-option">
+                        <span>
+                          <strong>Guided Automation Mode</strong>
+                          <small>PacKit prepares the next version, assignments, tests, and preview before you approve changes.</small>
+                        </span>
+                        <button class="secondary-choice-action" type="button" data-strategy-choice="guided">Select</button>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <nav class="strategy-tabs" id="strategyTabs" aria-label="Update strategy pages" hidden>
+                  <button class="active" type="button" data-strategy-tab="guided"><span class="fluent icon-settings"></span> Guided Automation Mode</button>
+                  <button type="button" data-strategy-tab="test"><span class="fluent icon-check"></span> Test</button>
+                  <button type="button" data-strategy-tab="assignment"><span class="fluent icon-people"></span> Assignment Behaviour</button>
+                  <button type="button" data-strategy-tab="preview"><span class="fluent icon-eye"></span> Preview</button>
+                </nav>
+
+                <div class="strategy-page" id="guidedStrategyPage">
+                  <section class="strategy-card">
+                    <h2>Guided Automation Mode</h2>
+                    <label class="strategy-select">Download new version and create version build from<select><option>Previous released</option><option>Latest successful upload</option></select></label>
+                    <div class="strategy-divider"></div>
+                    <div class="strategy-options-grid">
+                      <div>
+                        <h3>Copy from previous version</h3>
+                        <div class="check-grid">
+                          <label><input type="checkbox" checked /> App & Package Information</label>
+                          <label><input type="checkbox" checked /> Install / Uninstall commands</label>
+                          <label><input type="checkbox" checked /> Detection rules</label>
+                          <label><input type="checkbox" /> Return Codes</label>
+                          <label><input type="checkbox" checked /> Wrapper settings</label>
+                          <label><input type="checkbox" /> Stakeholder notes</label>
+                          <label><input type="checkbox" checked /> Testing Options</label>
+                          <label><input type="checkbox" checked /> Assignments</label>
+                          <label><input type="checkbox" checked /> New version handling</label>
+                        </div>
+                      </div>
+                      <div>
+                        <h3>Update automatically</h3>
+                        <div class="check-grid compact">
+                          <label><input type="checkbox" checked /> Version number</label>
+                          <label><input type="checkbox" checked /> Installer file & hash</label>
+                          <label><input type="checkbox" /> Detection metadata</label>
+                          <label><input type="checkbox" /> Release notes</label>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="strategy-page test-page" id="testStrategyPage"></div>
+
+                <div class="strategy-page" id="assignmentStrategyPage">
+                  <section class="strategy-card assignment-summary">
+                    <div>
+                      <h2>Update assignments behaviour</h2>
+                      <p>Assignment source: <strong>Assignation Template Name 1</strong></p>
+                    </div>
+                    <div>
+                      <p>Assignment source rings:</p>
+                      <strong>Ring 1 -> Ring 2 -> Ring 3</strong>
+                    </div>
+                    <button type="button">Open assignment tab</button>
+                  </section>
+                  <section class="strategy-card">
+                    <h2>Update assignments behaviour</h2>
+                    <div class="assignment-behaviour-grid">
+                      <section class="assignment-behaviour-section">
+                        <header><strong>Required assignments behaviour</strong><button type="button">⌃</button></header>
+                        <div class="assignment-behaviour-options">
+                          <label><input type="radio" name="required-behaviour" /> Move Required assignments to the new version</label>
+                          <label><input type="radio" name="required-behaviour" checked /> Keep the current Required assignment and require the new version</label>
+                          <label><input type="radio" name="required-behaviour" /> Do not automate Required assignments</label>
+                        </div>
+                      </section>
+                      <section class="assignment-behaviour-section">
+                        <header><strong>Available assignments behaviour</strong><button type="button">⌃</button></header>
+                        <div class="assignment-behaviour-options">
+                          <label><input type="radio" name="available-behaviour" /> Move Available assignments to the new version</label>
+                          <label class="nested-check"><input type="checkbox" /> Silent update devices with the current version installed</label>
+                          <label><input type="radio" name="available-behaviour" checked /> Keep current Available assignments and make the new version available</label>
+                          <label><input type="radio" name="available-behaviour" /> Do not automate Available assignments</label>
+                        </div>
+                      </section>
+                      <section class="assignment-behaviour-section">
+                        <header><strong>Uninstall assignments behaviour</strong><button type="button">⌃</button></header>
+                        <div class="assignment-behaviour-options">
+                          <label><input type="radio" name="uninstall-behaviour" checked /> Keep Uninstall assignments on the current version only</label>
+                          <label><input type="radio" name="uninstall-behaviour" /> Copy Uninstall assignments to the new version also</label>
+                          <label><input type="radio" name="uninstall-behaviour" /> Do not automate Uninstall assignments</label>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                </div>
+
+                <div class="strategy-page" id="previewStrategyPage">
+                  <header class="preview-intro">
+                    <h2>Preview automated update</h2>
+                    <p>Review the next version, update rules, and ring assignments before confirming.</p>
+                  </header>
+                  <div class="preview-summary-grid">
+                    <section class="preview-card version-flow">
+                      <h3>Version <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum version impact details."></span></h3>
+                      <div><span><small>Current version</small><strong>12.3.123</strong><small>Published</small></span><span class="fluent icon-arrow-right"></span><span><small>Automated</small><strong class="next-version-label">Next version</strong><small>New</small></span></div>
+                    </section>
+                    <section class="preview-card">
+                      <h3>App objects <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum object creation and modification summary."></span></h3>
+                      <ul class="scan-list">
+                        <li><strong>Next version</strong><span>New main app object</span></li>
+                        <li><strong>12.3.123</strong><span>Current object modified</span></li>
+                      </ul>
+                    </section>
+                    <section class="preview-card">
+                      <h3>Assignment highlights <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum assignment rule highlights."></span></h3>
+                      <ul class="scan-list">
+                        <li><strong>Required</strong><span>Move to next version</span></li>
+                        <li><strong>Available</strong><span>Move to next version</span></li>
+                        <li><strong>Uninstall</strong><span>Keep on current version</span></li>
+                        <li><strong>Existing installs</strong><span>Update when current version is detected</span></li>
+                      </ul>
+                    </section>
+                  </div>
+                  <section class="preview-card assignment-impact">
+                    <header><h3>Assignment impact <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum ring assignment impact explanation."></span></h3><span>Assignment source: <strong>Assignation Template Name 1</strong></span></header>
+                    <div class="ring-impact-table">
+                      <span>Ring</span><span>Required</span><span>Available</span><span>Uninstall</span><span>Existing installation</span>
+                      <div class="ring-list">
+                        <strong>Pilot ring<small>42 devices</small></strong>
+                        <strong>IT ring<small>100 devices</small></strong>
+                        <strong>Production ring<small>1000 devices</small></strong>
+                      </div>
+                      <div class="impact-comparison"><span>12.3.123</span><span>not required</span><span>next version</span><span>required</span></div>
+                      <div class="impact-comparison"><span>12.3.123</span><span>not available</span><span>next version</span><span>available</span></div>
+                      <div class="impact-comparison"><span>12.3.123</span><span>uninstall</span><span>next version</span><span>not uninstall</span></div>
+                      <div class="impact-comparison existing-install"><span>if 12.3.123 is detected</span><span>next version becomes required</span></div>
+                    </div>
+                  </section>
+                  <section class="preview-card rollout-card">
+                    <h3>Rollout timeline <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum rollout timing and sequencing details."></span></h3>
+                    <div class="rollout-timeline">
+                      <span><strong>Publish</strong><small>Create next version</small></span>
+                      <span class="timeline-arrow" aria-hidden="true"><span class="fluent icon-arrow-right"></span></span>
+                      <span><strong>Pilot ring</strong><small>Starts immediately</small></span>
+                      <span class="timeline-arrow" aria-hidden="true"><span class="fluent icon-arrow-right"></span></span>
+                      <span><strong>IT ring</strong><small>After 3 days</small></span>
+                      <span class="timeline-arrow" aria-hidden="true"><span class="fluent icon-arrow-right"></span></span>
+                      <span><strong>Production ring</strong><small>After 7 days</small></span>
+                      <span class="timeline-arrow" aria-hidden="true"><span class="fluent icon-arrow-right"></span></span>
+                      <span><strong>Cleanup</strong><small>Remove old assignments</small></span>
+                    </div>
+                  </section>
+                </div>
+              </div>
+
+              <div class="app-panel history-panel" id="historyPanel">
+                <header class="panel-heading">
+                  <strong>History & Logs</strong>
+                  <button type="button"><span class="fluent icon-download"></span> Export History</button>
+                </header>
+                <div class="history-controls">
+                  <div class="history-switch" role="tablist" aria-label="History type">
+                    <button class="active" type="button" data-history-view="package">Application & Package</button>
+                    <button type="button" data-history-view="devices">Assigned Devices</button>
+                  </div>
+                  <label class="version-filter">Filter by version<select><option>All versions</option><option>12.3.123</option><option>12.3.121</option></select></label>
+                </div>
+                <div class="history-view active" id="packageHistory">
+                  <div class="history-table package-history" role="table" aria-label="Application and package history">
+                    <div class="history-row heading" role="row"><span>Action</span><span>Version</span><span>Date & Time</span><span>User</span><span>Status</span><span>Details</span></div>
+                    <div class="history-row" role="row"><span>Publish to Intune</span><span>12.3.123</span><span>13.02.2026. 10:20:23</span><span>John Doe</span><span class="status success"><span class="fluent icon-check"></span> Upload success</span><span>-</span></div>
+                    <div class="history-row" role="row"><span>Publish to MECM</span><span>12.3.123</span><span>13.02.2026. 10:20:23</span><span>John Doe</span><span class="status failed"><span class="fluent icon-dismiss"></span> Upload to MECM failed</span><span>Wrong Credentials</span></div>
+                    <div class="history-row" role="row"><span>PSADT updated</span><span>12.3.123</span><span>13.02.2026. 10:09:10</span><span>John Doe</span><span class="status success"><span class="fluent icon-check"></span> Upload success</span><span>-</span></div>
+                    <div class="history-row" role="row"><span>PSADT created</span><span>12.3.123</span><span>13.02.2026. 10:07:23</span><span>Jane Doe</span><span class="status issue"><span class="fluent icon-warning"></span> Configuration issues</span><span>Package issues detected</span></div>
+                    <div class="history-row" role="row"><span>Package upgrade</span><span>12.3.122</span><span>13.02.2026. 10:04:12</span><span>Jane Doe</span><span class="status success"><span class="fluent icon-check"></span> Upload success</span><span>-</span></div>
+                    <div class="history-row" role="row"><span>Documentation available</span><span>12.3.121</span><span>12.02.2026. 9:54:12</span><span>Jane Doe</span><span>-</span><span><button type="button"><span class="fluent icon-folder"></span> Open File</button></span></div>
+                    <div class="history-row" role="row"><span>Application created</span><span>12.3.121</span><span>12.02.2026. 9:54:12</span><span>Jane Doe</span><span class="linkish">New</span><span>-</span></div>
+                  </div>
+                </div>
+                <div class="history-view" id="deviceHistory">
+                  <div class="device-summary">
+                    <span><strong>128</strong> targeted</span>
+                    <span class="status success"><strong>104</strong> installed</span>
+                    <span class="status issue"><strong>18</strong> pending</span>
+                    <span class="status failed"><strong>6</strong> failed</span>
+                  </div>
+                  <div class="history-table device-history" role="table" aria-label="Assigned device install status">
+                    <div class="history-row heading" role="row"><span>Device</span><span>Primary user</span><span>Assignment</span><span>Check-in</span><span>Install status</span><span>Details</span></div>
+                    <div class="history-row" role="row"><span>RO-BUH-LT-0231</span><span>Andrei Popescu</span><span>Required</span><span>18.05.2026. 10:14:22</span><span class="status success"><span class="fluent icon-check"></span> Installed</span><span>Exit code 0</span></div>
+                    <div class="history-row" role="row"><span>RO-BUH-LT-0188</span><span>Maria Ionescu</span><span>Required</span><span>18.05.2026. 10:09:41</span><span class="status issue"><span class="fluent icon-warning"></span> Pending sync</span><span>Waiting for device check-in</span></div>
+                    <div class="history-row" role="row"><span>RO-CLJ-DT-0042</span><span>Device shared</span><span>Available</span><span>18.05.2026. 09:58:10</span><span class="status failed"><span class="fluent icon-dismiss"></span> Install failed</span><span>0x87D1041C detection failed</span></div>
+                    <div class="history-row" role="row"><span>RO-IAS-LT-0119</span><span>Irina Stan</span><span>Required</span><span>18.05.2026. 09:41:33</span><span class="status success"><span class="fluent icon-check"></span> Installed</span><span>Detected after restart</span></div>
+                    <div class="history-row" role="row"><span>RO-TMS-LT-0204</span><span>Victor Neagu</span><span>Uninstall</span><span>18.05.2026. 09:22:07</span><span class="status success"><span class="fluent icon-check"></span> Uninstalled</span><span>Superseded version removed</span></div>
+                    <div class="history-row" role="row"><span>RO-BUH-VM-0077</span><span>QA Lab</span><span>Required</span><span>18.05.2026. 08:57:44</span><span class="status failed"><span class="fluent icon-dismiss"></span> Install failed</span><span>Device offline during install window</span></div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <div class="toast" id="toast" role="status" aria-live="polite">Preparing package template...</div>
+    </main>
+    <script src="./script.js"></script>
+  </body>
+</html>
