@@ -4,14 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PacKit Prototype</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="icon" href="./assets/figma/packit-logo.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=20260925-winui-buttons-2" />
+    <link rel="stylesheet" href="./winui3.css?v=20260925-winui-buttons-2" />
   </head>
-  <body>
-    <main class="desktop">
-      <section class="app-window" aria-label="PacKit prototype">
-        <header class="titlebar">
+  <body data-theme="light">
+    <main class="desktop" id="desktop">
+      <button class="desktop-launcher" id="packitLauncher" type="button" aria-label="Restore PacKit" hidden>
+        <span class="launcher-icon"><img src="./assets/figma/packit-app-icon.svg" alt="" /></span>
+        <span class="launcher-copy"><strong>PacKit</strong><small id="launcherState">Minimized</small></span>
+      </button>
+      <section class="app-window" id="appWindow" aria-label="PacKit prototype">
+        <header class="titlebar" id="titlebar">
           <div class="brand">
-            <img class="packit-logo" src="./assets/figma/packit-logo.svg" alt="PacKit" />
+            <img class="packit-logo" src="./assets/branding/packit-logo-light.png" alt="PacKit" />
             <span class="trial">TRIAL</span>
             <span class="workspace">Workspace 1 Name</span>
           </div>
@@ -20,30 +26,43 @@
             <button class="ghost-btn" type="button"><span class="fluent icon-folder"></span> Open</button>
           </nav>
           <div class="account">
-            <button class="icon-btn" type="button" aria-label="Theme"><span class="fluent icon-moon"></span></button>
-            <button class="icon-btn" type="button" aria-label="Feedback"><span class="fluent icon-feedback"></span></button>
+            <button class="icon-btn" id="themeToggle" type="button" aria-label="Use dark theme" aria-pressed="false" title="Use dark theme"><span class="fluent icon-moon"></span></button>
+            <button class="icon-btn" type="button" aria-label="Feedback" title="Feedback"><span class="fluent icon-feedback"></span></button>
             <button class="tenant" type="button">tenant1@microsoft.com</button>
-            <div class="window-controls" aria-hidden="true"><span>−</span><span>□</span><span>×</span></div>
+            <div class="window-controls" role="group" aria-label="Window controls">
+              <button class="caption-button" id="minimizeWindow" type="button" aria-label="Minimize" title="Minimize"><span class="fluent icon-minimize"></span></button>
+              <button class="caption-button" id="maximizeWindow" type="button" aria-label="Maximize" title="Maximize" aria-pressed="false"><span class="fluent icon-maximize" data-window-icon="maximize"></span><span class="fluent icon-restore" data-window-icon="restore" hidden></span></button>
+              <button class="caption-button close" id="closeWindow" type="button" aria-label="Close" title="Close"><span class="fluent icon-close"></span></button>
+            </div>
           </div>
         </header>
 
         <div class="shell" id="shell">
           <aside class="rail" aria-label="Primary navigation">
-            <button class="rail-btn active" type="button" aria-label="Applications"><span class="fluent icon-folder"></span></button>
-            <button class="rail-btn" type="button" aria-label="Catalog"><span class="fluent icon-tools"></span></button>
+            <button class="rail-btn active" type="button" aria-label="Applications" aria-current="page" data-primary-view="applications"><span class="fluent icon-folder"></span></button>
+            <button class="rail-btn" type="button" aria-label="Automation" data-primary-view="automation"><span class="fluent icon-automation"></span></button>
             <div class="rail-spacer"></div>
-            <button class="rail-btn" type="button" aria-label="Help"><span class="fluent icon-info"></span></button>
+            <button class="rail-btn" type="button" aria-label="Help"><span class="fluent icon-help"></span></button>
             <button class="rail-btn" type="button" aria-label="Settings"><span class="fluent icon-settings"></span></button>
           </aside>
 
           <aside class="sidebar" aria-label="PacKit sections">
-            <button class="nav-row" type="button"><span class="fluent icon-dashboard"></span> Dashboard</button>
-            <button class="nav-row active" type="button"><span class="fluent icon-list"></span> Applications List</button>
-            <button class="nav-row" type="button"><span class="fluent icon-lock"></span> Digital Signature</button>
+            <nav class="secondary-nav active" data-secondary-nav="applications" aria-label="Application sections">
+              <button class="nav-row" type="button" data-main-view="dashboard"><span class="fluent icon-dashboard"></span> Dashboard</button>
+              <button class="nav-row active" type="button" aria-current="page" data-main-view="applications"><span class="fluent icon-list"></span> Applications List</button>
+              <button class="nav-row" type="button" data-main-view="signature"><span class="fluent icon-signature"></span> Digital Signature</button>
+            </nav>
+            <nav class="secondary-nav" data-secondary-nav="automation" aria-label="Automation sections">
+              <div class="secondary-nav-title">Automation</div>
+              <button class="nav-row active" type="button" data-automation-tab="daemon"><span class="fluent icon-daemon"></span> Automation Daemon</button>
+              <button class="nav-row" type="button" data-automation-tab="templates"><span class="fluent icon-list"></span> Templates</button>
+              <button class="nav-row" type="button" data-automation-tab="workflows"><span class="fluent icon-workflow"></span> Workflows</button>
+              <button class="nav-row" type="button" data-automation-tab="history"><span class="fluent icon-history"></span> Run History</button>
+            </nav>
           </aside>
 
           <section class="workspace-view list-view active" id="listView">
-            <div class="toolbar">
+            <div class="toolbar" role="toolbar" aria-label="Application commands and filters">
               <button class="primary-btn" type="button" id="addApplication"><span class="fluent icon-add-circle"></span> Add application</button>
               <label class="search">
                 <span class="sr-only">Search applications</span>
@@ -51,24 +70,259 @@
                 <button class="clear-search" id="clearApplicationSearch" type="button" aria-label="Clear search" hidden><span class="fluent icon-dismiss"></span></button>
                 <button type="button" aria-label="Search"><span class="fluent icon-search"></span></button>
               </label>
-              <div class="view-toggles" aria-label="View mode">
-                <button class="round active" type="button" aria-label="List view"><span class="fluent icon-list"></span></button>
-                <button class="round" type="button" aria-label="Grid view"><span class="fluent icon-grid"></span></button>
+              <div class="view-toggles" role="group" aria-label="View mode">
+                <button class="round active" type="button" aria-label="List view" aria-pressed="true"><span class="fluent icon-list"></span></button>
+                <button class="round" type="button" aria-label="Grid view" aria-pressed="false"><span class="fluent icon-grid"></span></button>
               </div>
-              <button class="filter-chip" type="button" id="updatesFilter"><span class="fluent icon-download"></span> Updates Available</button>
+              <button class="filter-chip" type="button" id="updatesFilter" aria-pressed="false"><span class="fluent icon-refresh"></span> Updates Available</button>
               <div class="status-filter">
-                <button class="filter-chip" type="button" id="statusFilter">All statuses<span class="fluent icon-chevron-down"></span></button>
-                <div class="status-menu" id="statusMenu" aria-hidden="true">
-                  <button type="button" data-status="all">All statuses</button>
-                  <button type="button" data-status="success">Uploaded to Intune</button>
-                  <button type="button" data-status="issue">Configuration issues</button>
-                  <button type="button" data-status="failed">Upload failed</button>
+                <button class="filter-chip" type="button" id="statusFilter" aria-haspopup="menu" aria-expanded="false">All statuses<span class="fluent icon-chevron-down"></span></button>
+                <div class="status-menu" id="statusMenu" role="menu" aria-label="Filter by status" aria-hidden="true">
+                  <button type="button" role="menuitemradio" aria-checked="true" data-status="all">All statuses</button>
+                  <button type="button" role="menuitemradio" aria-checked="false" data-status="success">Uploaded to Intune</button>
+                  <button type="button" role="menuitemradio" aria-checked="false" data-status="issue">Configuration issues</button>
+                  <button type="button" role="menuitemradio" aria-checked="false" data-status="failed">Upload failed</button>
                 </div>
               </div>
             </div>
 
             <div class="list-card">
-              <div class="app-list" id="appList" aria-label="Applications"></div>
+              <div class="app-list" id="appList" role="listbox" aria-label="Applications"></div>
+            </div>
+          </section>
+
+          <section class="workspace-view automation-view" id="automationView">
+            <div class="automation-shell">
+              <header class="automation-command">
+                <div class="automation-title">
+                  <span class="app-icon-tile small" style="--tile-bg: var(--wui-app-icon-default);">A</span>
+                  <span>
+                    <strong>Automation</strong>
+                    <small>Daemon workflows, JSON definitions, and execution history</small>
+                  </span>
+                </div>
+                <div class="command-bar" role="toolbar" aria-label="Automation commands">
+                  <button type="button" id="automationNewAction"><span class="fluent icon-add"></span> New Workflow</button>
+                  <button type="button" id="automationOpenAction"><span class="fluent icon-folder"></span> Open Workflow Folder</button>
+                  <button class="primary-btn" type="button" id="automationSaveAction"><span class="fluent icon-check"></span> Save Workflow</button>
+                </div>
+              </header>
+
+              <div class="automation-content">
+                <section class="automation-panel active" id="daemonAutomationPanel">
+                  <div class="automation-status-grid">
+                    <div><small>Status</small><strong class="status success"><span class="fluent icon-check"></span> Running</strong></div>
+                    <div><small>Privilege</small><strong>Administrator</strong></div>
+                    <div><small>Execution</small><strong>Background</strong></div>
+                    <div><small>Folder watch</small><strong class="status success"><span class="fluent icon-check"></span> Active</strong></div>
+                  </div>
+
+                  <section class="automation-card daemon-card">
+                    <header>
+                      <div>
+                        <h2>Automation Daemon</h2>
+                        <p>Runs workflow schedules and manual executions while PacKit is closed.</p>
+                      </div>
+                      <button type="button"><span class="fluent icon-refresh"></span> Restart</button>
+                    </header>
+                    <div class="daemon-capabilities">
+                      <span><span class="fluent icon-check"></span> Scheduling</span>
+                      <span><span class="fluent icon-play"></span> Manual execution</span>
+                      <span><span class="fluent icon-lock"></span> Administrative privileges</span>
+                      <span><span class="fluent icon-history"></span> Persistent logs</span>
+                      <span><span class="fluent icon-folder"></span> Workflow folder monitoring</span>
+                    </div>
+                  </section>
+
+                  <div class="automation-two-column">
+                    <section class="automation-card">
+                      <h3>Windows service</h3>
+                      <div class="property-list">
+                        <span><small>Service name</small><strong>PacKit Automation Daemon</strong></span>
+                        <span><small>Startup type</small><strong>Automatic</strong></span>
+                        <span><small>Last heartbeat</small><strong>Today, 10:24</strong></span>
+                      </div>
+                    </section>
+                    <section class="automation-card">
+                      <h3>Tray integration</h3>
+                      <div class="property-list">
+                        <span><small>Tray status</small><strong>Visible</strong></span>
+                        <span><small>Quick actions</small><strong>Pause, resume, open logs</strong></span>
+                        <span><small>Notifications</small><strong>Update runs and failures</strong></span>
+                      </div>
+                    </section>
+                  </div>
+                </section>
+
+                <section class="automation-panel" id="templatesAutomationPanel">
+                  <div class="automation-layout template-management-layout">
+                    <section class="automation-card workflow-list-card">
+                      <header>
+                        <div><h2>Automation templates</h2><p>Reusable configuration for new application versions.</p></div>
+                      </header>
+                      <div class="workflow-list" role="listbox" aria-label="Automation templates">
+                        <button class="workflow-row active" type="button" role="option" aria-selected="true" data-template-id="guided">
+                          <span><strong>Guided Intune Update</strong><small>v1.4 • Used by 18 applications</small></span>
+                          <span class="status success"><span class="fluent icon-check"></span> Active</span>
+                        </button>
+                        <button class="workflow-row" type="button" role="option" aria-selected="false" data-template-id="strict">
+                          <span><strong>Strict validation rollout</strong><small>v2.2 • Used by 7 applications</small></span>
+                          <span class="status success"><span class="fluent icon-check"></span> Active</span>
+                        </button>
+                        <button class="workflow-row" type="button" role="option" aria-selected="false" data-template-id="winget">
+                          <span><strong>WinGet standard update</strong><small>v3.1 • Used by 24 applications</small></span>
+                          <span class="status success"><span class="fluent icon-check"></span> Active</span>
+                        </button>
+                      </div>
+                    </section>
+
+                    <section class="automation-card template-editor-card" id="automationTemplateEditor">
+                      <header>
+                        <div>
+                          <small>Automation template</small>
+                          <h2 id="automationEditorTemplateName">Guided Intune Update</h2>
+                          <p id="automationEditorTemplateMeta">Version 1.4 • Used by 18 applications</p>
+                        </div>
+                        <span class="status success"><span class="fluent icon-check"></span> Valid</span>
+                      </header>
+                      <div class="template-editor-content">
+                        <label class="strategy-select">Create the new version build from
+                          <select><option>Previous released version</option><option>Latest successful upload</option></select>
+                        </label>
+                        <div class="template-editor-grid">
+                          <section>
+                            <h3>Copy from previous version</h3>
+                            <div class="check-grid compact">
+                              <label><input type="checkbox" checked /> App and package information</label>
+                              <label><input type="checkbox" checked /> Install and uninstall commands</label>
+                              <label><input type="checkbox" checked /> Detection rules</label>
+                              <label><input type="checkbox" /> Return codes</label>
+                              <label><input type="checkbox" checked /> Wrapper settings</label>
+                              <label><input type="checkbox" /> Stakeholder notes</label>
+                              <label><input type="checkbox" checked /> Testing options</label>
+                              <label><input type="checkbox" checked /> Assignments</label>
+                            </div>
+                          </section>
+                          <section>
+                            <h3>Update automatically</h3>
+                            <div class="check-grid compact">
+                              <label><input type="checkbox" checked /> Version number</label>
+                              <label><input type="checkbox" checked /> Installer file and hash</label>
+                              <label><input type="checkbox" /> Detection metadata</label>
+                              <label><input type="checkbox" /> Release notes</label>
+                            </div>
+                          </section>
+                        </div>
+                        <section class="template-target-policy">
+                          <h3>Previous version handling</h3>
+                          <div class="template-target-grid">
+                            <label><strong>Intune</strong><select><option>Create supersedence and move assignments</option><option>Keep assignments on previous version</option><option>Do not automate</option></select></label>
+                            <label><strong>MECM</strong><select><option>Create supersedence and retain deployments</option><option>Retire previous deployment</option><option>Do not automate</option></select></label>
+                          </div>
+                        </section>
+                      </div>
+                    </section>
+                  </div>
+                </section>
+
+                <section class="automation-panel" id="workflowsAutomationPanel">
+                  <div class="automation-layout">
+                    <section class="automation-card workflow-list-card">
+                      <header>
+                        <h2>Workflows</h2>
+                        <button type="button"><span class="fluent icon-add"></span> Create</button>
+                      </header>
+                      <div class="workflow-list">
+                        <button class="workflow-row active" type="button">
+                          <span><strong>Guided Intune Update</strong><small>Enabled • v1.4 • Default workflow</small></span>
+                          <span class="status success"><span class="fluent icon-check"></span> Valid</span>
+                        </button>
+                        <button class="workflow-row" type="button">
+                          <span><strong>Ring-based Pilot Rollout</strong><small>Enabled • v1.1 • Used by 8 apps</small></span>
+                          <span class="status success"><span class="fluent icon-check"></span> Valid</span>
+                        </button>
+                        <button class="workflow-row" type="button">
+                          <span><strong>Manual Review Variant</strong><small>Disabled • local variant</small></span>
+                          <span class="status issue"><span class="fluent icon-warning"></span> Draft</span>
+                        </button>
+                      </div>
+                    </section>
+
+                    <section class="automation-card workflow-editor-card">
+                      <header>
+                        <div>
+                          <h2>Workflow editor</h2>
+                          <p>JSON definition is the daemon source of truth.</p>
+                        </div>
+                        <div class="workflow-actions">
+                          <button type="button"><span class="fluent icon-play"></span> Run dry-run</button>
+                          <button class="primary-btn" type="button"><span class="fluent icon-check"></span> Enable</button>
+                        </div>
+                      </header>
+                      <div class="node-chain" aria-label="Workflow execution flow">
+                        <span>Update detected</span>
+                        <span class="fluent icon-arrow-right"></span>
+                        <span>Workflow selected</span>
+                        <span class="fluent icon-arrow-right"></span>
+                        <span>Preview generated</span>
+                        <span class="fluent icon-arrow-right"></span>
+                        <span>User approves</span>
+                        <span class="fluent icon-arrow-right"></span>
+                        <span>Daemon executes</span>
+                        <span class="fluent icon-arrow-right"></span>
+                        <span>Run history</span>
+                      </div>
+                      <div class="workflow-config-grid">
+                        <div><small>Schedule</small><strong>Every weekday at 09:00</strong></div>
+                        <div><small>Dry-run</small><strong>Enabled before publish</strong></div>
+                        <div><small>Failure policy</small><strong>Stop and keep current assignments</strong></div>
+                        <div><small>Linked apps</small><strong>Contoso Finance Tools, Google Chrome</strong></div>
+                      </div>
+                    </section>
+                  </div>
+
+                  <section class="automation-card app-integration-card">
+                    <h3>Application integration</h3>
+                    <div class="integration-actions">
+                      <span><span class="fluent icon-list"></span> Select existing workflow</span>
+                      <span><span class="fluent icon-workflow"></span> Open workflow editor</span>
+                      <span><span class="fluent icon-add"></span> Create new workflow</span>
+                      <span><span class="fluent icon-refresh"></span> Create linked variant</span>
+                    </div>
+                  </section>
+                </section>
+
+                <section class="automation-panel" id="historyAutomationPanel">
+                  <section class="automation-card">
+                    <header>
+                      <div>
+                        <h2>Run History</h2>
+                        <p>Daemon executions, previews, failures, and diagnostic logs.</p>
+                      </div>
+                      <button type="button"><span class="fluent icon-download"></span> Export logs</button>
+                    </header>
+                    <div class="run-history-table">
+                      <div class="run-row heading"><span>Workflow</span><span>Application</span><span>Trigger</span><span>Started</span><span>Status</span><span>Logs</span></div>
+                      <div class="run-row"><span>Guided Intune Update</span><span>Contoso Finance Tools</span><span>Manual approval</span><span>Today, 10:12</span><span class="status success"><span class="fluent icon-check"></span> Completed</span><button type="button">Open</button></div>
+                      <div class="run-row"><span>Ring-based Pilot Rollout</span><span>Google Chrome</span><span>Scheduled</span><span>Yesterday, 09:00</span><span class="status issue"><span class="fluent icon-warning"></span> Needs review</span><button type="button">Open</button></div>
+                      <div class="run-row"><span>Guided Intune Update</span><span>Adobe Acrobat Reader</span><span>Folder change</span><span>26 Jul, 14:38</span><span class="status failed"><span class="fluent icon-dismiss"></span> Failed</span><button type="button">Open</button></div>
+                      <div class="run-row"><span>Manual Review Variant</span><span>Visual Studio Code</span><span>Dry-run</span><span>25 Jul, 11:04</span><span class="status success"><span class="fluent icon-check"></span> Preview ready</span><button type="button">Open</button></div>
+                    </div>
+                  </section>
+
+                  <section class="automation-card extensibility-card">
+                    <h3>Future workflow areas</h3>
+                    <div class="future-chip-list">
+                      <span>Assignment Templates</span>
+                      <span>PSADT Templates</span>
+                      <span>Marketplace workflows</span>
+                      <span>Version history</span>
+                      <span>Workflow inheritance</span>
+                      <span>Git synchronization</span>
+                    </div>
+                  </section>
+                </section>
+              </div>
             </div>
           </section>
 
@@ -76,21 +330,26 @@
             <aside class="version-panel">
               <button class="back-link" type="button" id="backToList"><span class="fluent icon-chevron-left"></span> Back to Applications</button>
               <div class="mini-app">
-                <span class="app-icon-tile" style="--tile-bg: #005fb8;">CF</span>
+                <span class="app-icon-tile" id="detailAppIcon" style="--tile-bg: var(--wui-app-icon-default);">CF</span>
                 <div>
-                  <strong>Contoso Finance Tools</strong>
-                  <small>Published by Contoso</small>
+                  <strong id="detailAppName">Contoso Finance Tools</strong>
+                  <small id="detailAppPublisher">Published by Contoso</small>
                 </div>
                 <button class="more-btn" type="button" aria-label="More"><span class="fluent icon-more"></span></button>
               </div>
-              <button class="version active" type="button">12.3.123 <span class="status success"><span class="fluent icon-check"></span> Upload success</span></button>
-              <button class="version" type="button">12.3.122 <span><span class="fluent icon-check"></span> Upload success</span></button>
-              <button class="version" type="button">12.3.121 <span><span class="fluent icon-check"></span> Upload success</span></button>
-              <button class="version" type="button">12.3.120 <span><span class="fluent icon-check"></span> Upload success</span></button>
-              <button class="version" type="button">12.3.119 <span><span class="fluent icon-check"></span> Upload success</span></button>
-              <nav class="app-level-nav" aria-label="Application level navigation">
+              <div class="version-list" id="versionList">
+                <button class="version active" type="button" aria-current="page" data-version="12.3.123">12.3.123 <span class="status success"><span class="fluent icon-check"></span> Upload success</span></button>
+                <button class="version" type="button" data-version="12.3.122">12.3.122 <span><span class="fluent icon-check"></span> Upload success</span></button>
+                <button class="version" type="button" data-version="12.3.121">12.3.121 <span><span class="fluent icon-check"></span> Upload success</span></button>
+                <button class="version" type="button" data-version="12.3.120">12.3.120 <span><span class="fluent icon-check"></span> Upload success</span></button>
+                <button class="version" type="button" data-version="12.3.119">12.3.119 <span><span class="fluent icon-check"></span> Upload success</span></button>
+              </div>
+              <div class="version-empty-note" id="versionEmptyNote" hidden>
+                <span class="fluent icon-info" aria-hidden="true"></span>
+                <span><strong>No versions yet</strong><small>Create the first configuration to get started.</small></span>
+              </div>
+              <nav class="app-level-nav" id="appLevelNav" aria-label="Application level navigation">
                 <span class="app-nav-kicker"><span class="fluent icon-eye"></span> Manage & Observe</span>
-                <button class="app-nav-item" type="button" data-app-section="updateStrategy">Update Strategy</button>
                 <button class="app-nav-item" type="button" data-app-section="history">History & Logs</button>
               </nav>
             </aside>
@@ -98,7 +357,7 @@
             <article class="detail-main">
               <section class="context-command-region" aria-label="Version commands">
                 <div class="command-context-left">
-                  <span class="app-icon-tile small" id="commandAppIcon" style="--tile-bg: #005fb8;">CF</span>
+                  <span class="app-icon-tile small" id="commandAppIcon" style="--tile-bg: var(--wui-app-icon-default);">CF</span>
                   <span class="command-version-title">
                     <strong id="commandAppName">Contoso Finance Tools</strong>
                     <small id="commandContextMeta">Version 12.3.123</small>
@@ -109,49 +368,181 @@
                 <div class="command-bar" id="contextCommandBar" data-command-context="version"></div>
               </section>
 
-              <nav class="tabs" aria-label="Application tabs">
-                <button class="tab active" type="button" data-tab="information"><span class="fluent icon-info"></span> Application Information</button>
-                <button class="tab" type="button" data-tab="assignments"><span class="fluent icon-people"></span> Assignments</button>
-                <button class="tab" type="button" data-tab="detection"><span class="fluent icon-settings"></span> Detection</button>
-                <button class="tab" type="button" data-tab="scope"><span class="fluent icon-tag"></span> Scope Tags</button>
-                <button class="tab" type="button" data-tab="wrapper"><img class="tab-img-icon" src="./assets/figma/icon-psadt.png" alt="" /> Wrapper</button>
+              <nav class="tabs" id="versionTabs" role="tablist" aria-label="Version configuration">
+                <button class="tab active" id="informationTab" role="tab" aria-selected="true" aria-controls="informationPanel" tabindex="0" type="button" data-tab="information"><span class="fluent icon-info"></span> Application Information</button>
+                <button class="tab" id="assignmentsTab" role="tab" aria-selected="false" aria-controls="assignmentsPanel" tabindex="-1" type="button" data-tab="assignments"><span class="fluent icon-people"></span> Assignments</button>
+                <button class="tab" id="detectionTab" role="tab" aria-selected="false" aria-controls="detectionPanel" tabindex="-1" type="button" data-tab="detection"><span class="fluent icon-detection"></span> Detection</button>
+                <button class="tab" id="scopeTab" role="tab" aria-selected="false" aria-controls="scopePanel" tabindex="-1" type="button" data-tab="scope"><span class="fluent icon-tag"></span> Scope Tags</button>
+                <button class="tab" id="wrapperTab" role="tab" aria-selected="false" aria-controls="wrapperPanel" tabindex="-1" type="button" data-tab="wrapper"><img class="tab-img-icon" src="./assets/figma/icon-psadt.png" alt="" /> Wrapper</button>
+                <button class="tab" id="updateLifecycleTab" role="tab" aria-selected="false" aria-controls="updateLifecyclePanel" tabindex="-1" type="button" data-tab="updateLifecycle"><span class="fluent icon-refresh"></span> Update Lifecycle</button>
               </nav>
+
+              <section class="configuration-empty-state" id="configurationEmptyState" aria-labelledby="configurationEmptyTitle" hidden>
+                <div class="configuration-empty-content">
+                  <span class="configuration-empty-icon" aria-hidden="true"><span class="fluent icon-settings"></span></span>
+                  <div class="configuration-empty-heading">
+                    <h2 id="configurationEmptyTitle">Set up Fabrikam Helpdesk Agent</h2>
+                    <p>This application has no package configuration or versions yet. Choose how to create its first configuration.</p>
+                  </div>
+                  <div class="configuration-choice-grid">
+                    <article class="configuration-choice">
+                      <span class="configuration-choice-icon" aria-hidden="true"><span class="fluent icon-workflow"></span></span>
+                      <h3>Use an automation template</h3>
+                      <p>Start from reusable defaults for assignments, detection, scope tags, wrapper, and update handling.</p>
+                      <button class="primary-btn" type="button" id="chooseInitialTemplate"><span class="fluent icon-add"></span> Choose template</button>
+                    </article>
+                    <article class="configuration-choice">
+                      <span class="configuration-choice-icon" aria-hidden="true"><span class="fluent icon-settings"></span></span>
+                      <h3>Configure from scratch</h3>
+                      <p>Create a blank first version and define each packaging setting manually.</p>
+                      <button type="button" id="configureFromScratch"><span class="fluent icon-add"></span> Start from scratch</button>
+                    </article>
+                  </div>
+                </div>
+              </section>
 
               <div class="tab-panel active" id="informationPanel">
                 <section class="expander">
-                  <header><strong>Application Name & Description</strong><button type="button">⌃</button></header>
+                  <header><strong>Application Name & Description</strong><button type="button" aria-label="Collapse Application Name & Description" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid">
-                    <label>Name<input value="Contoso Finance Tools" /></label>
-                    <label>Vendor<input value="Contoso" /></label>
-                    <label class="wide">Description<input value="Finance workstation utilities packaged for Intune deployment" /></label>
-                    <label>Application Icon<span class="icon-field"><span class="app-icon-tile small" style="--tile-bg: #005fb8;">CF</span></span></label>
+                    <label>Name<input id="applicationNameInput" value="Contoso Finance Tools" /></label>
+                    <label>Vendor<input id="applicationVendorInput" value="Contoso" /></label>
+                    <label class="wide">Description<input id="applicationDescriptionInput" value="Finance workstation utilities packaged for Intune deployment" /></label>
+                    <label>Application Icon<span class="icon-field"><span class="app-icon-tile small" id="applicationIconPreview" style="--tile-bg: var(--wui-app-icon-default);">CF</span></span></label>
+                  </div>
+                </section>
+                <section class="expander automation-template-summary" id="automationTemplateSummary">
+                  <header><strong>Update automation template</strong><button type="button" aria-label="Collapse Update automation template" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <div class="automation-template-content">
+                    <div class="automation-template-identity">
+                      <span class="template-icon" aria-hidden="true"><span class="fluent icon-workflow"></span></span>
+                      <span>
+                        <small>Applied from Automation</small>
+                        <strong id="informationTemplateName">Guided Intune Update</strong>
+                        <small id="informationTemplateMeta">Version 1.4 • Used by 18 applications</small>
+                      </span>
+                    </div>
+                    <span class="template-state-label" id="informationTemplateState"><span class="fluent icon-lock"></span> Inherited from template</span>
+                    <div class="automation-template-actions">
+                      <button type="button" id="manageAutomationTemplate"><span class="fluent icon-settings"></span> Manage template</button>
+                      <button type="button" id="changeAutomationTemplate"><span class="fluent icon-refresh"></span> Change template</button>
+                    </div>
+                  </div>
+                  <div class="info-bar subtle-info" role="note" aria-label="Information"><span class="info-badge"><span class="fluent icon-info"></span></span> Template changes can update Information, Assignments, Detection, Scope Tags, and Wrapper defaults for this application.</div>
+                </section>
+                <section class="expander version-automation-record" id="versionAutomationRecord">
+                  <header><strong id="versionAutomationRecordTitle">Automation record for version 12.3.123</strong><button type="button" aria-label="Collapse Automation record" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <div class="version-record-content">
+                    <div class="version-record-heading">
+                      <span>
+                        <small>Immutable creation record</small>
+                        <strong>How this version was created and how previous deployments were handled</strong>
+                      </span>
+                      <button type="button" id="viewAppliedSnapshot" aria-expanded="false"><span class="fluent icon-eye"></span> View applied snapshot</button>
+                    </div>
+                    <dl class="version-provenance-grid">
+                      <div><dt>Created from</dt><dd id="provenanceSourceVersion">12.3.122</dd></div>
+                      <div><dt>Template used</dt><dd id="provenanceTemplate">Guided Intune Update v1.4</dd></div>
+                      <div><dt>Created by</dt><dd>PacKit Automation</dd></div>
+                      <div><dt>Created on</dt><dd id="provenanceCreatedOn">24 Sep 2026, 13:42</dd></div>
+                      <div><dt>Configuration state</dt><dd id="provenanceConfigurationState"><span class="status success"><span class="fluent icon-check"></span> Unchanged since creation</span></dd></div>
+                    </dl>
+                    <div class="applied-snapshot" id="appliedSnapshot" hidden>
+                      <section>
+                        <h3>Copied from <span id="snapshotSourceVersion">12.3.122</span></h3>
+                        <ul><li>App and package information</li><li>Install and uninstall commands</li><li>Detection rules</li><li>Wrapper settings</li><li>Testing options</li><li>Assignments</li><li>New-version handling</li></ul>
+                      </section>
+                      <section>
+                        <h3>Updated automatically</h3>
+                        <ul><li>Version number</li><li>Installer file and hash</li></ul>
+                      </section>
+                      <section>
+                        <h3>Not copied</h3>
+                        <ul><li>Return codes</li><li>Stakeholder notes</li></ul>
+                      </section>
+                    </div>
+                    <section class="previous-version-handling" aria-labelledby="previousVersionHandlingTitle">
+                      <div class="record-section-heading">
+                        <span><small>Template policy and execution result</small><h3 id="previousVersionHandlingTitle">Previous version handling</h3></span>
+                        <span class="record-legend"><span class="status success"><span class="fluent icon-check"></span> Applied</span><span class="status issue"><span class="fluent icon-history"></span> Planned</span></span>
+                      </div>
+                      <div class="deployment-handling-grid">
+                        <article class="deployment-handling-target">
+                          <header><span><img class="service-icon" src="./assets/figma/icon-intune.png" alt="" /><strong>Intune</strong></span><span class="status success"><span class="fluent icon-check"></span> Applied</span></header>
+                          <dl>
+                            <div><dt>Previous version</dt><dd class="previous-version-value">12.3.122</dd></div>
+                            <div><dt>Supersedence</dt><dd>Created</dd></div>
+                            <div><dt>Required and available</dt><dd>Moved to this version</dd></div>
+                            <div><dt>Uninstall assignments</dt><dd>Kept on previous version</dd></div>
+                            <div><dt>Cleanup</dt><dd>After production rollout</dd></div>
+                          </dl>
+                        </article>
+                        <article class="deployment-handling-target">
+                          <header><span><img class="service-icon" src="./assets/figma/icon-sccm.png" alt="" /><strong>MECM</strong></span><span class="status issue"><span class="fluent icon-history"></span> Planned</span></header>
+                          <dl>
+                            <div><dt>Previous version</dt><dd class="previous-version-value">12.3.122</dd></div>
+                            <div><dt>Supersedence</dt><dd>Create on publication</dd></div>
+                            <div><dt>Existing deployments</dt><dd>Retain during rollout</dd></div>
+                            <div><dt>Previous deployment</dt><dd>Retire after 7 days</dd></div>
+                            <div><dt>Execution</dt><dd>Waiting for MECM upload</dd></div>
+                          </dl>
+                        </article>
+                      </div>
+                    </section>
                   </div>
                 </section>
                 <section class="expander">
-                  <header><strong>Package Information</strong><button type="button">⌃</button></header>
+                  <header><strong>Package Information</strong><button type="button" aria-label="Collapse Package Information" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid">
-                    <label>Version<input value="12.3.123" /></label>
-                    <label>Product Code<span class="readonly">{0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1} ⧉</span></label>
-                    <label>Architecture<span class="readonly">x86</span></label>
+                    <label>Version<input id="packageVersionInput" value="12.3.123" /></label>
+                    <label>Product Code<span class="readonly"><span id="productCode">{0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1}</span><button class="inline-icon-button" id="copyProductCode" type="button" aria-label="Copy product code" title="Copy product code"><span class="fluent icon-copy"></span></button></span></label>
+                    <label>Architecture<span class="readonly" id="packageArchitecture">x86</span></label>
                     <label class="wide">Install Command<input value="“Deploy Application.exe”" /></label>
                     <label class="wide">Uninstall Command<input value="“Deploy Application.exe” - DeploymentType Uninstall" /></label>
                   </div>
-                  <div class="info-bar"><span class="info-badge"><span class="fluent icon-info"></span></span> Package install commands are automatically synced in the Wrapper <button type="button"><span class="fluent icon-dismiss"></span></button></div>
+                  <div class="info-bar" id="packageSyncInfo" role="note" aria-label="Information"><span class="info-badge"><span class="fluent icon-info"></span></span> Package install commands are automatically synced in the Wrapper <button type="button" aria-label="Dismiss package information"><span class="fluent icon-dismiss"></span></button></div>
                   <div class="source-row">
                     <strong>Source Folder</strong>
-                    <span>C:\Users\anghe\Desktop\Your Workspace-Files\Google.Chrome\Google Chrome_141.0.7390.123_Machine_Arm64...</span>
-                    <button type="button"><span class="fluent icon-folder"></span></button>
+                    <span id="sourceFolderValue">C:\Users\anghe\Desktop\Your Workspace-Files\Google.Chrome\Google Chrome_141.0.7390.123_Machine_Arm64...</span>
+                    <button type="button" aria-label="Browse source folder"><span class="fluent icon-folder"></span></button>
                   </div>
                   <div class="winget-row">
                     <div><strong>WinGet Catalog Integration</strong><small>Link this package to a WinGet catalog entry for automatic updates</small></div>
-                    <label><span class="fluent icon-check"></span><select><option>Google Chrome</option><option>Skype for Business</option></select></label>
+                    <label><span class="fluent icon-check" id="wingetLinkStatus"></span><select id="wingetCatalogSelect"><option>Google Chrome</option><option>Skype for Business</option></select></label>
+                  </div>
+                  <div class="resources">
+                    <strong>Resources</strong>
+                    <span id="resourceItemCount">10 items</span>
+                    <span id="resourceSize">85.1 MB</span>
+                    <button type="button" aria-label="Refresh resources"><span class="fluent icon-refresh"></span></button>
                   </div>
                 </section>
-                <section class="resources">
-                  <strong>Resources</strong>
-                  <span>10 items</span>
-                  <span>85.1 MB</span>
-                    <button type="button"><span class="fluent icon-refresh"></span></button>
+              </div>
+
+              <div class="tab-panel update-lifecycle-panel" id="updateLifecyclePanel">
+                <section class="expander future-update-handling" id="futureUpdateHandling">
+                  <header><strong>Future automatic updates</strong><button type="button" aria-label="Collapse Future automatic updates" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <div class="future-update-content">
+                    <div class="version-record-heading">
+                      <span><small>Current template policy</small><strong>What PacKit will prepare when the next version is detected</strong></span>
+                      <span class="status success"><span class="fluent icon-check"></span> Guided automation enabled</span>
+                    </div>
+                    <dl class="future-policy-grid">
+                      <div><dt>Trigger</dt><dd>New catalog version detected</dd></div>
+                      <div><dt>Build source</dt><dd>Previous released version</dd></div>
+                      <div><dt>Approval</dt><dd>Required before publishing</dd></div>
+                      <div><dt>Deployment targets</dt><dd>Intune and MECM</dd></div>
+                    </dl>
+                    <div class="future-update-flow" aria-label="Future automatic update stages">
+                      <span><small>1</small><strong>Detect update</strong><em>Daemon checks the linked catalog</em></span>
+                      <span class="fluent icon-arrow-right" aria-hidden="true"></span>
+                      <span><small>2</small><strong>Prepare version</strong><em>Copy and update configured fields</em></span>
+                      <span class="fluent icon-arrow-right" aria-hidden="true"></span>
+                      <span><small>3</small><strong>Review changes</strong><em>Validate tests and deployment impact</em></span>
+                      <span class="fluent icon-arrow-right" aria-hidden="true"></span>
+                      <span><small>4</small><strong>Approve publication</strong><em>Execute Intune and MECM policies</em></span>
+                    </div>
+                  </div>
                 </section>
               </div>
 
@@ -171,7 +562,7 @@
                 </div>
                 <div class="wrapper-configured" id="wrapperConfiguredState" hidden>
                   <section class="expander">
-                    <header><strong>PSADT Commands</strong><button type="button">⌃</button></header>
+                    <header><strong>PSADT Commands</strong><button type="button" aria-label="Collapse PSADT Commands" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                     <div class="template-row">
                       <span>Used PSADT Template</span>
                       <button type="button"><img class="service-icon" src="./assets/figma/icon-psadt.png" alt="" /> PSADT v4.1.8_2(GitHub)</button>
@@ -183,14 +574,14 @@
                     <div class="source-row">
                       <strong>Source Folder</strong>
                       <span>C:\Users\anghe\Desktop\Your Workspace-Files\Google.Chrome\Google Chrome_141.0.7390.123_Machine_Arm64.exe\</span>
-                      <button type="button"><span class="fluent icon-folder"></span></button>
+                      <button type="button" aria-label="Browse wrapper source folder"><span class="fluent icon-folder"></span></button>
                     </div>
                   </section>
                   <section class="script-editor">
                     <header>
                       <strong>{ } PowerShell Script Editor</strong>
                       <span>(Loaded)</span>
-                      <button type="button">⌃</button>
+                      <button type="button" aria-label="Collapse PowerShell script editor" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button>
                     </header>
                     <div class="editor-tools">
                       <button type="button">Load Script</button>
@@ -250,14 +641,14 @@
 
               <div class="tab-panel detection-panel" id="detectionPanel">
                 <section class="expander">
-                  <header><strong>Operating System Configuration</strong><button type="button">⌃</button></header>
+                  <header><strong>Operating System Configuration</strong><button type="button" aria-label="Collapse Operating System Configuration" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid two">
                     <label>Operating System Architecture<select><option>64-bit</option><option>32-bit</option></select></label>
                     <label>Minimum Operating System<input value="Windows 10 1607" /></label>
                   </div>
                 </section>
                 <section class="expander">
-                  <header><strong>Detection Method</strong><button type="button">⌃</button></header>
+                  <header><strong>Detection Method</strong><button type="button" aria-label="Collapse Detection Method" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid single">
                     <label>Rules format<select><option>Use a custom detection script</option><option>Configure rules manually</option></select></label>
                   </div>
@@ -323,43 +714,67 @@
                   </div>
                 </section>
 
-                <nav class="strategy-tabs" id="strategyTabs" aria-label="Update strategy pages" hidden>
-                  <button class="active" type="button" data-strategy-tab="guided"><span class="fluent icon-settings"></span> Guided Automation Mode</button>
-                  <button type="button" data-strategy-tab="test"><span class="fluent icon-check"></span> Test</button>
-                  <button type="button" data-strategy-tab="assignment"><span class="fluent icon-people"></span> Assignment Behaviour</button>
-                  <button type="button" data-strategy-tab="preview"><span class="fluent icon-eye"></span> Preview</button>
+                <nav class="strategy-tabs" id="strategyTabs" role="tablist" aria-label="Update strategy pages" hidden>
+                  <button class="active" role="tab" aria-selected="true" aria-controls="guidedStrategyPage" tabindex="0" type="button" data-strategy-tab="guided"><span class="fluent icon-automation"></span> Guided Automation Mode</button>
+                  <button role="tab" aria-selected="false" aria-controls="testStrategyPage" tabindex="-1" type="button" data-strategy-tab="test"><span class="fluent icon-test"></span> Test</button>
+                  <button role="tab" aria-selected="false" aria-controls="assignmentStrategyPage" tabindex="-1" type="button" data-strategy-tab="assignment"><span class="fluent icon-people"></span> Assignment Behaviour</button>
+                  <button role="tab" aria-selected="false" aria-controls="previewStrategyPage" tabindex="-1" type="button" data-strategy-tab="preview"><span class="fluent icon-eye"></span> Preview</button>
                 </nav>
 
                 <div class="strategy-page" id="guidedStrategyPage">
+                  <section class="strategy-template-card" aria-labelledby="strategyTemplateHeading">
+                    <div class="template-identity">
+                      <span class="template-icon" aria-hidden="true"><span class="fluent icon-workflow"></span></span>
+                      <span>
+                        <small id="strategyTemplateHeading">Applied update strategy template</small>
+                        <strong id="strategyTemplateName">Guided Intune Update</strong>
+                        <small id="strategyTemplateMeta">Managed in Automation • v1.4</small>
+                      </span>
+                    </div>
+                    <div class="template-state">
+                      <span class="template-state-label" id="strategyTemplateState"><span class="fluent icon-lock"></span> Inherited • No local changes</span>
+                      <button type="button" id="editStrategyConfiguration"><span class="fluent icon-settings"></span> Edit configuration</button>
+                    </div>
+                    <div class="template-edit-bar" id="strategyTemplateEditBar" role="status" hidden>
+                      <span>
+                        <strong id="strategyEditScopeTitle">Application override</strong>
+                        <small id="strategyEditScopeDescription">Changes will apply only to Contoso Finance Tools. The shared template remains unchanged.</small>
+                      </span>
+                      <button type="button" id="resetStrategyTemplate"><span class="fluent icon-refresh"></span> Reset to applied template</button>
+                    </div>
+                  </section>
                   <section class="strategy-card">
                     <h2>Guided Automation Mode</h2>
-                    <label class="strategy-select">Download new version and create version build from<select><option>Previous released</option><option>Latest successful upload</option></select></label>
-                    <div class="strategy-divider"></div>
-                    <div class="strategy-options-grid">
-                      <div>
-                        <h3>Copy from previous version</h3>
-                        <div class="check-grid">
-                          <label><input type="checkbox" checked /> App & Package Information</label>
-                          <label><input type="checkbox" checked /> Install / Uninstall commands</label>
-                          <label><input type="checkbox" checked /> Detection rules</label>
-                          <label><input type="checkbox" /> Return Codes</label>
-                          <label><input type="checkbox" checked /> Wrapper settings</label>
-                          <label><input type="checkbox" /> Stakeholder notes</label>
-                          <label><input type="checkbox" checked /> Testing Options</label>
-                          <label><input type="checkbox" checked /> Assignments</label>
-                          <label><input type="checkbox" checked /> New version handling</label>
+                    <fieldset class="strategy-configuration-fields" id="strategyConfigurationFields" disabled>
+                      <legend class="sr-only">Guided automation configuration</legend>
+                      <label class="strategy-select">Download new version and create version build from<select><option>Previous released</option><option>Latest successful upload</option></select></label>
+                      <div class="strategy-divider"></div>
+                      <div class="strategy-options-grid">
+                        <div>
+                          <h3>Copy from previous version</h3>
+                          <div class="check-grid">
+                            <label><input type="checkbox" checked /> App & Package Information</label>
+                            <label><input type="checkbox" checked /> Install / Uninstall commands</label>
+                            <label><input type="checkbox" checked /> Detection rules</label>
+                            <label><input type="checkbox" /> Return Codes</label>
+                            <label><input type="checkbox" checked /> Wrapper settings</label>
+                            <label><input type="checkbox" /> Stakeholder notes</label>
+                            <label><input type="checkbox" checked /> Testing Options</label>
+                            <label><input type="checkbox" checked /> Assignments</label>
+                            <label><input type="checkbox" checked /> New version handling</label>
+                          </div>
+                        </div>
+                        <div>
+                          <h3>Update automatically</h3>
+                          <div class="check-grid compact">
+                            <label><input type="checkbox" checked /> Version number</label>
+                            <label><input type="checkbox" checked /> Installer file & hash</label>
+                            <label><input type="checkbox" /> Detection metadata</label>
+                            <label><input type="checkbox" /> Release notes</label>
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <h3>Update automatically</h3>
-                        <div class="check-grid compact">
-                          <label><input type="checkbox" checked /> Version number</label>
-                          <label><input type="checkbox" checked /> Installer file & hash</label>
-                          <label><input type="checkbox" /> Detection metadata</label>
-                          <label><input type="checkbox" /> Release notes</label>
-                        </div>
-                      </div>
-                    </div>
+                    </fieldset>
                   </section>
                 </div>
 
@@ -381,7 +796,7 @@
                     <h2>Update assignments behaviour</h2>
                     <div class="assignment-behaviour-grid">
                       <section class="assignment-behaviour-section">
-                        <header><strong>Required assignments behaviour</strong><button type="button">⌃</button></header>
+                        <header><strong>Required assignments behaviour</strong><button type="button" aria-label="Collapse Required assignments behaviour" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                         <div class="assignment-behaviour-options">
                           <label><input type="radio" name="required-behaviour" /> Move Required assignments to the new version</label>
                           <label><input type="radio" name="required-behaviour" checked /> Keep the current Required assignment and require the new version</label>
@@ -389,7 +804,7 @@
                         </div>
                       </section>
                       <section class="assignment-behaviour-section">
-                        <header><strong>Available assignments behaviour</strong><button type="button">⌃</button></header>
+                        <header><strong>Available assignments behaviour</strong><button type="button" aria-label="Collapse Available assignments behaviour" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                         <div class="assignment-behaviour-options">
                           <label><input type="radio" name="available-behaviour" /> Move Available assignments to the new version</label>
                           <label class="nested-check"><input type="checkbox" /> Silent update devices with the current version installed</label>
@@ -398,7 +813,7 @@
                         </div>
                       </section>
                       <section class="assignment-behaviour-section">
-                        <header><strong>Uninstall assignments behaviour</strong><button type="button">⌃</button></header>
+                        <header><strong>Uninstall assignments behaviour</strong><button type="button" aria-label="Collapse Uninstall assignments behaviour" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                         <div class="assignment-behaviour-options">
                           <label><input type="radio" name="uninstall-behaviour" checked /> Keep Uninstall assignments on the current version only</label>
                           <label><input type="radio" name="uninstall-behaviour" /> Copy Uninstall assignments to the new version also</label>
@@ -475,8 +890,8 @@
                 </header>
                 <div class="history-controls">
                   <div class="history-switch" role="tablist" aria-label="History type">
-                    <button class="active" type="button" data-history-view="package">Application & Package</button>
-                    <button type="button" data-history-view="devices">Assigned Devices</button>
+                    <button class="active" role="tab" aria-selected="true" aria-controls="packageHistory" tabindex="0" type="button" data-history-view="package">Application & Package</button>
+                    <button role="tab" aria-selected="false" aria-controls="deviceHistory" tabindex="-1" type="button" data-history-view="devices">Assigned Devices</button>
                   </div>
                   <label class="version-filter">Filter by version<select><option>All versions</option><option>12.3.123</option><option>12.3.121</option></select></label>
                 </div>
@@ -515,8 +930,132 @@
         </div>
       </section>
 
+      <dialog class="content-dialog" id="saveConfigurationDialog" aria-labelledby="saveConfigurationDialogTitle">
+        <form method="dialog">
+          <header>
+            <div>
+              <h2 id="saveConfigurationDialogTitle">Save configuration changes</h2>
+              <p>Choose where these changes should be stored.</p>
+            </div>
+            <button class="dialog-close" type="button" id="closeSaveConfigurationDialog" aria-label="Close"><span class="fluent icon-dismiss"></span></button>
+          </header>
+          <div class="edit-scope-options" role="radiogroup" aria-label="Save configuration changes as">
+            <label class="edit-scope-option">
+              <input type="radio" name="configuration-save-scope" value="application" checked />
+              <span>
+                <strong>Save for this application</strong>
+                <small>Create an application override. Guided Intune Update remains unchanged.</small>
+              </span>
+            </label>
+            <label class="edit-scope-option">
+              <input type="radio" name="configuration-save-scope" value="new" />
+              <span>
+                <strong>Save as a new automation template</strong>
+                <small>Create a reusable template in Automation and apply it to this application.</small>
+                <span class="new-template-name" id="newConfigurationTemplateNameField" hidden>
+                  <span>Template name</span>
+                  <input id="newConfigurationTemplateName" value="Contoso managed update" autocomplete="off" />
+                </span>
+              </span>
+            </label>
+            <label class="edit-scope-option shared-template-option">
+              <input type="radio" name="configuration-save-scope" value="template" />
+              <span>
+                <strong>Update the shared template</strong>
+                <small>Replace Guided Intune Update with this configuration.</small>
+              </span>
+            </label>
+          </div>
+          <div class="dialog-warning" id="sharedTemplateImpact" role="alert" hidden>
+            <span class="fluent icon-warning" aria-hidden="true"></span>
+            <span><strong>18 applications use this template.</strong> Updating it will change their inherited configuration.</span>
+          </div>
+          <footer>
+            <button type="button" id="cancelSaveConfiguration">Cancel</button>
+            <button class="primary-btn" type="button" id="confirmSaveConfiguration"><span class="fluent icon-check"></span> Save application override</button>
+          </footer>
+        </form>
+      </dialog>
+
+      <dialog class="content-dialog" id="automationTemplateDialog" aria-labelledby="automationTemplateDialogTitle">
+        <form method="dialog">
+          <header>
+            <div>
+              <h2 id="automationTemplateDialogTitle">Change automation template</h2>
+              <p id="automationTemplateDialogDescription">Replacing the template resets its managed configuration for this application.</p>
+            </div>
+            <button class="dialog-close" type="button" id="closeAutomationTemplateDialog" aria-label="Close"><span class="fluent icon-dismiss"></span></button>
+          </header>
+          <div class="template-dialog-list" role="radiogroup" aria-label="Available automation templates">
+            <label class="edit-scope-option">
+              <input type="radio" name="automation-template" value="guided" checked />
+              <span><strong>Guided Intune Update</strong><small>Version 1.4 • Used by 18 applications</small></span>
+            </label>
+            <label class="edit-scope-option">
+              <input type="radio" name="automation-template" value="strict" />
+              <span><strong>Strict validation rollout</strong><small>Version 2.2 • Used by 7 applications</small></span>
+            </label>
+            <label class="edit-scope-option">
+              <input type="radio" name="automation-template" value="winget" />
+              <span><strong>WinGet standard update</strong><small>Version 3.1 • Used by 24 applications</small></span>
+            </label>
+          </div>
+          <div class="dialog-warning neutral" id="replaceTemplateImpact" role="status">
+            <span class="fluent icon-info" aria-hidden="true"></span>
+            <span>Information, Assignments, Detection, Scope Tags, and Wrapper defaults will be replaced.</span>
+          </div>
+          <footer>
+            <button type="button" id="cancelAutomationTemplate">Cancel</button>
+            <button class="primary-btn" type="button" id="confirmAutomationTemplate"><span class="fluent icon-refresh"></span> Apply template</button>
+          </footer>
+        </form>
+      </dialog>
+
+      <dialog class="content-dialog strategy-edit-dialog" id="strategyEditDialog" aria-labelledby="strategyEditDialogTitle">
+        <form method="dialog">
+          <header>
+            <div>
+              <h2 id="strategyEditDialogTitle">Edit update strategy configuration</h2>
+              <p>Choose where the changes should be stored before editing the inherited configuration.</p>
+            </div>
+            <button class="dialog-close" type="button" id="closeStrategyEditDialog" aria-label="Close"><span class="fluent icon-dismiss"></span></button>
+          </header>
+          <div class="edit-scope-options" role="radiogroup" aria-label="Configuration editing scope">
+            <label class="edit-scope-option">
+              <input type="radio" name="strategy-edit-scope" value="application" checked />
+              <span>
+                <strong>Customize this application</strong>
+                <small>Create an override for Contoso Finance Tools. Guided Intune Update stays unchanged.</small>
+              </span>
+            </label>
+            <label class="edit-scope-option">
+              <input type="radio" name="strategy-edit-scope" value="template" />
+              <span>
+                <strong>Update the shared template</strong>
+                <small>Changes alter Guided Intune Update and can affect every application that uses it.</small>
+              </span>
+            </label>
+            <label class="edit-scope-option">
+              <input type="radio" name="strategy-edit-scope" value="new" />
+              <span>
+                <strong>Create a new template</strong>
+                <small>Copy the current configuration into Automation and apply the new template to this application.</small>
+                <span class="new-template-name" id="newStrategyTemplateNameField" hidden>
+                  <span>Template name</span>
+                  <input id="newStrategyTemplateName" value="Contoso guided update" autocomplete="off" />
+                </span>
+              </span>
+            </label>
+          </div>
+          <footer>
+            <button type="button" id="cancelStrategyEdit">Cancel</button>
+            <button class="primary-btn" type="button" id="confirmStrategyEdit"><span class="fluent icon-settings"></span> Continue to edit</button>
+          </footer>
+        </form>
+      </dialog>
+
       <div class="toast" id="toast" role="status" aria-live="polite">Preparing package template...</div>
     </main>
-    <script src="./script.js"></script>
+    <script src="./script.js?v=20260925-winui-buttons-2"></script>
   </body>
 </html>

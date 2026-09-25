@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Codex in procesul de design PacKit</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f4f5f7;
+      --surface: #ffffff;
+      --surface-alt: #eef1f4;
+      --ink: #18212c;
+      --muted: #556170;
+      --line: #aeb7c2;
+      --line-strong: #657180;
+      --accent: #185abd;
+      --accent-soft: #e8f0fb;
+      --confirmed: #2f6b4f;
+      --open: #8a5a18;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    .page {
+      width: 2200px;
+      min-height: 1380px;
+      padding: 64px 72px 54px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+
+    .title-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 48px;
+      margin-bottom: 34px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 44px;
+      line-height: 1.1;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    .scope-note {
+      width: 520px;
+      padding: 16px 20px;
+      border-left: 4px solid var(--accent);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .scope-note strong { color: var(--ink); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 300px 56px 330px 56px minmax(0, 1fr);
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+
+    .arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--line-strong);
+      font-size: 38px;
+      font-weight: 400;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      padding: 22px 24px;
+    }
+
+    .box.accent {
+      border-top: 4px solid var(--accent);
+      padding-top: 19px;
+    }
+
+    .step-label,
+    .eyebrow {
+      margin-bottom: 7px;
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    h2, h3, p { margin-top: 0; }
+
+    h2 {
+      margin-bottom: 10px;
+      font-size: 25px;
+      line-height: 1.25;
+      font-weight: 600;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 19px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .box p,
+    .box li,
+    .lane p,
+    .lane li {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.42;
+    }
+
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
+    li + li { margin-top: 5px; }
+
+    .knowledge-system {
+      border: 1px solid var(--line-strong);
+      background: var(--surface-alt);
+      padding: 22px;
+    }
+
+    .knowledge-system > header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 16px;
+    }
+
+    .knowledge-system > header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .knowledge-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr 0.92fr;
+      gap: 14px;
+    }
+
+    .knowledge-card {
+      min-height: 205px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .knowledge-card h3 span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 27px;
+      height: 27px;
+      margin-right: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .source-tags {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px 14px;
+      margin-top: 10px;
+    }
+
+    .source-tags span {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .evidence-list {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .evidence-list span {
+      padding-left: 12px;
+      border-left: 3px solid var(--line);
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .evidence-list .confirmed { border-color: var(--confirmed); }
+    .evidence-list .open { border-color: var(--open); }
+
+    .synthesis {
+      display: grid;
+      grid-template-columns: 1fr 42px 1fr 42px 1fr;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+
+    .compact-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--line-strong);
+      font-size: 32px;
+    }
+
+    .phase {
+      position: relative;
+      min-height: 190px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      padding: 20px 22px 18px 62px;
+    }
+
+    .phase-number {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 28px;
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .execution-title {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin: 2px 0 14px;
+    }
+
+    .execution-title h2 { margin: 0; }
+
+    .execution-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .execution-flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .stage {
+      position: relative;
+      min-height: 215px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .stage:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -29px;
+      top: 82px;
+      z-index: 2;
+      width: 38px;
+      color: var(--line-strong);
+      background: var(--canvas);
+      font-size: 30px;
+      text-align: center;
+    }
+
+    .stage .output {
+      margin-top: 13px;
+      padding-top: 11px;
+      border-top: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .feedback {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 28px;
+      padding: 18px 20px;
+      border: 1px dashed var(--line-strong);
+      background: transparent;
+    }
+
+    .feedback strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 16px;
+    }
+
+    .feedback span {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 18px;
+    }
+
+    .lane {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      padding: 20px 22px;
+    }
+
+    .artifact-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .artifact {
+      min-height: 82px;
+      padding: 12px 13px;
+      background: var(--surface-alt);
+    }
+
+    .artifact strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .artifact span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .skill-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .skill {
+      padding: 13px 15px;
+      border-left: 4px solid var(--accent);
+      background: var(--surface-alt);
+    }
+
+    .skill strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .skill span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: right;
+    }
+
+    @media (max-width: 1800px) {
+      .page { width: 100%; padding: 28px; }
+      .title-row, .flow, .synthesis, .bottom-grid { display: block; }
+      .scope-note { width: auto; margin-top: 20px; }
+      .arrow, .compact-arrow { height: 48px; transform: rotate(90deg); }
+      .knowledge-grid, .execution-flow, .feedback { grid-template-columns: 1fr; }
+      .knowledge-card, .phase, .stage { margin-bottom: 12px; }
+      .stage:not(:last-child)::after { display: none; }
+      .artifact-row, .skill-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="title-row">
+      <div>
+        <h1>Codex în procesul de design PacKit</h1>
+        <p class="subtitle">De la direcția PM și knowledge-ul de domeniu la o propunere de interacțiune verificabilă și un prototip apropiat de produs.</p>
+      </div>
+      <div class="scope-note"><strong>Rolul Codex:</strong> clarifică, cercetează, structurează și prototipează. PM-ul păstrează direcția de produs și validează deciziile importante.</div>
+    </header>
+
+    <section class="flow" aria-label="Intrare si sistem de cunoastere">
+      <article class="box accent">
+        <div class="step-label">Intrare</div>
+        <h2>Direcție PM</h2>
+        <ul>
+          <li>user story mare și obiectiv;</li>
+          <li>problema observată;</li>
+          <li>constrângeri cunoscute;</li>
+          <li>exemple, capturi sau SRS.</li>
+        </ul>
+      </article>
+      <div class="arrow" aria-hidden="true">→</div>
+      <article class="box">
+        <div class="step-label">Înțelegere</div>
+        <h2>Clarificare</h2>
+        <ul>
+          <li>actor, obiect și scop;</li>
+          <li>nivel: aplicație, versiune, workflow, run sau device;</li>
+          <li>necunoscute și contradicții;</li>
+          <li>efecte și riscuri.</li>
+        </ul>
+      </article>
+      <div class="arrow" aria-hidden="true">→</div>
+      <section class="knowledge-system">
+        <header>
+          <h2>Sistem de knowledge</h2>
+          <p>Fiecare afirmație își păstrează sursa și nivelul de certitudine.</p>
+        </header>
+        <div class="knowledge-grid">
+          <article class="knowledge-card">
+            <h3><span>A</span>Knowledge PacKit</h3>
+            <ul>
+              <li>discuțiile și deciziile confirmate;</li>
+              <li>SRS și documente interne;</li>
+              <li>obiecte, termeni și relații;</li>
+              <li>comportamentul produsului și al prototipului.</li>
+            </ul>
+          </article>
+          <article class="knowledge-card">
+            <h3><span>B</span>Knowledge extern de domeniu</h3>
+            <div class="source-tags">
+              <span>Microsoft Intune Win32</span><span>Microsoft Graph</span>
+              <span>WinGet manifests</span><span>Configuration Manager</span>
+              <span>MSI / EXE / MSIX</span><span>PSAppDeployToolkit</span>
+              <span>Detection & requirements</span><span>Assignments & reporting</span>
+              <span>Supersedence & dependencies</span><span>PowerShell automation</span>
+            </div>
+          </article>
+          <article class="knowledge-card">
+            <h3><span>C</span>Etichete de evidență</h3>
+            <div class="evidence-list">
+              <span class="confirmed">PacKit confirmat</span>
+              <span>Derivat din SRS</span>
+              <span>Regulă externă de platformă</span>
+              <span>Decizie de prototip</span>
+              <span class="open">Întrebare deschisă</span>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section class="synthesis" aria-label="Sinteza cerintei">
+      <article class="phase">
+        <span class="phase-number">01</span>
+        <h2>Research țintit</h2>
+        <ul>
+          <li>se verifică doar sursele relevante problemei;</li>
+          <li>limitele schimbătoare sunt reverificate;</li>
+          <li>regula platformei este tradusă în consecință PacKit.</li>
+        </ul>
+      </article>
+      <div class="compact-arrow" aria-hidden="true">→</div>
+      <article class="phase">
+        <span class="phase-number">02</span>
+        <h2>Sinteză de produs</h2>
+        <ul>
+          <li>se separă packaging, publish, deployment și reporting;</li>
+          <li>se mapează obiectele și tranzițiile;</li>
+          <li>se păstrează necunoscutele vizibile.</li>
+        </ul>
+      </article>
+      <div class="compact-arrow" aria-hidden="true">→</div>
+      <article class="phase">
+        <span class="phase-number">03</span>
+        <h2>Brief de design</h2>
+        <ul>
+          <li>outcome-ul utilizatorului;</li>
+          <li>scenariul principal și alternativele;</li>
+          <li>stări, validări și feedback;</li>
+          <li>întrebări pentru PM sau engineering.</li>
+        </ul>
+      </article>
+    </section>
+
+    <div class="execution-title"><h2>Execuția de design și prototipare</h2></div>
+    <section class="execution-flow" aria-label="Etapele de executie">
+      <article class="stage">
+        <div class="eyebrow">Structură</div>
+        <h3>Arhitectura informației</h3>
+        <ul>
+          <li>ownership corect;</li>
+          <li>niveluri de navigație;</li>
+          <li>relația aplicație–versiune–workflow.</li>
+        </ul>
+        <div class="output">Output: structură de pagini și obiecte</div>
+      </article>
+      <article class="stage">
+        <div class="eyebrow">Comportament</div>
+        <h3>Fluxuri și stări</h3>
+        <ul>
+          <li>happy path și alternative;</li>
+          <li>empty, loading, success, error;</li>
+          <li>confirmare, retry și recovery.</li>
+        </ul>
+        <div class="output">Output: flux interactiv</div>
+      </article>
+      <article class="stage">
+        <div class="eyebrow">UI</div>
+        <h3>Mapare WinUI 3</h3>
+        <ul>
+          <li>controale și patterns Microsoft;</li>
+          <li>commanding contextual;</li>
+          <li>focus, tastatură și teme.</li>
+        </ul>
+        <div class="output">Output: specificație de interacțiune</div>
+      </article>
+      <article class="stage">
+        <div class="eyebrow">Implementare</div>
+        <h3>Prototip PacKit</h3>
+        <ul>
+          <li>date și statusuri realiste;</li>
+          <li>interacțiuni funcționale;</li>
+          <li>light/dark și responsive.</li>
+        </ul>
+        <div class="output">Output: prototip în browser</div>
+      </article>
+      <article class="stage">
+        <div class="eyebrow">Decizie</div>
+        <h3>Review cu echipa</h3>
+        <ul>
+          <li>PM validează direcția;</li>
+          <li>designul verifică experiența;</li>
+          <li>engineering semnalează limite.</li>
+        </ul>
+        <div class="output">Output: acceptat, revizuit sau deschis</div>
+      </article>
+    </section>
+
+    <section class="feedback" aria-label="Bucle de feedback">
+      <div><strong>↶ Înapoi la clarificare</strong><span>când scopul, actorul sau ownership-ul nu sunt suficient definite.</span></div>
+      <div><strong>↶ Înapoi la research</strong><span>când o regulă Intune, WinGet, PSADT sau de packaging schimbă soluția.</span></div>
+      <div><strong>↶ Înapoi la design</strong><span>când review-ul descoperă probleme de scanare, flow, accesibilitate sau feedback.</span></div>
+    </section>
+
+    <section class="bottom-grid">
+      <article class="lane">
+        <h2>Documentație ușoară, dar trasabilă</h2>
+        <div class="artifact-row">
+          <div class="artifact"><strong>Brief</strong><span>direcția PM, outcome și context</span></div>
+          <div class="artifact"><strong>Research</strong><span>concluzii, surse și dată</span></div>
+          <div class="artifact"><strong>Decizii</strong><span>ce am ales și ce rămâne deschis</span></div>
+          <div class="artifact"><strong>Prototip</strong><span>scenarii, locație și feedback</span></div>
+        </div>
+      </article>
+      <article class="lane">
+        <h2>Skilluri Codex active</h2>
+        <div class="skill-row">
+          <div class="skill"><strong>PacKit Knowledge</strong><span>produs + packaging + Intune + WinGet + ConfigMgr + PSADT</span></div>
+          <div class="skill"><strong>WinUI PacKit Designer</strong><span>componente, patterns, teme, accesibilitate și implementare</span></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer-note">Knowledge-ul se actualizează din decizii confirmate și surse oficiale, nu dintr-o singură propunere de prototip.</div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1752 @@
+/* PacKit WinUI 3 web translation
+   The prototype keeps its product model while using WinUI theme-resource semantics. */
+:root {
+  color-scheme: light;
+  --wui-font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --wui-font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --wui-bg-mica: rgba(243, 243, 243, 0.82);
+  --wui-bg-mica-chrome: rgba(243, 243, 243, 0.58);
+  --wui-bg-solid: #f3f3f3;
+  --wui-bg-layer: rgba(255, 255, 255, 0.5);
+  --wui-bg-layer-alt: #fafafa;
+  --wui-bg-card: rgba(255, 255, 255, 0.7);
+  --wui-bg-card-hover: rgba(255, 255, 255, 0.92);
+  --wui-control: rgba(255, 255, 255, 0.7);
+  --wui-control-hover: rgba(249, 249, 249, 0.94);
+  --wui-control-pressed: rgba(249, 249, 249, 0.54);
+  --wui-control-selected: #e9f3fb;
+  --wui-control-strong: rgba(0, 0, 0, 0.45);
+  --wui-text: rgba(0, 0, 0, 0.8956);
+  --wui-text-secondary: rgba(0, 0, 0, 0.6063);
+  --wui-text-disabled: #6d6d6d;
+  --wui-stroke: rgba(0, 0, 0, 0.0578);
+  --wui-stroke-control: rgba(0, 0, 0, 0.1255);
+  --wui-stroke-strong: rgba(0, 0, 0, 0.4458);
+  --wui-divider: rgba(0, 0, 0, 0.0803);
+  --wui-accent: #005fb8;
+  --wui-accent-hover: #196ebf;
+  --wui-accent-pressed: #004c93;
+  --wui-accent-text: #003e92;
+  --wui-on-accent: #fff;
+  --wui-success: #0b6a0b;
+  --wui-success-bg: #dff6dd;
+  --wui-warning: #8a6100;
+  --wui-warning-bg: #fff4ce;
+  --wui-danger: #c42b1c;
+  --wui-danger-bg: #fde7e9;
+  --wui-info-bg: #eff6fc;
+  --wui-code-bg: #ffffff;
+  --wui-code-gutter: #f2f7fb;
+  --wui-code-text: #008a00;
+  --wui-focus: #000;
+  --wui-desktop-fallback: #dce8f1;
+  --wui-desktop-dim: rgba(0, 0, 0, 0.22);
+  --wui-overlay-scrim: rgba(0, 0, 0, 0.38);
+  --wui-tooltip-bg: rgba(32, 32, 32, 0.94);
+  --wui-tooltip-text: #fff;
+  --wui-toast-bg: rgba(30, 30, 30, 0.92);
+  --wui-toast-text: #fff;
+  --wui-caption-close: #c42b1c;
+  --wui-caption-close-text: #fff;
+  --wui-desktop-icon-text: #fff;
+  --wui-contrast-light: #fff;
+  --wui-contrast-dark: #111111;
+  --wui-app-icon-default: #005fb8;
+  --wui-app-icon-fallback: #605e5c;
+  --wui-desktop-icon-hover: rgba(255, 255, 255, 0.16);
+  --wui-desktop-icon-stroke: rgba(255, 255, 255, 0.38);
+  --wui-desktop-icon-surface: rgba(255, 255, 255, 0.94);
+  --wui-app-tile-highlight: rgba(255, 255, 255, 0.18);
+  --wui-app-tile-stroke: rgba(255, 255, 255, 0.34);
+  --wui-app-tile-shadow: rgba(0, 0, 0, 0.08);
+  --wui-illustration-header: #1b6edc;
+  --wui-illustration-surface-start: #e9f7ff;
+  --wui-illustration-surface-end: #b4e4ff;
+  --wui-illustration-action: #4f46e5;
+  --wui-illustration-on-action: #fff;
+  --wui-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.035);
+  --wui-shadow-control: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --wui-shadow-dialog: 0 24px 60px rgba(0, 0, 0, 0.28);
+  --wui-shadow-flyout: 0 8px 16px rgba(0, 0, 0, 0.14), 0 2px 4px rgba(0, 0, 0, 0.08);
+  --wui-shadow-window: 0 24px 64px rgba(37, 54, 75, 0.22), 0 4px 14px rgba(37, 54, 75, 0.12);
+  --wui-radius-control: 4px;
+  --wui-radius-card: 8px;
+  --wui-radius-overlay: 8px;
+  --wui-space-xs: 4px;
+  --wui-space-sm: 8px;
+  --wui-space-md: 12px;
+  --wui-space-lg: 16px;
+  --wui-space-xl: 20px;
+  --wui-space-xxl: 24px;
+
+  /* Compatibility aliases for the original prototype stylesheet. */
+  --win-accent-default: var(--wui-accent);
+  --win-accent-hover: var(--wui-accent-hover);
+  --win-text-primary: var(--wui-text);
+  --win-text-secondary: var(--wui-text-secondary);
+  --win-control-fill-default: var(--wui-control);
+  --win-control-fill-secondary: var(--wui-control-hover);
+  --win-card-background: var(--wui-bg-card);
+  --win-divider: var(--wui-divider);
+  --blue: var(--wui-accent);
+  --border: var(--wui-stroke-control);
+  --text: var(--wui-text);
+  --muted: var(--wui-text-secondary);
+  --panel: var(--wui-bg-card);
+  --subtle: var(--wui-stroke);
+  --green: var(--wui-success);
+  --red: var(--wui-danger);
+  --amber: var(--wui-warning);
+  --font: var(--wui-font);
+}
+
+body[data-theme="dark"] {
+  color-scheme: dark;
+  --wui-bg-mica: rgba(32, 32, 32, 0.88);
+  --wui-bg-mica-chrome: rgba(32, 32, 32, 0.72);
+  --wui-bg-solid: #202020;
+  --wui-bg-layer: rgba(58, 58, 58, 0.3);
+  --wui-bg-layer-alt: #272727;
+  --wui-bg-card: rgba(255, 255, 255, 0.052);
+  --wui-bg-card-hover: rgba(255, 255, 255, 0.0837);
+  --wui-control: rgba(255, 255, 255, 0.0605);
+  --wui-control-hover: rgba(255, 255, 255, 0.0837);
+  --wui-control-pressed: rgba(255, 255, 255, 0.0326);
+  --wui-control-selected: rgba(96, 205, 255, 0.14);
+  --wui-control-strong: rgba(255, 255, 255, 0.54);
+  --wui-text: #fff;
+  --wui-text-secondary: rgba(255, 255, 255, 0.786);
+  --wui-text-disabled: rgba(255, 255, 255, 0.62);
+  --wui-stroke: rgba(255, 255, 255, 0.0837);
+  --wui-stroke-control: rgba(255, 255, 255, 0.093);
+  --wui-stroke-strong: rgba(255, 255, 255, 0.5442);
+  --wui-divider: rgba(255, 255, 255, 0.0837);
+  --wui-accent: #60cdff;
+  --wui-accent-hover: #6fd2ff;
+  --wui-accent-pressed: #49b7e8;
+  --wui-accent-text: #99ebff;
+  --wui-on-accent: #00334a;
+  --wui-success: #6ccb5f;
+  --wui-success-bg: rgba(15, 123, 15, 0.22);
+  --wui-warning: #fce100;
+  --wui-warning-bg: rgba(138, 97, 0, 0.24);
+  --wui-danger: #ff99a4;
+  --wui-danger-bg: rgba(196, 43, 28, 0.2);
+  --wui-info-bg: rgba(0, 95, 184, 0.2);
+  --wui-code-bg: #1e1e1e;
+  --wui-code-gutter: #252526;
+  --wui-code-text: #6ccb5f;
+  --wui-focus: #fff;
+  --wui-desktop-fallback: #202020;
+  --wui-illustration-header: #60cdff;
+  --wui-illustration-surface-start: #15384a;
+  --wui-illustration-surface-end: #0f2937;
+  --wui-illustration-action: #60cdff;
+  --wui-illustration-on-action: #00334a;
+  --wui-shadow-window: 0 24px 64px rgba(0, 0, 0, 0.5);
+
+  /* Rebind compatibility resources in the active theme scope. */
+  --win-accent-default: var(--wui-accent);
+  --win-accent-secondary: var(--wui-accent-text);
+  --win-system-fill-success: var(--wui-success);
+  --win-system-fill-critical: var(--wui-danger);
+  --win-system-fill-caution: var(--wui-warning);
+  --win-text-primary: var(--wui-text);
+  --win-text-secondary: var(--wui-text-secondary);
+  --win-text-disabled: var(--wui-text-disabled);
+  --win-control-fill-default: var(--wui-control);
+  --win-control-fill-hover: var(--wui-control-hover);
+  --win-control-fill-disabled: var(--wui-control-pressed);
+  --win-control-stroke-default: var(--wui-stroke);
+  --win-control-stroke-strong: var(--wui-stroke-strong);
+  --win-subtle-fill-secondary: var(--wui-control-hover);
+  --win-layer-card: var(--wui-bg-card);
+  --win-solid-background-base: var(--wui-bg-solid);
+  --blue: var(--wui-accent);
+  --blue-dark: var(--wui-accent-text);
+  --green: var(--wui-success);
+  --red: var(--wui-danger);
+  --amber: var(--wui-warning);
+  --text: var(--wui-text);
+  --muted: var(--wui-text-secondary);
+  --subtle: var(--wui-stroke);
+  --panel: var(--wui-bg-card);
+}
+
+body[data-theme="dark"] .packit-logo {
+  filter: brightness(0) saturate(100%) invert(1);
+}
+
+body[data-theme="dark"] :where(.preview-card, .strategy-card, .automation-card, .expander, .script-editor, .assignment-section, .app-level-nav) :where(p, small, span, li, div, label) {
+  color: var(--wui-text-secondary);
+}
+
+body[data-theme="dark"] :where(.preview-card, .strategy-card, .automation-card, .expander, .script-editor, .assignment-section, .app-level-nav) strong {
+  color: var(--wui-text);
+}
+
+body[data-theme="dark"] :where(.status.success, .version-success) {
+  color: var(--wui-success);
+}
+
+body[data-theme="dark"] .status.issue {
+  color: var(--wui-warning);
+}
+
+body[data-theme="dark"] .status.failed {
+  color: var(--wui-danger);
+}
+
+body[data-theme="dark"] .app-nav-item {
+  color: var(--wui-text);
+}
+
+body[data-theme="dark"] .version :where(.status.success, span) {
+  color: var(--wui-success);
+}
+
+body[data-theme="dark"] .future-update-flow > span > small {
+  background: var(--wui-accent);
+  color: var(--wui-on-accent);
+}
+
+body[data-theme="dark"] :where(.command-bar, .automation-card, .workflow-actions) button.primary-btn {
+  border-color: var(--wui-accent);
+  background: var(--wui-accent);
+  color: var(--wui-on-accent);
+}
+
+body[data-theme="dark"] :where(.command-bar, .automation-card, .workflow-actions) button.primary-btn:hover {
+  background: var(--wui-accent-hover);
+  color: var(--wui-on-accent);
+}
+
+/* Microsoft Fluent System Icons 1.1.341, MIT, microsoft/fluentui-system-icons. */
+.icon-add { --icon: url("./assets/fluent/add.svg"); }
+.icon-add-circle { --icon: url("./assets/fluent/add-circle.svg"); }
+.icon-folder { --icon: url("./assets/fluent/folder-open.svg"); }
+.icon-tools { --icon: url("./assets/fluent/wrench.svg"); }
+.icon-dashboard { --icon: url("./assets/fluent/home.svg"); }
+.icon-list { --icon: url("./assets/fluent/apps-list-detail.svg"); }
+.icon-grid { --icon: url("./assets/fluent/grid.svg"); }
+.icon-lock { --icon: url("./assets/fluent/lock-closed.svg"); }
+.icon-signature { --icon: url("./assets/fluent/signature.svg"); }
+.icon-download { --icon: url("./assets/fluent/arrow-download.svg"); }
+.icon-search { --icon: url("./assets/fluent/search.svg"); }
+.icon-dismiss,
+.icon-close { --icon: url("./assets/fluent/dismiss.svg"); }
+.icon-check { --icon: url("./assets/fluent/checkmark.svg"); }
+.icon-warning { --icon: url("./assets/fluent/warning.svg"); }
+.icon-info { --icon: url("./assets/fluent/info.svg"); }
+.icon-settings { --icon: url("./assets/fluent/settings.svg"); }
+.icon-people { --icon: url("./assets/fluent/people.svg"); }
+.icon-tag { --icon: url("./assets/fluent/tag.svg"); }
+.icon-history { --icon: url("./assets/fluent/history.svg"); }
+.icon-eye { --icon: url("./assets/fluent/eye.svg"); }
+.icon-arrow-right { --icon: url("./assets/fluent/arrow-right.svg"); }
+.icon-refresh { --icon: url("./assets/fluent/arrow-sync.svg"); }
+.icon-more { --icon: url("./assets/fluent/more-horizontal.svg"); }
+.icon-moon { --icon: url("./assets/fluent/dark-theme.svg"); }
+.icon-sun { --icon: url("./assets/fluent/weather-sunny.svg"); }
+.icon-feedback { --icon: url("./assets/fluent/chat.svg"); }
+.icon-chevron-down { --icon: url("./assets/fluent/chevron-down.svg"); }
+.icon-chevron-up { --icon: url("./assets/fluent/chevron-up.svg"); }
+.icon-chevron-left { --icon: url("./assets/fluent/chevron-left.svg"); }
+.icon-copy { --icon: url("./assets/fluent/copy.svg"); }
+.icon-automation,
+.icon-workflow { --icon: url("./assets/fluent/flow.svg"); }
+.icon-daemon { --icon: url("./assets/fluent/apps-settings.svg"); }
+.icon-detection { --icon: url("./assets/fluent/scan.svg"); }
+.icon-test { --icon: url("./assets/fluent/beaker.svg"); }
+.icon-help { --icon: url("./assets/fluent/question-circle.svg"); }
+.icon-play { --icon: url("./assets/fluent/play.svg"); }
+.icon-minimize { --icon: url("./assets/fluent/subtract.svg"); }
+.icon-maximize { --icon: url("./assets/fluent/maximize.svg"); }
+.icon-restore { --icon: url("./assets/fluent/restore.svg"); }
+
+* {
+  box-sizing: border-box;
+  letter-spacing: 0;
+}
+
+.fluent {
+  opacity: 1;
+  background-color: currentColor;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  min-width: 880px;
+  margin: 0;
+  overflow: hidden;
+  background: var(--wui-desktop-fallback) url("./assets/backgrounds/windows-mountain-wallpaper.jpg") center / cover no-repeat fixed;
+  color: var(--wui-text);
+  font-family: var(--wui-font);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+body[data-theme="dark"] {
+  background:
+    linear-gradient(var(--wui-desktop-dim), var(--wui-desktop-dim)),
+    url("./assets/backgrounds/windows-mountain-wallpaper.jpg") center / cover no-repeat fixed;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button,
+select,
+input {
+  min-height: 32px;
+}
+
+button {
+  border: 1px solid var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-strong);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control);
+  color: var(--wui-text);
+  transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
+}
+
+button:hover:not(:disabled) {
+  background: var(--wui-control-hover);
+}
+
+button:active:not(:disabled) {
+  border-bottom-color: var(--wui-stroke-control);
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-secondary);
+}
+
+button:disabled {
+  color: var(--wui-text-disabled);
+  cursor: default;
+  opacity: 1;
+}
+
+:where(button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 2px;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-strong);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control);
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  background: var(--wui-control-hover);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-bottom: 2px solid var(--wui-accent);
+  outline: none;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: 0;
+  accent-color: var(--wui-accent);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--wui-text);
+  font-family: var(--wui-font-display);
+  letter-spacing: 0;
+}
+
+.desktop {
+  height: 100%;
+  padding: 20px;
+  position: relative;
+}
+
+.app-window {
+  width: min(1600px, calc(100vw - 40px));
+  height: calc(100vh - 40px);
+  min-height: 680px;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--wui-stroke);
+  border-radius: 10px;
+  background: var(--wui-bg-mica);
+  box-shadow: var(--wui-shadow-window);
+  -webkit-backdrop-filter: blur(56px) saturate(112%);
+  backdrop-filter: blur(56px) saturate(112%);
+  transform-origin: left bottom;
+  transition: opacity 140ms ease, transform 180ms cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.app-window.is-minimizing {
+  opacity: 0;
+  transform: translate(-42vw, 44vh) scale(0.08);
+}
+
+.app-window.is-restoring {
+  animation: restore-window 180ms cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.desktop.is-maximized {
+  padding: 0;
+}
+
+.app-window.maximized {
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@keyframes restore-window {
+  from {
+    opacity: 0;
+    transform: translate(-42vw, 44vh) scale(0.08);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.titlebar {
+  height: 48px;
+  padding: 0 12px 0 16px;
+  border-bottom: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  user-select: none;
+}
+
+.brand,
+.title-actions,
+.account {
+  gap: 6px;
+}
+
+.packit-logo {
+  width: auto;
+  height: 18px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.trial {
+  position: static;
+  top: auto;
+  left: auto;
+  border: 0;
+  border-radius: 3px;
+  background: var(--wui-warning-bg);
+  color: var(--wui-warning);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 5px;
+}
+
+.workspace {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.ghost-btn,
+.icon-btn,
+.tenant,
+.rail-btn,
+.nav-row,
+.back-link,
+.more-btn,
+.tab,
+.strategy-tabs button,
+.history-switch button {
+  border-color: transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+}
+
+.ghost-btn,
+.tenant {
+  min-height: 32px;
+  padding: 0 10px;
+}
+
+.icon-btn,
+.round,
+.rail-btn,
+.more-btn {
+  display: inline-grid;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  place-items: center;
+  padding: 0;
+}
+
+.window-controls {
+  align-self: stretch;
+  gap: 0;
+  margin-right: -12px;
+  color: var(--wui-text);
+}
+
+.window-controls .caption-button {
+  width: 46px;
+  min-width: 46px;
+  height: 48px;
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.window-controls .caption-button .fluent {
+  width: 12px;
+  height: 12px;
+  flex-basis: 12px;
+}
+
+.window-controls .caption-button:hover {
+  background: var(--wui-control-hover);
+}
+
+.window-controls .caption-button:active {
+  background: var(--wui-control-pressed);
+}
+
+.window-controls .caption-button.close:hover,
+.window-controls .caption-button.close:active {
+  background: var(--wui-caption-close);
+  color: var(--wui-caption-close-text);
+}
+
+.window-controls .caption-button:focus-visible {
+  outline-offset: -3px;
+}
+
+.desktop-launcher {
+  position: fixed;
+  left: 28px;
+  bottom: 28px;
+  width: 92px;
+  min-height: 94px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 6px;
+  border: 1px solid transparent;
+  border-bottom-color: transparent;
+  border-radius: var(--wui-radius-control);
+  background: transparent;
+  color: var(--wui-desktop-icon-text);
+  text-shadow: 0 1px 3px color-mix(in srgb, var(--wui-text) 80%, transparent);
+}
+
+.desktop-launcher:hover,
+.desktop-launcher:focus-visible {
+  border-color: var(--wui-desktop-icon-stroke);
+  background: var(--wui-desktop-icon-hover);
+}
+
+.launcher-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--wui-desktop-icon-surface);
+  box-shadow: var(--wui-shadow-control);
+}
+
+.launcher-icon img {
+  width: 48px;
+  height: 48px;
+}
+
+.launcher-copy {
+  display: grid;
+  justify-items: center;
+  line-height: 16px;
+}
+
+.launcher-copy strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.launcher-copy small {
+  font-size: 10px;
+  opacity: 0.88;
+}
+
+.shell {
+  height: calc(100% - 48px);
+  grid-template-columns: 48px 240px minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.rail {
+  width: auto;
+  margin: 0;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .app-window,
+  .titlebar,
+  .rail {
+    background: var(--wui-bg-solid);
+  }
+}
+
+.rail-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin: 0 0 4px;
+  border-radius: var(--wui-radius-control);
+  color: var(--wui-text);
+  font-size: 18px;
+}
+
+.rail-btn .fluent {
+  width: 20px;
+  height: 20px;
+  flex-basis: 20px;
+}
+
+.rail-btn:hover,
+.nav-row:hover,
+.back-link:hover,
+.icon-btn:hover,
+.ghost-btn:hover,
+.tenant:hover {
+  background: var(--wui-control-hover);
+}
+
+.rail-btn.active,
+.nav-row.active,
+.app-nav-item.active {
+  background: var(--wui-control-selected);
+  color: var(--wui-text);
+}
+
+.rail-btn.active::before,
+.nav-row.active::before,
+.app-nav-item.active::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--wui-accent);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.sidebar {
+  width: auto;
+  margin: var(--wui-space-md) 0 var(--wui-space-md) var(--wui-space-md);
+  padding: 8px;
+  border: 0;
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: none;
+}
+
+.secondary-nav-title {
+  padding: 12px 10px 8px;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.nav-row {
+  position: relative;
+  width: 100%;
+  min-height: 36px;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: 0 0 2px;
+  padding: 0 10px;
+  border-radius: var(--wui-radius-control);
+  color: var(--wui-text);
+  text-align: left;
+}
+
+.nav-row .fluent,
+.tab .fluent,
+.strategy-tabs button .fluent,
+.icon-btn .fluent {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+
+.workspace-view {
+  min-width: 0;
+  min-height: 0;
+  padding: var(--wui-space-md);
+  background: transparent;
+}
+
+.toolbar,
+.automation-command,
+.context-command-region {
+  min-height: 52px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card);
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: max-content minmax(220px, 420px) max-content max-content max-content;
+  gap: var(--wui-space-sm);
+  padding: 10px;
+}
+
+.primary-btn,
+.command-bar .primary-btn,
+button.primary-btn {
+  border-color: var(--wui-accent);
+  border-bottom-color: var(--wui-accent-pressed);
+  background: var(--wui-accent);
+  color: var(--wui-on-accent);
+  font-weight: 600;
+}
+
+.primary-btn:hover:not(:disabled),
+.command-bar .primary-btn:hover:not(:disabled) {
+  background: var(--wui-accent-hover);
+}
+
+.primary-btn:active:not(:disabled),
+.command-bar .primary-btn:active:not(:disabled) {
+  background: var(--wui-accent-pressed);
+  color: var(--wui-on-accent);
+}
+
+.search {
+  width: 100%;
+  min-width: 220px;
+  height: 32px;
+  border: 1px solid var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-strong);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control);
+}
+
+.search:hover {
+  background: var(--wui-control-hover);
+}
+
+.search:focus-within {
+  border-bottom: 2px solid var(--wui-accent);
+  background: var(--wui-control-hover);
+}
+
+.search input,
+.search input:focus {
+  min-height: 30px;
+  border: 0;
+  background: transparent;
+}
+
+.search > button {
+  width: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border: 0;
+  background: transparent;
+}
+
+.view-toggles {
+  display: flex;
+  gap: 0;
+  padding: 2px;
+  border: 1px solid var(--wui-stroke-control);
+  border-radius: 6px;
+  background: var(--wui-control-pressed);
+}
+
+.view-toggles .round {
+  height: 26px;
+  min-height: 26px;
+  border: 0;
+  border-radius: 4px;
+}
+
+.view-toggles .round.active {
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-accent-text);
+  box-shadow: var(--wui-shadow-control);
+}
+
+.filter-chip {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--wui-radius-control);
+  white-space: nowrap;
+}
+
+.filter-chip.active,
+.filter-chip[aria-pressed="true"] {
+  border-color: var(--wui-accent);
+  background: var(--wui-accent);
+  color: var(--wui-on-accent);
+}
+
+.status-filter {
+  position: relative;
+}
+
+.status-menu {
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 100;
+  width: 220px;
+  padding: 4px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-overlay);
+  background: var(--wui-bg-layer-alt);
+  box-shadow: var(--wui-shadow-flyout);
+}
+
+.status-menu button {
+  position: relative;
+  width: 100%;
+  min-height: 32px;
+  justify-content: flex-start;
+  padding: 0 10px 0 28px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.status-menu button[aria-checked="true"]::before {
+  position: absolute;
+  left: 9px;
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  color: var(--wui-accent-text);
+  content: "";
+  mask: url("./assets/fluent/checkmark.svg") center / contain no-repeat;
+  -webkit-mask: url("./assets/fluent/checkmark.svg") center / contain no-repeat;
+}
+
+.readonly .inline-icon-button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  margin-left: auto;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-color: transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+}
+
+.list-card {
+  margin-top: var(--wui-space-md);
+  overflow: hidden;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: none;
+}
+
+.app-list {
+  background: transparent;
+  scrollbar-color: var(--wui-control-strong) transparent;
+}
+
+.app-list-header {
+  z-index: 5;
+  top: 0;
+  min-height: 38px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--wui-divider);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.app-row {
+  width: 100%;
+  min-height: 58px;
+  margin: 0;
+  padding: 6px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--wui-divider);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.app-row:hover {
+  background: var(--wui-control-hover);
+}
+
+.app-row:active {
+  background: var(--wui-control-pressed);
+}
+
+.app-name strong,
+.app-name small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-icon-tile {
+  border: 1px solid var(--wui-app-tile-stroke);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px var(--wui-app-tile-shadow);
+  color: var(--tile-fg, var(--wui-desktop-icon-text));
+}
+
+.status.success,
+.version-success {
+  color: var(--wui-success);
+}
+
+.status.issue {
+  color: var(--wui-warning);
+}
+
+.status.failed {
+  color: var(--wui-danger);
+}
+
+.linkish {
+  color: var(--wui-accent-text);
+}
+
+.detail-view {
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: var(--wui-space-md);
+  padding: 0 var(--wui-space-md) var(--wui-space-md) 0;
+}
+
+.detail-view.active {
+  gap: var(--wui-space-md);
+}
+
+.version-panel {
+  padding: var(--wui-space-md) var(--wui-space-sm);
+  border: 0;
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: none;
+}
+
+.back-link {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0 8px;
+  text-align: left;
+}
+
+.mini-app {
+  margin: 8px 0 12px;
+  padding: 10px 8px;
+  border-bottom: 0;
+}
+
+.version,
+.app-nav-item {
+  position: relative;
+  width: 100%;
+  min-height: 38px;
+  margin: 0 0 2px;
+  padding: 0 10px;
+  border-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: var(--wui-radius-control);
+  background: transparent;
+  text-align: left;
+}
+
+.version:hover,
+.app-nav-item:hover {
+  background: var(--wui-control-hover);
+}
+
+.version.active {
+  background: var(--wui-control-selected);
+}
+
+.version.active::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--wui-accent);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.app-level-nav {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-nav-kicker {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.detail-main {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  scrollbar-color: var(--wui-control-strong) transparent;
+}
+
+.context-command-region {
+  top: 0;
+  z-index: 20;
+  min-height: 60px;
+  margin-bottom: var(--wui-space-md);
+  padding: 8px 10px;
+  backdrop-filter: blur(28px) saturate(120%);
+}
+
+.command-bar {
+  gap: 6px;
+}
+
+.command-bar button,
+.panel-actions button,
+.panel-heading button,
+.workflow-actions button {
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.tabs,
+.strategy-tabs {
+  position: sticky;
+  top: 72px;
+  z-index: 15;
+  display: flex;
+  min-height: 48px;
+  margin: 0 0 var(--wui-space-md);
+  overflow-x: auto;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  backdrop-filter: blur(24px) saturate(108%);
+}
+
+/* Strategy tabs already live below the sticky command surface. */
+#updateStrategyPanel > .strategy-tabs {
+  top: 0;
+}
+
+.tab,
+.strategy-tabs button {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 0;
+  color: var(--wui-text-secondary);
+  white-space: nowrap;
+}
+
+.tab:hover,
+.strategy-tabs button:hover,
+.history-switch button:hover {
+  background: var(--wui-control-hover);
+  color: var(--wui-text);
+}
+
+.tab.active,
+.strategy-tabs button.active {
+  border-bottom-color: transparent;
+  background: transparent;
+  color: var(--wui-text);
+  font-weight: 600;
+}
+
+.tab.active::after,
+.strategy-tabs button.active::after {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--wui-accent);
+  content: "";
+}
+
+.tab-panel,
+.app-panel,
+.strategy-page,
+.history-view,
+.automation-panel {
+  color: var(--wui-text);
+}
+
+.tab-panel.active {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wui-space-sm);
+}
+
+.tab-panel.active > :last-child:not(.collapsed) {
+  flex: 1 0 auto;
+}
+
+.tab-panel > .expander + .expander,
+.tab-panel > .script-editor + .script-editor {
+  margin-top: 0;
+}
+
+#informationPanel > .expander:last-child {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#informationPanel > .expander:last-child:not(.collapsed) {
+  flex: 1 1 0;
+  overflow: auto;
+}
+
+#informationPanel > .expander:last-child.collapsed {
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+#informationPanel {
+  overflow: hidden;
+}
+
+#informationPanel > .expander:last-child > header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  flex: 0 0 auto;
+  background: var(--wui-bg-card);
+}
+
+#informationPanel > .expander:last-child .resources {
+  margin-top: auto;
+}
+
+.expander,
+.script-editor,
+.assignment-behaviour-section,
+.assignment-section,
+.strategy-card,
+.preview-card,
+.automation-card {
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card);
+}
+
+.app-panel > .expander + .expander,
+.strategy-page > .strategy-card + .strategy-card,
+.automation-panel > .automation-card + .automation-card {
+  margin-top: var(--wui-space-sm);
+}
+
+.expander > header,
+.script-editor > header,
+.assignment-behaviour-section > header {
+  min-height: 44px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--wui-divider);
+  cursor: pointer;
+}
+
+.expander > header:hover,
+.script-editor > header:hover,
+.assignment-behaviour-section > header:hover {
+  background: var(--wui-control-hover);
+}
+
+.expander > header button,
+.script-editor > header button,
+.assignment-behaviour-section > header button {
+  width: 32px;
+  min-width: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.form-grid {
+  gap: 14px 16px;
+  padding: 16px;
+}
+
+.form-grid label,
+.strategy-select,
+.version-filter {
+  gap: 5px;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.form-grid input,
+.form-grid select,
+.strategy-select select,
+.version-filter select {
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 10px;
+  color: var(--wui-text);
+}
+
+.readonly,
+.icon-field {
+  min-height: 32px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.info-bar,
+.license-warning {
+  border: 1px solid color-mix(in srgb, var(--wui-accent) 20%, var(--wui-stroke));
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-info-bg);
+  color: var(--wui-text);
+}
+
+.license-warning {
+  border-color: color-mix(in srgb, var(--wui-warning) 35%, var(--wui-stroke));
+  background: var(--wui-warning-bg);
+}
+
+.info-bar > button,
+.source-row > button,
+.resources > button {
+  width: 32px;
+  min-width: 32px;
+  padding: 0;
+}
+
+.source-row,
+.winget-row,
+.resources,
+.panel-actions,
+.assignment-section > header,
+.panel-heading,
+.history-controls {
+  border-color: var(--wui-divider);
+  background: transparent;
+}
+
+.wrapper-empty {
+  border: 1px dashed var(--wui-stroke-strong);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+}
+
+.strategy-choice-card {
+  max-width: 900px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.strategy-choice-card > p,
+.preview-intro p,
+.automation-title small,
+.automation-card p {
+  color: var(--wui-text-secondary);
+}
+
+.choice-option {
+  min-height: 132px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card);
+}
+
+.choice-option:first-child {
+  border-color: color-mix(in srgb, var(--wui-accent) 48%, var(--wui-stroke));
+}
+
+.selected-choice-label {
+  color: var(--wui-success);
+  font-weight: 600;
+}
+
+.secondary-choice-action {
+  align-self: flex-start;
+  min-width: 88px;
+  padding: 0 14px;
+}
+
+.automation-toggle {
+  color: var(--wui-text);
+}
+
+.automation-toggle .toggle-track {
+  border-color: var(--wui-control-strong);
+  background: transparent;
+}
+
+.automation-toggle input:checked + .toggle-track {
+  border-color: var(--wui-accent);
+  background: var(--wui-accent);
+}
+
+.check-grid label,
+.assignment-behaviour-options label {
+  min-height: 28px;
+  color: var(--wui-text);
+}
+
+.assignment-summary {
+  background: var(--wui-bg-card);
+}
+
+.preview-summary-grid,
+.automation-status-grid,
+.workflow-config-grid {
+  gap: 12px;
+}
+
+.preview-card h3,
+.automation-card h2,
+.automation-card h3,
+.strategy-card h2,
+.strategy-card h3 {
+  color: var(--wui-text);
+}
+
+.scan-list li,
+.history-row,
+.run-row,
+.data-row {
+  border-color: var(--wui-divider);
+}
+
+.info-tip {
+  position: relative;
+  color: var(--wui-text-secondary);
+  cursor: help;
+}
+
+.info-tip:hover::after,
+.info-tip:focus::after {
+  z-index: 100;
+  min-width: 180px;
+  max-width: 280px;
+  padding: 8px 10px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-overlay);
+  background: var(--wui-bg-layer-alt);
+  box-shadow: var(--wui-shadow-flyout);
+  color: var(--wui-text);
+  font-family: var(--wui-font);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.history-switch {
+  display: inline-flex;
+  gap: 0;
+  padding: 2px;
+  border-radius: 6px;
+  background: var(--wui-control-pressed);
+}
+
+.history-switch button {
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 4px;
+}
+
+.history-switch button.active {
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text);
+  box-shadow: var(--wui-shadow-control);
+}
+
+.history-row.heading,
+.run-row.heading {
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.history-row,
+.run-row {
+  background: transparent;
+}
+
+.history-row:nth-child(even),
+.run-row:nth-child(even) {
+  background: var(--wui-control-pressed);
+}
+
+.device-summary > span,
+.daemon-capabilities span,
+.integration-actions span,
+.future-chip-list span,
+.automation-card button:not(.primary-btn),
+.workflow-actions button:not(.primary-btn),
+.run-row button {
+  background: var(--wui-control);
+  color: var(--wui-text);
+}
+
+.device-summary > span:hover,
+.daemon-capabilities span:hover,
+.integration-actions span:hover,
+.future-chip-list span:hover,
+.automation-card button:not(.primary-btn):hover,
+.workflow-actions button:not(.primary-btn):hover,
+.run-row button:hover {
+  background: var(--wui-control-hover);
+}
+
+.workflow-row {
+  background: transparent;
+  color: var(--wui-text);
+}
+
+.workflow-row.active {
+  background: var(--wui-control-selected);
+}
+
+/* WinUI 3 button primitives and compact-control exceptions. */
+button {
+  min-height: 32px;
+}
+
+button > .fluent {
+  color: currentColor;
+}
+
+.view-toggles {
+  height: 32px;
+}
+
+.view-toggles .round {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+}
+
+.inline-icon-button,
+.data-row button,
+.assignment-section header button,
+.template-picker button {
+  min-height: 32px;
+}
+
+.inline-icon-button,
+.readonly .inline-icon-button,
+.data-row button {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.window-controls .caption-button,
+.window-controls .caption-button:hover,
+.window-controls .caption-button:active,
+.window-controls .caption-button[aria-pressed="true"] {
+  color: var(--wui-text);
+}
+
+.window-controls .caption-button .fluent {
+  width: 14px;
+  height: 14px;
+  flex-basis: 14px;
+  opacity: 1;
+  background-color: currentColor;
+}
+
+.window-controls .caption-button [data-window-icon][hidden] {
+  display: none !important;
+}
+
+.history-switch button.active {
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text);
+}
+
+.ring-impact-table > :nth-child(-n + 5) {
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-secondary);
+}
+
+pre code,
+.script-editor code {
+  color: var(--wui-code-text);
+}
+
+.editor-tools button,
+.editor-tools select {
+  border-color: var(--wui-stroke-control);
+  background: var(--wui-control);
+  color: var(--wui-text);
+}
+
+.editor-tools button:hover:not(:disabled),
+.editor-tools select:hover:not(:disabled) {
+  background: var(--wui-control-hover);
+}
+
+.editor-tools button:disabled {
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-disabled);
+}
+
+pre {
+  border-color: var(--wui-stroke-control);
+  background:
+    linear-gradient(90deg, var(--wui-code-gutter) 0 56px, var(--wui-code-bg) 56px),
+    var(--wui-code-bg);
+  color: var(--wui-text);
+}
+
+.device-summary > span,
+.automation-status-grid > div,
+.workflow-config-grid > div {
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+}
+
+.automation-shell {
+  gap: var(--wui-space-md);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.automation-command {
+  padding: 8px 10px;
+}
+
+.automation-content {
+  min-height: 0;
+  scrollbar-color: var(--wui-control-strong) transparent;
+}
+
+.node-chain > span:not(.fluent),
+.future-chip-list span,
+.integration-actions span {
+  border-color: var(--wui-stroke-control);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control);
+}
+
+.workflow-row {
+  border-color: transparent;
+  border-bottom-color: var(--wui-divider);
+  border-radius: 0;
+  background: transparent;
+}
+
+.workflow-row.active {
+  background: var(--wui-control-selected);
+}
+
+.toast {
+  bottom: 28px;
+  padding: 10px 14px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-overlay);
+  background: var(--wui-bg-layer-alt);
+  box-shadow: var(--wui-shadow-flyout);
+  color: var(--wui-text);
+}
+
+@media (max-width: 1180px) {
+  body {
+    min-width: 780px;
+  }
+
+  .desktop {
+    padding: 0;
+  }
+
+  .app-window {
+    width: 100vw;
+    height: 100vh;
+    min-height: 620px;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .shell {
+    grid-template-columns: 48px 210px minmax(0, 1fr);
+  }
+
+  .toolbar {
+    grid-template-columns: max-content minmax(180px, 1fr) max-content;
+  }
+
+  .toolbar .view-toggles {
+    display: none;
+  }
+
+  .toolbar #updatesFilter {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .toolbar .status-filter {
+    grid-row: 1;
+    grid-column: 3;
+  }
+
+  :root {
+    --app-list-columns: minmax(220px, 1fr) 120px 135px 80px;
+  }
+
+  .app-list-header > :nth-child(n + 5),
+  .app-row > :nth-child(n + 5) {
+    display: none;
+  }
+
+  .context-command-region {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .context-command-region .command-bar {
+    justify-content: flex-end;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .tab {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .preview-summary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .assignment-impact {
+    overflow-x: auto;
+  }
+
+  .assignment-impact > header,
+  .ring-impact-table {
+    min-width: 760px;
+  }
+
+  .rollout-timeline {
+    min-width: 760px;
+  }
+
+  .rollout-card {
+    overflow-x: auto;
+  }
+}
+
+@media (forced-colors: active) {
+  button,
+  input,
+  select,
+  .app-window,
+  .toolbar,
+  .list-card,
+  .expander,
+  .strategy-card,
+  .preview-card,
+  .automation-card {
+    border: 1px solid CanvasText;
+  }
+
+  .rail-btn.active::before,
+  .nav-row.active::before,
+  .app-nav-item.active::before,
+  .version.active::before,
+  .tab.active::after,
+  .strategy-tabs button.active::after {
+    background: Highlight;
+  }
+}
