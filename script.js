@@ -64,7 +64,10 @@ let searchQuery = "";
 
 const appList = document.querySelector("#appList");
 const listView = document.querySelector("#listView");
+const signatureView = document.querySelector("#signatureView");
 const automationView = document.querySelector("#automationView");
+const toolsView = document.querySelector("#toolsView");
+const automationShell = document.querySelector(".automation-shell");
 const detailView = document.querySelector("#detailView");
 const shell = document.querySelector("#shell");
 const toast = document.querySelector("#toast");
@@ -120,9 +123,39 @@ const replaceTemplateImpact = document.querySelector("#replaceTemplateImpact");
 const automationNewAction = document.querySelector("#automationNewAction");
 const automationOpenAction = document.querySelector("#automationOpenAction");
 const automationSaveAction = document.querySelector("#automationSaveAction");
+const automationCommandBar = document.querySelector("#automationCommandBar");
 const automationEditorTemplateName = document.querySelector("#automationEditorTemplateName");
 const automationEditorTemplateMeta = document.querySelector("#automationEditorTemplateMeta");
+const daemonStatusIcon = document.querySelector("#daemonStatusIcon");
+const daemonStatusTitle = document.querySelector("#daemonStatusTitle");
+const daemonStatusDescription = document.querySelector("#daemonStatusDescription");
+const toggleDaemon = document.querySelector("#toggleDaemon");
+const toggleDaemonIcon = document.querySelector("#toggleDaemonIcon");
+const toggleDaemonLabel = document.querySelector("#toggleDaemonLabel");
+const restartDaemon = document.querySelector("#restartDaemon");
+const daemonLastChecked = document.querySelector("#daemonLastChecked");
+const daemonPollInterval = document.querySelector("#daemonPollInterval");
+const daemonUploaderPath = document.querySelector("#daemonUploaderPath");
+const daemonSettingsState = document.querySelector("#daemonSettingsState");
+const saveDaemonSettings = document.querySelector("#saveDaemonSettings");
 const themeToggle = document.querySelector("#themeToggle");
+const themeMenu = document.querySelector("#themeMenu");
+const accountToggle = document.querySelector("#accountToggle");
+const accountFlyout = document.querySelector("#accountFlyout");
+const accountTabs = [...document.querySelectorAll("[data-account-tab]")];
+const accountPanels = [...document.querySelectorAll("[data-account-panel]")];
+const accountBadge = accountToggle?.querySelector(".account-badge");
+const manageAccountAction = document.querySelector("#manageAccountAction");
+const refreshAccountAction = document.querySelector("#refreshAccountAction");
+const signOutAction = document.querySelector("#signOutAction");
+const addIntuneAccount = document.querySelector("#addIntuneAccount");
+const intuneAccountRow = document.querySelector("#intuneAccountRow");
+const intuneAccountEmpty = document.querySelector("#intuneAccountEmpty");
+const removeIntuneAccount = document.querySelector("#removeIntuneAccount");
+const removeIntuneAccountDialog = document.querySelector("#removeIntuneAccountDialog");
+const closeRemoveIntuneAccountDialog = document.querySelector("#closeRemoveIntuneAccountDialog");
+const cancelRemoveIntuneAccount = document.querySelector("#cancelRemoveIntuneAccount");
+const confirmRemoveIntuneAccount = document.querySelector("#confirmRemoveIntuneAccount");
 const statusFilterButton = document.querySelector("#statusFilter");
 const desktop = document.querySelector("#desktop");
 const appWindow = document.querySelector("#appWindow");
@@ -168,6 +201,7 @@ let windowVisibilityState = "open";
 let windowTransitionTimeout;
 let selectedApplication = apps[0];
 let initializingEmptyApplication = false;
+let daemonRunning = true;
 
 function captureStrategyConfiguration() {
   return {
@@ -262,15 +296,17 @@ function selectAutomationTemplate(templateId = appliedStrategyTemplateId, { focu
   const template = automationTemplates[templateId] || automationTemplates.guided;
   let selectedRow = document.querySelector(`[data-template-id="${templateId}"]`);
   if (!selectedRow && automationTemplates[templateId]) {
-    const list = document.querySelector("#templatesAutomationPanel .workflow-list");
-    list.insertAdjacentHTML("beforeend", `
-      <button class="workflow-row" type="button" role="option" aria-selected="false" data-template-id="${templateId}">
-        <span><strong>${template.name}</strong><small>v${template.version} • Used by ${template.applications} application${template.applications === 1 ? "" : "s"}</small></span>
-        <span class="status success"><span class="fluent icon-check"></span> Active</span>
-      </button>
-    `);
-    selectedRow = list.lastElementChild;
-    selectedRow.addEventListener("click", () => selectAutomationTemplate(templateId));
+    const list = document.querySelector("#workflowsAutomationPanel .workflow-list");
+    if (list) {
+      list.insertAdjacentHTML("beforeend", `
+        <button class="workflow-row" type="button" role="option" aria-selected="false" data-template-id="${templateId}">
+          <span><strong>${template.name}</strong><small>v${template.version} • Used by ${template.applications} application${template.applications === 1 ? "" : "s"}</small></span>
+          <span class="status success"><span class="fluent icon-check"></span> Active</span>
+        </button>
+      `);
+      selectedRow = list.lastElementChild;
+      selectedRow.addEventListener("click", () => selectAutomationTemplate(templateId));
+    }
   }
   document.querySelectorAll("[data-template-id]").forEach((row) => {
     const active = row.dataset.templateId === templateId;
@@ -278,13 +314,14 @@ function selectAutomationTemplate(templateId = appliedStrategyTemplateId, { focu
     row.setAttribute("aria-selected", String(active));
     if (active && focus) row.focus();
   });
-  automationEditorTemplateName.textContent = template.name;
-  automationEditorTemplateMeta.textContent = `Version ${template.version} • Used by ${template.applications} application${template.applications === 1 ? "" : "s"}`;
+  if (automationEditorTemplateName) automationEditorTemplateName.textContent = template.name;
+  if (automationEditorTemplateMeta) automationEditorTemplateMeta.textContent = `Version ${template.version} • Used by ${template.applications} application${template.applications === 1 ? "" : "s"}`;
+  window.dispatchEvent(new CustomEvent("packit:workflow-selected", { detail: { workflowId: templateId } }));
 }
 
 function manageCurrentAutomationTemplate() {
   showWorkspaceView("automation");
-  setAutomationTab("templates");
+  setAutomationTab("workflows");
   selectAutomationTemplate(appliedStrategyTemplateId, { focus: true });
 }
 
@@ -328,10 +365,10 @@ function incrementTemplateVersion(version) {
 
 function renderAppliedTemplateControl() {
   commandInlineControls.innerHTML = `
-    <button class="applied-template-command" type="button" aria-haspopup="dialog" title="${versionConfigurationDirty ? "Save or cancel changes before changing the template" : "Change automation template"}" ${versionConfigurationDirty ? "disabled" : ""}>
+    <button class="applied-template-command" type="button" aria-haspopup="dialog" title="${versionConfigurationDirty ? "Save or cancel changes before changing the workflow" : "Change automation workflow"}" ${versionConfigurationDirty ? "disabled" : ""}>
       <span class="fluent icon-workflow" aria-hidden="true"></span>
       <span>
-        <small>Automation template</small>
+        <small>Automation workflow</small>
         <strong>${appliedStrategyTemplateName}</strong>
       </span>
       <span class="fluent icon-chevron-down" aria-hidden="true"></span>
@@ -349,7 +386,7 @@ function syncAppliedTemplateUI({ rerenderCommands = true } = {}) {
   } else if (strategyHasApplicationOverride) {
     informationTemplateState.innerHTML = `<span class="fluent icon-copy"></span> Application override`;
   } else {
-    informationTemplateState.innerHTML = `<span class="fluent icon-lock"></span> Inherited from template`;
+    informationTemplateState.innerHTML = `<span class="fluent icon-lock"></span> Inherited from workflow`;
   }
 
   provenanceConfigurationState.innerHTML = modifiedVersionRecords.has(selectedVersion)
@@ -383,7 +420,7 @@ function openSaveConfigurationDialog() {
   newConfigurationTemplateNameField.hidden = true;
   sharedTemplateImpact.hidden = true;
   saveConfigurationDialog.querySelector(".shared-template-option small").textContent = `Replace ${appliedStrategyTemplateName} with this configuration.`;
-  sharedTemplateImpact.querySelector("strong").textContent = `${appliedStrategyTemplateApplications} applications use this template.`;
+  sharedTemplateImpact.querySelector("strong").textContent = `${appliedStrategyTemplateApplications} applications use this workflow.`;
   confirmSaveConfiguration.innerHTML = `<span class="fluent icon-check"></span> Save application override`;
   saveConfigurationDialog.showModal();
 }
@@ -394,8 +431,8 @@ function syncSaveConfigurationDialog() {
   sharedTemplateImpact.hidden = scope !== "template";
   const labels = {
     application: "Save application override",
-    new: "Create and apply template",
-    template: `Update template for ${appliedStrategyTemplateApplications} apps`
+    new: "Create and apply workflow",
+    template: `Update workflow for ${appliedStrategyTemplateApplications} apps`
   };
   confirmSaveConfiguration.innerHTML = `<span class="fluent icon-check"></span> ${labels[scope]}`;
   if (scope === "new") newConfigurationTemplateName.focus();
@@ -404,7 +441,7 @@ function syncSaveConfigurationDialog() {
 function saveVersionConfiguration() {
   const scope = saveConfigurationDialog.querySelector("input[name='configuration-save-scope']:checked")?.value || "application";
   if (scope === "new" && !newConfigurationTemplateName.value.trim()) {
-    newConfigurationTemplateName.setCustomValidity("Enter a template name");
+    newConfigurationTemplateName.setCustomValidity("Enter a workflow name");
     newConfigurationTemplateName.reportValidity();
     return;
   }
@@ -471,25 +508,25 @@ function buildTemplateSnapshot(templateId) {
 
 function openAutomationTemplateDialog() {
   initializingEmptyApplication = false;
-  automationTemplateDialogTitle.textContent = "Change automation template";
-  automationTemplateDialogDescription.textContent = "Replacing the template resets its managed configuration for this application.";
+  automationTemplateDialogTitle.textContent = "Change automation workflow";
+  automationTemplateDialogDescription.textContent = "Replacing the workflow resets its managed configuration for this application.";
   automationTemplateDialog.querySelectorAll("input[name='automation-template']").forEach((input) => {
     input.checked = input.value === appliedStrategyTemplateId;
   });
   replaceTemplateImpact.querySelector("span:last-child").textContent = versionConfigurationDirty || strategyHasApplicationOverride
-    ? "Applying another template will discard unsaved changes or the current application override and replace all template-managed defaults."
+    ? "Applying another workflow will discard unsaved changes or the current application override and replace all workflow-managed defaults."
     : "Information, Assignments, Detection, Scope Tags, and Wrapper defaults will be replaced.";
   automationTemplateDialog.showModal();
 }
 
 function openInitialAutomationTemplateDialog() {
   initializingEmptyApplication = true;
-  automationTemplateDialogTitle.textContent = "Apply automation template";
+  automationTemplateDialogTitle.textContent = "Apply automation workflow";
   automationTemplateDialogDescription.textContent = `Choose the managed defaults for ${selectedApplication.name}.`;
   automationTemplateDialog.querySelectorAll("input[name='automation-template']").forEach((input) => {
     input.checked = input.value === "guided";
   });
-  replaceTemplateImpact.querySelector("span:last-child").textContent = "The selected template will create the first version and populate its managed configuration defaults.";
+  replaceTemplateImpact.querySelector("span:last-child").textContent = "The selected workflow will create the first version and populate its managed configuration defaults.";
   automationTemplateDialog.showModal();
 }
 
@@ -534,13 +571,13 @@ function syncStrategyTemplateUI() {
     strategyEditScopeTitle.textContent = "Application override";
     strategyEditScopeDescription.textContent = `Changes will apply only to Contoso Finance Tools. ${appliedStrategyTemplateName} remains unchanged.`;
   } else if (strategyEditMode === "template") {
-    strategyTemplateState.innerHTML = `<span class="fluent icon-warning"></span> Editing shared template`;
-    strategyEditScopeTitle.textContent = `Shared template: ${appliedStrategyTemplateName}`;
-    strategyEditScopeDescription.textContent = "Saving can affect every application that uses this template.";
+    strategyTemplateState.innerHTML = `<span class="fluent icon-warning"></span> Editing shared workflow`;
+    strategyEditScopeTitle.textContent = `Shared workflow: ${appliedStrategyTemplateName}`;
+    strategyEditScopeDescription.textContent = "Saving can affect every application that uses this workflow.";
   } else if (strategyEditMode === "new") {
     const draftName = newStrategyTemplateName.value.trim() || "Untitled update strategy";
-    strategyTemplateState.innerHTML = `<span class="fluent icon-add"></span> Creating new template`;
-    strategyEditScopeTitle.textContent = `New template draft: ${draftName}`;
+    strategyTemplateState.innerHTML = `<span class="fluent icon-add"></span> Creating new workflow`;
+    strategyEditScopeTitle.textContent = `New workflow draft: ${draftName}`;
     strategyEditScopeDescription.textContent = "The current configuration will be copied into Automation and applied to this application.";
   } else if (strategyHasApplicationOverride) {
     strategyTemplateState.innerHTML = `<span class="fluent icon-copy"></span> Application override • Saved`;
@@ -624,8 +661,8 @@ function renderContextCommands(context = "version") {
   if (context === "updateStrategy") {
     const strategySaveLabels = {
       application: "Save application override",
-      template: "Update shared template",
-      new: "Create and apply template"
+      template: "Update shared workflow",
+      new: "Create and apply workflow"
     };
     contextCommandBar.dataset.commandContext = context;
     contextCommandBar.innerHTML = `
@@ -937,7 +974,6 @@ function renderApps() {
       <span>Source</span>
       <span>Arch</span>
       <span>Latest version</span>
-      <span>Actions</span>
     </div>
   ` + filtered.map((app, index) => `
     <button class="app-row" role="option" aria-selected="false" type="button" data-index="${index}">
@@ -951,7 +987,6 @@ function renderApps() {
       <span>${app.source}</span>
       <span><small>Arch</small><br><span class="linkish">${app.arch}</span></span>
       <span><small>Latest version</small><br><span class="linkish">${app.version}</span></span>
-      <span><span class="fluent icon-more"></span></span>
     </button>
   `).join("");
 
@@ -1122,9 +1157,12 @@ function cancelInitialConfiguration() {
 function openDetail(tabName, app = apps[0]) {
   selectedApplication = app;
   listView.classList.remove("active");
+  signatureView.classList.remove("active");
   automationView.classList.remove("active");
+  toolsView.classList.remove("active");
   detailView.classList.add("active");
   shell.classList.add("detail-mode");
+  shell.classList.remove("tools-mode");
   setSidebarActive("applications");
   syncDetailApplicationIdentity(app);
   if (app.empty) {
@@ -1151,12 +1189,35 @@ function openDetail(tabName, app = apps[0]) {
   if (!app.configurationMode) syncVersionAutomationRecord(selectedVersion);
 }
 
-function showList() {
+function showList(sidebarView = "applications") {
   automationView.classList.remove("active");
+  toolsView.classList.remove("active");
+  signatureView.classList.remove("active");
   detailView.classList.remove("active");
   listView.classList.add("active");
   shell.classList.remove("detail-mode");
-  setSidebarActive("applications");
+  shell.classList.remove("tools-mode");
+  setSidebarActive(sidebarView);
+  const updatesPage = sidebarView === "updates";
+  document.querySelector("#updatesFilter").hidden = updatesPage;
+  document.querySelector("#applicationPageTitle").textContent = updatesPage ? "Updates Available" : "Applications List";
+  document.querySelector("#applicationPageDescription").textContent = updatesPage
+    ? "Review applications with newer catalog versions ready for packaging."
+    : "Find, review, and manage packaged applications in this workspace.";
+  const pageIcon = document.querySelector("#applicationPageIcon .fluent");
+  pageIcon.className = `fluent ${updatesPage ? "icon-arrow-up" : "icon-list"}`;
+}
+
+function showSignature() {
+  listView.classList.remove("active");
+  automationView.classList.remove("active");
+  toolsView.classList.remove("active");
+  detailView.classList.remove("active");
+  signatureView.classList.add("active");
+  shell.classList.remove("detail-mode");
+  shell.classList.remove("tools-mode");
+  setPrimaryNavigation("applications");
+  setSidebarActive("signature");
 }
 
 function setSidebarActive(viewName) {
@@ -1183,20 +1244,49 @@ function setPrimaryNavigation(viewName) {
 function showWorkspaceView(viewName) {
   if (viewName === "applications") {
     setPrimaryNavigation("applications");
+    updatesOnly = false;
+    document.querySelector("#updatesFilter").classList.remove("active");
+    document.querySelector("#updatesFilter").setAttribute("aria-pressed", "false");
     showList();
+    renderApps();
+    return;
+  }
+
+  if (viewName === "updates") {
+    setPrimaryNavigation("applications");
+    updatesOnly = true;
+    document.querySelector("#updatesFilter").classList.add("active");
+    document.querySelector("#updatesFilter").setAttribute("aria-pressed", "true");
+    showList("updates");
+    renderApps();
     return;
   }
 
   if (viewName === "automation") {
     listView.classList.remove("active");
+    signatureView.classList.remove("active");
     detailView.classList.remove("active");
+    toolsView.classList.remove("active");
     automationView.classList.add("active");
     shell.classList.remove("detail-mode");
+    shell.classList.remove("tools-mode");
     setPrimaryNavigation("automation");
     return;
   }
 
-  showToast(`${viewName === "dashboard" ? "Dashboard" : "Digital Signature"} section is not built yet`);
+  if (viewName === "discover") {
+    listView.classList.remove("active");
+    signatureView.classList.remove("active");
+    detailView.classList.remove("active");
+    automationView.classList.remove("active");
+    toolsView.classList.add("active");
+    shell.classList.remove("detail-mode");
+    shell.classList.add("tools-mode");
+    setPrimaryNavigation("discover");
+    return;
+  }
+
+  if (viewName === "signature") showSignature();
 }
 
 function setTab(tabName) {
@@ -1278,7 +1368,7 @@ function setMaximized(maximized) {
   appWindow.classList.toggle("maximized", maximized);
   maximizeWindow.setAttribute("aria-pressed", String(maximized));
   maximizeWindow.setAttribute("aria-label", maximized ? "Restore" : "Maximize");
-  maximizeWindow.title = maximized ? "Restore" : "Maximize";
+  maximizeWindow.dataset.titlebarTooltip = maximized ? "Restore" : "Maximize";
   maximizeWindow.querySelector("[data-window-icon='maximize']").hidden = maximized;
   maximizeWindow.querySelector("[data-window-icon='restore']").hidden = !maximized;
 }
@@ -1310,6 +1400,7 @@ function restoreApplication() {
 }
 
 function setAutomationTab(tabName) {
+  automationShell?.classList.toggle("workflow-mode", tabName === "workflows");
   document.querySelectorAll("[data-automation-tab]").forEach((tab) => {
     const active = tab.dataset.automationTab === tabName;
     tab.classList.toggle("active", active);
@@ -1321,9 +1412,9 @@ function setAutomationTab(tabName) {
   const target = document.querySelector(`#${tabName}AutomationPanel`);
   if (target) target.classList.add("active");
 
+  automationCommandBar.hidden = true;
+
   const commandLabels = {
-    daemon: ["New Workflow", "Open Workflow Folder", "Save Workflow"],
-    templates: ["New Template", "Import Template", "Save Template"],
     workflows: ["New Workflow", "Open Workflow Folder", "Save Workflow"],
     history: ["New Workflow", "Open Logs Folder", "Export Logs"]
   };
@@ -1339,6 +1430,7 @@ document.querySelectorAll("[data-primary-view]").forEach((item) => {
 
 document.querySelector("#backToList").addEventListener("click", showList);
 document.querySelector("#addApplication").addEventListener("click", () => showToast("Import from catalog template opened"));
+document.querySelector("#addSigningIdentity").addEventListener("click", () => showToast("Signing identity setup opened"));
 wrapWithPsadt.addEventListener("click", () => {
   wrapperEmptyState.hidden = true;
   wrapperConfiguredState.hidden = false;
@@ -1432,7 +1524,7 @@ document.querySelector("#confirmStrategyEdit").addEventListener("click", () => {
   const selectedScope = strategyEditDialog.querySelector("input[name='strategy-edit-scope']:checked")?.value || "application";
   if (selectedScope === "new" && !newStrategyTemplateName.value.trim()) {
     newStrategyTemplateNameField.hidden = false;
-    newStrategyTemplateName.setCustomValidity("Enter a template name");
+    newStrategyTemplateName.setCustomValidity("Enter a workflow name");
     newStrategyTemplateName.reportValidity();
     return;
   }
@@ -1528,8 +1620,45 @@ document.querySelectorAll(".workflow-row").forEach((row) => {
   });
 });
 
-document.querySelectorAll(".automation-view button:not([data-automation-tab]):not(.workflow-row)").forEach((button) => {
+document.querySelectorAll(".automation-view button:not([data-automation-tab]):not(.workflow-row):not([data-daemon-action])").forEach((button) => {
   button.addEventListener("click", () => showToast(button.textContent.trim()));
+});
+
+function renderDaemonState() {
+  daemonStatusIcon.classList.toggle("success", daemonRunning);
+  daemonStatusIcon.classList.toggle("is-stopped", !daemonRunning);
+  daemonStatusIcon.innerHTML = `<span class="fluent ${daemonRunning ? "icon-check" : "icon-warning"}"></span>`;
+  daemonStatusTitle.textContent = daemonRunning ? "Daemon running" : "Daemon stopped";
+  daemonStatusDescription.textContent = daemonRunning
+    ? "Workflows can run on schedule or on demand."
+    : "Scheduled and on-demand workflow runs are paused.";
+  toggleDaemonLabel.textContent = daemonRunning ? "Stop" : "Start";
+  toggleDaemonIcon.className = daemonRunning ? "daemon-stop-glyph" : "fluent icon-play";
+  restartDaemon.disabled = !daemonRunning;
+}
+
+document.querySelector("#refreshDaemonStatus").addEventListener("click", () => {
+  daemonLastChecked.textContent = "Checked just now";
+  showToast("Daemon status refreshed");
+});
+toggleDaemon.addEventListener("click", () => {
+  daemonRunning = !daemonRunning;
+  renderDaemonState();
+  showToast(daemonRunning ? "Automation daemon started" : "Automation daemon stopped");
+});
+restartDaemon.addEventListener("click", () => showToast("Automation daemon restarted"));
+[daemonPollInterval, daemonUploaderPath].forEach((control) => {
+  control.addEventListener("input", () => {
+    daemonSettingsState.classList.add("is-dirty");
+    daemonSettingsState.innerHTML = `<span class="fluent icon-warning"></span> Unsaved changes`;
+    saveDaemonSettings.disabled = false;
+  });
+});
+saveDaemonSettings.addEventListener("click", () => {
+  daemonSettingsState.classList.remove("is-dirty");
+  daemonSettingsState.innerHTML = `<span class="fluent icon-check"></span> Settings saved`;
+  saveDaemonSettings.disabled = true;
+  showToast("Daemon settings saved");
 });
 
 document.addEventListener("keydown", (event) => {
@@ -1537,6 +1666,8 @@ document.addEventListener("keydown", (event) => {
     statusMenu.classList.remove("open");
     statusMenu.setAttribute("aria-hidden", "true");
     statusFilterButton.setAttribute("aria-expanded", "false");
+    closeThemeMenu({ restoreFocus: true });
+    closeAccountFlyout({ restoreFocus: true });
     closeCommandOverflow({ restoreFocus: true });
   }
 });
@@ -1547,6 +1678,8 @@ document.addEventListener("click", (event) => {
     statusMenu.setAttribute("aria-hidden", "true");
     statusFilterButton.setAttribute("aria-expanded", "false");
   }
+  if (!event.target.closest(".theme-picker")) closeThemeMenu();
+  if (!event.target.closest(".account-picker")) closeAccountFlyout();
   if (!event.target.closest(".command-overflow")) closeCommandOverflow();
 });
 
@@ -1569,18 +1702,190 @@ function initTabKeyboardNavigation(selector) {
   });
 }
 
-function setTheme(theme) {
-  const dark = theme === "dark";
-  document.body.dataset.theme = dark ? "dark" : "light";
-  themeToggle.setAttribute("aria-pressed", String(dark));
-  themeToggle.setAttribute("aria-label", dark ? "Use light theme" : "Use dark theme");
-  themeToggle.title = dark ? "Use light theme" : "Use dark theme";
-  themeToggle.innerHTML = `<span class="fluent ${dark ? "icon-sun" : "icon-moon"}"></span>`;
+const themeOptions = {
+  system: { label: "System defined", icon: "icon-system-theme", effectiveTheme: "light" },
+  light: { label: "Light", icon: "icon-sun", effectiveTheme: "light" },
+  dark: { label: "Dark", icon: "icon-moon", effectiveTheme: "dark" }
+};
+
+function closeThemeMenu({ restoreFocus = false } = {}) {
+  if (!themeMenu || themeMenu.hidden) return;
+  themeMenu.hidden = true;
+  themeToggle.setAttribute("aria-expanded", "false");
+  if (restoreFocus) themeToggle.focus();
 }
 
-themeToggle.addEventListener("click", () => {
-  setTheme(document.body.dataset.theme === "dark" ? "light" : "dark");
+function openThemeMenu() {
+  closeAccountFlyout();
+  themeMenu.hidden = false;
+  themeToggle.setAttribute("aria-expanded", "true");
+  themeMenu.querySelector("[aria-checked='true']")?.focus();
+}
+
+function setTheme(themeChoice) {
+  const option = themeOptions[themeChoice] || themeOptions.system;
+  document.body.dataset.theme = option.effectiveTheme;
+  document.body.dataset.themePreference = themeChoice;
+  themeToggle.setAttribute("aria-label", `Theme: ${option.label}`);
+  themeToggle.dataset.titlebarTooltip = `Theme: ${option.label}`;
+  themeToggle.innerHTML = `<span class="fluent ${option.icon}"></span>`;
+  themeMenu.querySelectorAll("[role='menuitemradio']").forEach((item) => {
+    item.setAttribute("aria-checked", String(item.dataset.themeChoice === themeChoice));
+  });
+}
+
+themeToggle.addEventListener("click", (event) => {
+  event.stopPropagation();
+  themeMenu.hidden ? openThemeMenu() : closeThemeMenu({ restoreFocus: true });
 });
+
+themeToggle.addEventListener("keydown", (event) => {
+  if (!["ArrowDown", "ArrowUp"].includes(event.key)) return;
+  event.preventDefault();
+  openThemeMenu();
+});
+
+themeMenu.addEventListener("click", (event) => {
+  const item = event.target.closest("[data-theme-choice]");
+  if (!item) return;
+  setTheme(item.dataset.themeChoice);
+  closeThemeMenu({ restoreFocus: true });
+});
+
+themeMenu.addEventListener("keydown", (event) => {
+  if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  const items = [...themeMenu.querySelectorAll("[role='menuitemradio']")];
+  const currentIndex = items.indexOf(document.activeElement);
+  const nextIndex = event.key === "Home"
+    ? 0
+    : event.key === "End"
+      ? items.length - 1
+      : (currentIndex + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+  items[nextIndex].focus();
+});
+
+setTheme("system");
+
+let intuneAccountConnected = true;
+
+function setAccountTab(tabName, { focus = false } = {}) {
+  accountTabs.forEach((tab) => {
+    const selected = tab.dataset.accountTab === tabName;
+    tab.classList.toggle("active", selected);
+    tab.setAttribute("aria-selected", String(selected));
+    tab.tabIndex = selected ? 0 : -1;
+    if (selected && focus) tab.focus();
+  });
+
+  accountPanels.forEach((panel) => {
+    const selected = panel.dataset.accountPanel === tabName;
+    panel.classList.toggle("active", selected);
+    panel.hidden = !selected;
+  });
+}
+
+function closeAccountFlyout({ restoreFocus = false } = {}) {
+  if (!accountFlyout || accountFlyout.hidden) return;
+  accountFlyout.hidden = true;
+  accountToggle.setAttribute("aria-expanded", "false");
+  if (restoreFocus) accountToggle.focus();
+}
+
+function openAccountFlyout() {
+  closeThemeMenu();
+  closeCommandOverflow();
+  accountFlyout.hidden = false;
+  accountToggle.setAttribute("aria-expanded", "true");
+  accountTabs.find((tab) => tab.getAttribute("aria-selected") === "true")?.focus();
+}
+
+function syncIntuneAccountState() {
+  intuneAccountRow.hidden = !intuneAccountConnected;
+  intuneAccountEmpty.hidden = intuneAccountConnected;
+  accountBadge.hidden = !intuneAccountConnected;
+  accountToggle.setAttribute("aria-label", intuneAccountConnected ? "Account, 1 notification" : "Account");
+}
+
+function closeRemoveAccountDialog() {
+  if (removeIntuneAccountDialog.open) removeIntuneAccountDialog.close();
+}
+
+accountToggle.addEventListener("click", (event) => {
+  event.stopPropagation();
+  accountFlyout.hidden ? openAccountFlyout() : closeAccountFlyout({ restoreFocus: true });
+});
+
+accountToggle.addEventListener("keydown", (event) => {
+  if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+  event.preventDefault();
+  openAccountFlyout();
+});
+
+accountTabs.forEach((tab) => {
+  tab.addEventListener("click", () => setAccountTab(tab.dataset.accountTab));
+});
+
+accountFlyout.addEventListener("keydown", (event) => {
+  if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key) && document.activeElement?.matches("[data-account-tab]")) {
+    event.preventDefault();
+    const currentIndex = accountTabs.indexOf(document.activeElement);
+    const nextIndex = event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? accountTabs.length - 1
+        : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + accountTabs.length) % accountTabs.length;
+    setAccountTab(accountTabs[nextIndex].dataset.accountTab, { focus: true });
+    return;
+  }
+
+  if (event.key !== "Tab") return;
+  const focusable = [...accountFlyout.querySelectorAll("button:not([disabled]):not([hidden]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])")]
+    .filter((element) => !element.closest("[hidden]"));
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+});
+
+manageAccountAction.addEventListener("click", () => showToast("Account management would open in PacKit"));
+refreshAccountAction.addEventListener("click", () => showToast("Account information refreshed"));
+signOutAction.addEventListener("click", () => {
+  closeAccountFlyout({ restoreFocus: true });
+  showToast("Sign out is not connected in this prototype");
+});
+
+addIntuneAccount.addEventListener("click", () => {
+  if (intuneAccountConnected) {
+    showToast("Microsoft sign-in would open to add another Intune account");
+    return;
+  }
+  intuneAccountConnected = true;
+  syncIntuneAccountState();
+  showToast("Intune account added");
+});
+
+removeIntuneAccount.addEventListener("click", () => {
+  closeAccountFlyout();
+  removeIntuneAccountDialog.showModal();
+});
+closeRemoveIntuneAccountDialog.addEventListener("click", closeRemoveAccountDialog);
+cancelRemoveIntuneAccount.addEventListener("click", closeRemoveAccountDialog);
+confirmRemoveIntuneAccount.addEventListener("click", () => {
+  intuneAccountConnected = false;
+  syncIntuneAccountState();
+  closeRemoveAccountDialog();
+  accountToggle.focus();
+  showToast("Intune account removed");
+});
+
+syncIntuneAccountState();
 
 document.querySelector("#copyProductCode")?.addEventListener("click", async () => {
   const productCode = document.querySelector("#productCode")?.textContent.trim() || "";
@@ -1609,7 +1914,19 @@ document.querySelectorAll(".info-tip").forEach((tip) => {
 });
 
 document.querySelectorAll("button[aria-label]").forEach((button) => {
-  if (!button.title && !button.textContent.trim()) button.title = button.getAttribute("aria-label");
+  if (!button.title && !button.dataset.titlebarTooltip && !button.dataset.navTooltip && !button.textContent.trim()) {
+    button.title = button.getAttribute("aria-label");
+  }
+});
+
+document.querySelectorAll("[data-workspace-action]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showToast(button.dataset.workspaceAction === "new" ? "New workspace command opened" : "Open workspace command opened");
+  });
+});
+
+document.querySelectorAll("[data-tool-name]").forEach((button) => {
+  button.addEventListener("click", () => showToast(`${button.dataset.toolName} opened`));
 });
 
 initTabKeyboardNavigation(".tabs, .strategy-tabs, .history-switch");

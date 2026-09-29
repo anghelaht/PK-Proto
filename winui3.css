@@ -8,13 +8,20 @@
   --wui-bg-mica-chrome: rgba(243, 243, 243, 0.58);
   --wui-bg-solid: #f3f3f3;
   --wui-bg-layer: rgba(255, 255, 255, 0.5);
+  --wui-bg-layer-default: var(--wui-bg-layer);
   --wui-bg-layer-alt: #fafafa;
   --wui-bg-card: rgba(255, 255, 255, 0.7);
   --wui-bg-card-hover: rgba(255, 255, 255, 0.92);
   --wui-control: rgba(255, 255, 255, 0.7);
   --wui-control-hover: rgba(249, 249, 249, 0.94);
   --wui-control-pressed: rgba(249, 249, 249, 0.54);
+  --wui-control-disabled: rgba(249, 249, 249, 0.3);
   --wui-control-selected: #e9f3fb;
+  --wui-list-item-hover: rgba(0, 0, 0, 0.0373);
+  --wui-list-item-pressed: rgba(0, 0, 0, 0.0241);
+  --wui-list-item-selected: #e9f3fb;
+  --wui-list-item-selected-hover: #e3f0fa;
+  --wui-list-item-selected-pressed: #dcecf8;
   --wui-control-strong: rgba(0, 0, 0, 0.45);
   --wui-text: rgba(0, 0, 0, 0.8956);
   --wui-text-secondary: rgba(0, 0, 0, 0.6063);
@@ -39,6 +46,7 @@
   --wui-code-gutter: #f2f7fb;
   --wui-code-text: #008a00;
   --wui-focus: #000;
+  --wui-focus-inner: #fff;
   --wui-desktop-fallback: #dce8f1;
   --wui-desktop-dim: rgba(0, 0, 0, 0.22);
   --wui-overlay-scrim: rgba(0, 0, 0, 0.38);
@@ -48,6 +56,10 @@
   --wui-toast-text: #fff;
   --wui-caption-close: #c42b1c;
   --wui-caption-close-text: #fff;
+  --wui-bg-flyout: rgba(252, 252, 252, 0.96);
+  --wui-intune-dark: #0078d4;
+  --wui-intune-mid: #00a4ef;
+  --wui-intune-light: #50e6ff;
   --wui-desktop-icon-text: #fff;
   --wui-contrast-light: #fff;
   --wui-contrast-dark: #111111;
@@ -65,6 +77,7 @@
   --wui-illustration-action: #4f46e5;
   --wui-illustration-on-action: #fff;
   --wui-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.035);
+  --wui-shadow-card-rest: var(--wui-shadow-card);
   --wui-shadow-control: 0 1px 2px rgba(0, 0, 0, 0.08);
   --wui-shadow-dialog: 0 24px 60px rgba(0, 0, 0, 0.28);
   --wui-shadow-flyout: 0 8px 16px rgba(0, 0, 0, 0.14), 0 2px 4px rgba(0, 0, 0, 0.08);
@@ -78,6 +91,7 @@
   --wui-space-lg: 16px;
   --wui-space-xl: 20px;
   --wui-space-xxl: 24px;
+  --wui-page-container-inset: var(--wui-space-md);
 
   /* Compatibility aliases for the original prototype stylesheet. */
   --win-accent-default: var(--wui-accent);
@@ -112,7 +126,13 @@ body[data-theme="dark"] {
   --wui-control: rgba(255, 255, 255, 0.0605);
   --wui-control-hover: rgba(255, 255, 255, 0.0837);
   --wui-control-pressed: rgba(255, 255, 255, 0.0326);
+  --wui-control-disabled: rgba(255, 255, 255, 0.0419);
   --wui-control-selected: rgba(96, 205, 255, 0.14);
+  --wui-list-item-hover: rgba(255, 255, 255, 0.0605);
+  --wui-list-item-pressed: rgba(255, 255, 255, 0.0326);
+  --wui-list-item-selected: rgba(96, 205, 255, 0.14);
+  --wui-list-item-selected-hover: rgba(96, 205, 255, 0.2);
+  --wui-list-item-selected-pressed: rgba(96, 205, 255, 0.11);
   --wui-control-strong: rgba(255, 255, 255, 0.54);
   --wui-text: #fff;
   --wui-text-secondary: rgba(255, 255, 255, 0.786);
@@ -126,17 +146,19 @@ body[data-theme="dark"] {
   --wui-accent-pressed: #49b7e8;
   --wui-accent-text: #99ebff;
   --wui-on-accent: #00334a;
-  --wui-success: #6ccb5f;
+  --wui-success: #8edb82;
   --wui-success-bg: rgba(15, 123, 15, 0.22);
   --wui-warning: #fce100;
   --wui-warning-bg: rgba(138, 97, 0, 0.24);
   --wui-danger: #ff99a4;
   --wui-danger-bg: rgba(196, 43, 28, 0.2);
   --wui-info-bg: rgba(0, 95, 184, 0.2);
+  --wui-bg-flyout: rgba(44, 44, 44, 0.96);
   --wui-code-bg: #1e1e1e;
   --wui-code-gutter: #252526;
   --wui-code-text: #6ccb5f;
   --wui-focus: #fff;
+  --wui-focus-inner: #000;
   --wui-desktop-fallback: #202020;
   --wui-illustration-header: #60cdff;
   --wui-illustration-surface-start: #15384a;
@@ -225,9 +247,12 @@ body[data-theme="dark"] :where(.command-bar, .automation-card, .workflow-actions
 .icon-add { --icon: url("./assets/fluent/add.svg"); }
 .icon-add-circle { --icon: url("./assets/fluent/add-circle.svg"); }
 .icon-folder { --icon: url("./assets/fluent/folder-open.svg"); }
-.icon-tools { --icon: url("./assets/fluent/wrench.svg"); }
+.icon-folder-open { --icon: url("./assets/fluent/folder-open.svg"); }
+.icon-folder-add { --icon: url("./assets/fluent/folder-add.svg"); }
+.icon-tools { --icon: url("./assets/fluent/wrench-screwdriver-20.svg"); }
 .icon-dashboard { --icon: url("./assets/fluent/home.svg"); }
 .icon-list { --icon: url("./assets/fluent/apps-list-detail.svg"); }
+.icon-arrow-up { --icon: url("./assets/fluent/arrow-up.svg"); }
 .icon-grid { --icon: url("./assets/fluent/grid.svg"); }
 .icon-lock { --icon: url("./assets/fluent/lock-closed.svg"); }
 .icon-signature { --icon: url("./assets/fluent/signature.svg"); }
@@ -248,7 +273,12 @@ body[data-theme="dark"] :where(.command-bar, .automation-card, .workflow-actions
 .icon-more { --icon: url("./assets/fluent/more-horizontal.svg"); }
 .icon-moon { --icon: url("./assets/fluent/dark-theme.svg"); }
 .icon-sun { --icon: url("./assets/fluent/weather-sunny.svg"); }
+.icon-system-theme { --icon: url("./assets/fluent/desktop.svg"); }
+.icon-desktop { --icon: url("./assets/fluent/desktop.svg"); }
 .icon-feedback { --icon: url("./assets/fluent/chat.svg"); }
+.icon-person { --icon: url("./assets/fluent/person.svg"); }
+.icon-delete { --icon: url("./assets/fluent/delete.svg"); }
+.icon-sign-out { --icon: url("./assets/fluent/sign-out.svg"); }
 .icon-chevron-down { --icon: url("./assets/fluent/chevron-down.svg"); }
 .icon-chevron-up { --icon: url("./assets/fluent/chevron-up.svg"); }
 .icon-chevron-left { --icon: url("./assets/fluent/chevron-left.svg"); }
@@ -257,10 +287,12 @@ body[data-theme="dark"] :where(.command-bar, .automation-card, .workflow-actions
 .icon-workflow { --icon: url("./assets/fluent/flow.svg"); }
 .icon-daemon { --icon: url("./assets/fluent/apps-settings.svg"); }
 .icon-detection { --icon: url("./assets/fluent/scan.svg"); }
+.icon-scan { --icon: url("./assets/fluent/scan.svg"); }
 .icon-test { --icon: url("./assets/fluent/beaker.svg"); }
 .icon-help { --icon: url("./assets/fluent/question-circle.svg"); }
 .icon-play { --icon: url("./assets/fluent/play.svg"); }
 .icon-minimize { --icon: url("./assets/fluent/subtract.svg"); }
+.icon-subtract { --icon: url("./assets/fluent/subtract.svg"); }
 .icon-maximize { --icon: url("./assets/fluent/maximize.svg"); }
 .icon-restore { --icon: url("./assets/fluent/restore.svg"); }
 
@@ -364,8 +396,96 @@ textarea:focus {
 
 input[type="checkbox"],
 input[type="radio"] {
-  min-height: 0;
-  accent-color: var(--wui-accent);
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  border: 1px solid var(--wui-control-strong);
+  border-radius: 3px;
+  background: var(--wui-control);
+  color: var(--wui-on-accent);
+  cursor: pointer;
+  display: inline-grid;
+  place-content: center;
+  vertical-align: -3px;
+}
+
+input[type="radio"] {
+  border-radius: 50%;
+}
+
+input[type="checkbox"]::after {
+  width: 10px;
+  height: 6px;
+  border: solid currentColor;
+  border-width: 0 0 2px 2px;
+  content: "";
+  opacity: 0;
+  transform: translateY(-1px) rotate(-45deg) scale(0.7);
+}
+
+input[type="radio"]::after {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+input[type="checkbox"]:hover:not(:disabled),
+input[type="radio"]:hover:not(:disabled) {
+  border-color: var(--wui-text-secondary);
+  background: var(--wui-control-hover);
+}
+
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  border-color: var(--wui-accent);
+  background: var(--wui-accent);
+}
+
+input[type="checkbox"]:checked::after,
+input[type="radio"]:checked::after {
+  opacity: 1;
+  transform: translateY(-1px) rotate(-45deg) scale(1);
+}
+
+input[type="radio"]:checked::after {
+  transform: scale(1);
+}
+
+input[type="checkbox"]:active:not(:disabled),
+input[type="radio"]:active:not(:disabled) {
+  background: var(--wui-accent-pressed);
+}
+
+input[type="checkbox"]:disabled,
+input[type="radio"]:disabled {
+  border-color: var(--wui-stroke-control);
+  background: var(--wui-control-disabled);
+  color: var(--wui-text-disabled);
+  cursor: default;
+}
+
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  border-bottom-width: 1px;
+}
+
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 2px;
+}
+
+.automation-toggle input:focus-visible + .toggle-track {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 2px;
 }
 
 h1,
@@ -445,6 +565,8 @@ h3 {
 }
 
 .titlebar {
+  position: relative;
+  z-index: 200;
   height: 48px;
   padding: 0 12px 0 16px;
   border-bottom: 0;
@@ -507,6 +629,40 @@ h3 {
   padding: 0 10px;
 }
 
+.title-actions .titlebar-command {
+  min-height: 32px;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-bottom-color: transparent;
+  border-radius: var(--wui-radius-control);
+  background: transparent;
+  color: var(--wui-text);
+}
+
+.title-actions .titlebar-command:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-list-item-hover);
+  color: var(--wui-text);
+}
+
+.title-actions .titlebar-command:active:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-list-item-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.title-actions .titlebar-command:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -2px;
+}
+
+.title-actions .titlebar-command .fluent {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+
 .icon-btn,
 .round,
 .rail-btn,
@@ -518,6 +674,454 @@ h3 {
   min-height: 32px;
   place-items: center;
   padding: 0;
+}
+
+.theme-picker {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.account-picker {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.titlebar .account {
+  height: 48px;
+  align-items: center;
+  gap: 6px;
+  color: var(--wui-text);
+}
+
+.titlebar .titlebar-action {
+  position: relative;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-bottom-color: transparent;
+  border-radius: var(--wui-radius-control);
+  background: transparent;
+  color: var(--wui-text);
+}
+
+.titlebar .titlebar-action:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-list-item-hover);
+  color: var(--wui-text);
+}
+
+.titlebar .titlebar-action:active:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-list-item-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.titlebar .titlebar-action:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -2px;
+}
+
+.account-trigger {
+  position: relative;
+}
+
+.account-trigger .fluent {
+  width: 20px;
+  height: 20px;
+}
+
+.titlebar .titlebar-action[aria-expanded="true"] {
+  background: var(--wui-control-selected);
+  color: var(--wui-text);
+}
+
+.titlebar .titlebar-action[aria-expanded="true"]:hover {
+  background: var(--wui-list-item-selected-hover);
+}
+
+.account-badge {
+  position: absolute;
+  top: -4px;
+  right: -3px;
+  min-width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+  border: 2px solid var(--wui-bg-solid);
+  border-radius: 999px;
+  background: var(--wui-control-strong);
+  color: var(--wui-contrast-light);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 12px;
+}
+
+.account-flyout {
+  position: absolute;
+  z-index: 130;
+  top: calc(100% + 7px);
+  right: -2px;
+  width: min(430px, calc(100vw - 48px));
+  min-height: 226px;
+  overflow: hidden;
+  border: 1px solid var(--wui-stroke-control);
+  border-radius: var(--wui-radius-overlay);
+  background: var(--wui-bg-flyout);
+  color: var(--wui-text);
+  box-shadow: var(--wui-shadow-flyout);
+  -webkit-backdrop-filter: blur(28px) saturate(1.2);
+  backdrop-filter: blur(28px) saturate(1.2);
+  user-select: text;
+}
+
+.account-flyout[hidden] {
+  display: none;
+}
+
+.account-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  padding: 10px 16px 0;
+  border-bottom: 1px solid var(--wui-divider);
+}
+
+.account-tabs button {
+  position: relative;
+  min-height: 38px;
+  justify-content: flex-start;
+  padding: 0 10px;
+  border-color: transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+  color: var(--wui-text-secondary);
+  text-align: left;
+}
+
+.account-tabs button:hover:not(:disabled) {
+  background: var(--wui-list-item-hover);
+  color: var(--wui-text);
+}
+
+.account-tabs button:active:not(:disabled) {
+  background: var(--wui-list-item-pressed);
+}
+
+.account-tabs button[aria-selected="true"] {
+  border-color: var(--wui-stroke);
+  border-bottom-color: var(--wui-bg-flyout);
+  border-radius: var(--wui-radius-control) var(--wui-radius-control) 0 0;
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text);
+  font-weight: 600;
+}
+
+.account-tabs button[aria-selected="true"]::after {
+  position: absolute;
+  right: 10px;
+  bottom: -1px;
+  left: 10px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--wui-accent);
+  content: "";
+}
+
+.account-panel {
+  padding: 18px 20px 20px;
+}
+
+.account-panel:not(.active),
+.account-panel[hidden] {
+  display: none;
+}
+
+.account-profile {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.account-profile-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  color: var(--wui-accent-text);
+}
+
+.account-profile-icon .fluent {
+  width: 32px;
+  height: 32px;
+}
+
+.account-profile > span:last-child,
+.intune-account-copy,
+.account-remove-summary > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.account-profile strong,
+.intune-account-copy strong,
+.account-remove-summary strong {
+  overflow: hidden;
+  color: var(--wui-text);
+  font-size: 14px;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-profile small,
+.account-remove-summary small {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.account-inline-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0 8px;
+}
+
+.account-inline-actions button {
+  min-height: 28px;
+  padding: 0 2px;
+  border-color: transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+  color: var(--wui-accent-text);
+}
+
+.account-inline-actions button:hover:not(:disabled) {
+  background: transparent;
+  color: var(--wui-accent-hover);
+  text-decoration: underline;
+}
+
+.account-signout {
+  width: 100%;
+  justify-content: center;
+}
+
+.intune-accounts-heading {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--wui-divider);
+}
+
+.intune-mark {
+  position: relative;
+  width: 34px;
+  height: 30px;
+}
+
+.intune-mark i {
+  position: absolute;
+  top: 2px;
+  width: 17px;
+  height: 26px;
+  border-radius: 5px;
+}
+
+.intune-mark i:nth-child(1) {
+  left: 0;
+  z-index: 3;
+  background: var(--wui-intune-dark);
+}
+
+.intune-mark i:nth-child(2) {
+  left: 8px;
+  z-index: 2;
+  background: var(--wui-intune-mid);
+}
+
+.intune-mark i:nth-child(3) {
+  left: 16px;
+  z-index: 1;
+  background: var(--wui-intune-light);
+}
+
+.intune-accounts-heading > strong {
+  font-size: 14px;
+}
+
+.intune-accounts-heading .primary-btn {
+  min-height: 30px;
+  padding: 0 10px;
+}
+
+.intune-account-list {
+  padding-top: 14px;
+}
+
+.intune-account-row {
+  position: relative;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 4px 20px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 4px;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-list-item-selected);
+}
+
+.intune-account-row:hover {
+  background: var(--wui-list-item-selected-hover);
+}
+
+.intune-account-selection {
+  align-self: stretch;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--wui-accent);
+}
+
+.intune-account-copy small {
+  color: var(--wui-success);
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.intune-delete {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-color: transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+  color: var(--wui-danger);
+}
+
+.intune-delete:hover:not(:disabled) {
+  background: var(--wui-danger-bg);
+  color: var(--wui-danger);
+}
+
+.intune-account-empty {
+  min-height: 104px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  padding: 16px;
+  color: var(--wui-text-secondary);
+  text-align: center;
+}
+
+.intune-account-empty .fluent {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  color: var(--wui-text-secondary);
+}
+
+.intune-account-empty strong {
+  color: var(--wui-text);
+}
+
+.intune-account-empty small {
+  max-width: 300px;
+}
+
+.account-remove-summary {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 16px 20px;
+  padding: 12px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-bg-layer-alt);
+}
+
+.account-remove-summary > .fluent {
+  width: 24px;
+  height: 24px;
+  color: var(--wui-text-secondary);
+}
+
+.theme-menu {
+  position: absolute;
+  z-index: 120;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 184px;
+  padding: 4px;
+  border: 1px solid var(--wui-stroke-control);
+  border-radius: var(--wui-radius-overlay);
+  background: var(--wui-bg-solid);
+  box-shadow: var(--wui-shadow-flyout);
+}
+
+.theme-menu[hidden] {
+  display: none;
+}
+
+.theme-menu button {
+  width: 100%;
+  min-height: 36px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border-color: transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+  text-align: left;
+}
+
+.theme-menu button:hover:not(:disabled) {
+  background: var(--wui-list-item-hover);
+}
+
+.theme-menu button:active:not(:disabled) {
+  background: var(--wui-list-item-pressed);
+}
+
+.theme-menu button[aria-checked="true"] {
+  background: var(--wui-list-item-selected);
+}
+
+.theme-menu button[aria-checked="true"]:hover {
+  background: var(--wui-list-item-selected-hover);
+}
+
+.theme-menu .fluent {
+  width: 16px;
+  height: 16px;
+}
+
+.theme-menu-check {
+  visibility: hidden;
+  color: var(--wui-accent-text);
+}
+
+.theme-menu button[aria-checked="true"] .theme-menu-check {
+  visibility: visible;
 }
 
 .window-controls {
@@ -548,11 +1152,12 @@ h3 {
 }
 
 .window-controls .caption-button:hover {
-  background: var(--wui-control-hover);
+  background: var(--wui-list-item-hover);
 }
 
 .window-controls .caption-button:active {
-  background: var(--wui-control-pressed);
+  background: var(--wui-list-item-pressed);
+  color: var(--wui-text-secondary);
 }
 
 .window-controls .caption-button.close:hover,
@@ -563,6 +1168,52 @@ h3 {
 
 .window-controls .caption-button:focus-visible {
   outline-offset: -3px;
+}
+
+.titlebar [data-titlebar-tooltip] {
+  position: relative;
+}
+
+.titlebar [data-titlebar-tooltip]::after {
+  position: absolute;
+  z-index: 240;
+  top: calc(100% + 5px);
+  left: 50%;
+  width: max-content;
+  max-width: 220px;
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--wui-tooltip-text) 12%, transparent);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-tooltip-bg);
+  color: var(--wui-tooltip-text);
+  box-shadow: var(--wui-shadow-control);
+  content: attr(data-titlebar-tooltip);
+  font-family: var(--wui-font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+  transition: opacity 0ms linear 500ms;
+  white-space: nowrap;
+}
+
+.titlebar [data-titlebar-tooltip]:hover::after,
+.titlebar [data-titlebar-tooltip]:focus-visible::after {
+  opacity: 1;
+}
+
+.titlebar [data-titlebar-tooltip][aria-expanded="true"]::after,
+.titlebar [data-titlebar-tooltip]:active::after {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+.window-controls .caption-button:last-child::after {
+  right: 4px;
+  left: auto;
+  transform: none;
 }
 
 .desktop-launcher {
@@ -667,6 +1318,12 @@ h3 {
   flex-basis: 20px;
 }
 
+.rail-btn[data-primary-view="discover"] .fluent {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+}
+
 .rail-btn:hover,
 .nav-row:hover,
 .back-link:hover,
@@ -695,6 +1352,70 @@ h3 {
   background: var(--wui-accent);
   content: "";
   transform: translateY(-50%);
+}
+
+.rail-btn:hover:not(.active):not(:disabled),
+.nav-row:hover:not(.active):not(:disabled) {
+  background: var(--wui-list-item-hover);
+  color: var(--wui-text);
+}
+
+.rail-btn:active:not(.active):not(:disabled),
+.nav-row:active:not(.active):not(:disabled) {
+  background: var(--wui-list-item-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.rail-btn.active:hover:not(:disabled),
+.nav-row.active:hover:not(:disabled) {
+  background: var(--wui-list-item-selected-hover);
+}
+
+.rail-btn.active:active:not(:disabled),
+.nav-row.active:active:not(:disabled) {
+  background: var(--wui-list-item-selected-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.rail-btn:focus-visible,
+.nav-row:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -2px;
+}
+
+.rail [data-nav-tooltip]::after {
+  position: absolute;
+  z-index: 240;
+  top: 50%;
+  left: calc(100% + 8px);
+  width: max-content;
+  max-width: 220px;
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--wui-tooltip-text) 12%, transparent);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-tooltip-bg);
+  color: var(--wui-tooltip-text);
+  box-shadow: var(--wui-shadow-control);
+  content: attr(data-nav-tooltip);
+  font-family: var(--wui-font);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: opacity 0ms linear 500ms;
+  white-space: nowrap;
+}
+
+.rail [data-nav-tooltip]:hover::after,
+.rail [data-nav-tooltip]:focus-visible::after {
+  opacity: 1;
+}
+
+.rail [data-nav-tooltip]:active::after {
+  opacity: 0;
+  transition-delay: 0ms;
 }
 
 .sidebar {
@@ -740,8 +1461,171 @@ h3 {
 .workspace-view {
   min-width: 0;
   min-height: 0;
-  padding: var(--wui-space-md);
+  padding: var(--wui-page-container-inset);
   background: transparent;
+}
+
+.shell.tools-mode {
+  grid-template-columns: 48px minmax(0, 1fr);
+}
+
+.shell.tools-mode .sidebar {
+  display: none;
+}
+
+.tools-view {
+  grid-column: 2 / -1;
+}
+
+.tools-surface {
+  min-width: 0;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card-rest);
+}
+
+.tools-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tools-header-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.tools-header-icon .fluent {
+  width: 24px;
+  height: 24px;
+}
+
+.tools-header h1 {
+  margin: 0;
+  font-family: var(--wui-font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+.tools-header p {
+  margin: 2px 0 0;
+  color: var(--wui-text-secondary);
+}
+
+.tool-gallery {
+  min-height: 0;
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(4, minmax(170px, 220px));
+  justify-content: center;
+  align-content: center;
+  gap: 20px;
+  padding: 40px 0;
+}
+
+.tool-tile {
+  aspect-ratio: 0.86;
+  min-height: 232px;
+  display: grid;
+  grid-template-rows: 72px 44px 54px;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: 22px 18px;
+  border-color: var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-strong);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text);
+  text-align: center;
+}
+
+.tool-tile:hover:not(:disabled) {
+  border-color: var(--wui-stroke-control);
+  background: var(--wui-bg-card-hover);
+  box-shadow: var(--wui-shadow-control);
+}
+
+.tool-tile:active:not(:disabled) {
+  border-color: var(--wui-stroke-control);
+  background: var(--wui-control-pressed);
+  box-shadow: none;
+  color: var(--wui-text-secondary);
+}
+
+.tool-tile:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 2px;
+}
+
+.tool-tile-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.tool-tile-icon .fluent {
+  width: 32px;
+  height: 32px;
+}
+
+.tool-tile-icon.msix {
+  background: var(--wui-warning-bg);
+  color: var(--wui-warning);
+}
+
+.tool-tile-icon.container {
+  background: var(--wui-success-bg);
+  color: var(--wui-success);
+}
+
+.tool-tile-icon.more {
+  background: var(--wui-control);
+  color: var(--wui-text-secondary);
+}
+
+.tool-tile strong {
+  align-self: center;
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.tool-tile small {
+  align-self: start;
+  max-width: 170px;
+  color: var(--wui-text-secondary);
+  line-height: 18px;
+}
+
+.tools-footer {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+@media (max-width: 1120px) {
+  .tool-gallery {
+    grid-template-columns: repeat(2, minmax(180px, 240px));
+    align-content: start;
+  }
 }
 
 .toolbar,
@@ -780,6 +1664,15 @@ button.primary-btn {
 .command-bar .primary-btn:active:not(:disabled) {
   background: var(--wui-accent-pressed);
   color: var(--wui-on-accent);
+}
+
+button.primary-btn:disabled,
+.command-bar button.primary-btn:disabled {
+  border-color: var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-control);
+  background: var(--wui-control-disabled);
+  color: var(--wui-text-disabled);
+  box-shadow: none;
 }
 
 .search {
@@ -941,14 +1834,26 @@ button.primary-btn {
   border-radius: 0;
   background: transparent;
   text-align: left;
+  transition: background-color 100ms ease;
 }
 
-.app-row:hover {
-  background: var(--wui-control-hover);
+.app-row:hover:not(:active) {
+  background: var(--wui-list-item-hover);
 }
 
-.app-row:active {
-  background: var(--wui-control-pressed);
+.app-row:active:not(:disabled) {
+  background: var(--wui-list-item-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.app-row:focus {
+  outline: 0;
+}
+
+.app-row:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 1px var(--wui-focus-inner);
 }
 
 .app-name strong,
@@ -1595,8 +2500,8 @@ pre {
 .automation-shell {
   gap: var(--wui-space-md);
   border: 0;
-  border-radius: 0;
-  background: transparent;
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
   box-shadow: none;
 }
 
@@ -1727,6 +2632,695 @@ pre {
   }
 }
 
+/* Workflow button state model: standard, subtle, primary and destructive. */
+.workflow-workspace button {
+  border-radius: var(--wui-radius-control);
+  transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
+}
+
+.workflow-command-actions button:not(.primary-btn),
+.workflow-bulk-actions button:not(.primary-btn),
+.workflow-list-table td:last-child button,
+.workflow-simple-table.revisions button,
+.workflow-discard-dialog button:not(.danger-btn),
+.workflow-assignment-dialog button:not(.primary-btn),
+.workflow-remove-step {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-strong);
+  background: var(--wui-control);
+  color: var(--wui-text);
+}
+
+.workflow-command-actions button:not(.primary-btn):hover:not(:disabled),
+.workflow-bulk-actions button:not(.primary-btn):hover:not(:disabled),
+.workflow-list-table td:last-child button:hover:not(:disabled),
+.workflow-simple-table.revisions button:hover:not(:disabled),
+.workflow-discard-dialog button:not(.danger-btn):hover:not(:disabled),
+.workflow-assignment-dialog button:not(.primary-btn):hover:not(:disabled),
+.workflow-remove-step:hover:not(:disabled) {
+  background: var(--wui-control-hover);
+}
+
+.workflow-command-actions button:not(.primary-btn):active:not(:disabled),
+.workflow-bulk-actions button:not(.primary-btn):active:not(:disabled),
+.workflow-list-table td:last-child button:active:not(:disabled),
+.workflow-simple-table.revisions button:active:not(:disabled),
+.workflow-discard-dialog button:not(.danger-btn):active:not(:disabled),
+.workflow-assignment-dialog button:not(.primary-btn):active:not(:disabled),
+.workflow-remove-step:active:not(:disabled) {
+  border-bottom-color: var(--wui-stroke-control);
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.workflow-workspace .workflow-remove-step,
+.workflow-workspace .workflow-remove-step:active:not(:disabled) {
+  color: var(--wui-danger);
+}
+
+.workflow-command-back,
+.workflow-context-tabs button,
+.workflow-outline-link,
+.workflow-palette-select {
+  border: 1px solid transparent;
+  border-bottom-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.workflow-command-back:hover:not(:disabled),
+.workflow-context-tabs button:hover:not(:disabled),
+.workflow-outline-link:hover:not(:disabled),
+.workflow-palette-select:hover:not(:disabled) {
+  background: transparent;
+  color: var(--wui-text);
+}
+
+.workflow-command-back:active:not(:disabled),
+.workflow-context-tabs button:active:not(:disabled),
+.workflow-outline-link:active:not(:disabled),
+.workflow-palette-select:active:not(:disabled) {
+  background: transparent;
+  color: var(--wui-text-secondary);
+}
+
+.workflow-workspace button.primary-btn {
+  border-color: var(--wui-accent);
+  border-bottom-color: var(--wui-accent-pressed);
+  background: var(--wui-accent);
+  color: var(--wui-on-accent);
+}
+
+.workflow-workspace button.primary-btn:hover:not(:disabled) {
+  background: var(--wui-accent-hover);
+}
+
+.workflow-workspace button.primary-btn:active:not(:disabled) {
+  border-bottom-color: var(--wui-accent-pressed);
+  background: var(--wui-accent-pressed);
+  color: var(--wui-on-accent);
+}
+
+.workflow-workspace button.primary-btn:disabled,
+.workflow-workspace button:disabled {
+  border-color: var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-control);
+  background: var(--wui-control-disabled);
+  color: var(--wui-text-disabled);
+  box-shadow: none;
+}
+
+.workflow-workspace :where(.workflow-command-back, .workflow-context-tabs button, .workflow-outline-link, .workflow-palette-select):disabled {
+  border-color: transparent;
+  background: transparent;
+}
+
+.workflow-workspace :where(button, [role="tab"]):focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 2px;
+}
+
+.workflow-workspace .workflow-palette-select:focus-visible {
+  outline: 0;
+}
+
+.workflow-workspace button.danger-btn {
+  border-color: var(--wui-danger);
+  border-bottom-color: var(--wui-danger);
+  background: var(--wui-danger);
+  color: var(--wui-caption-close-text);
+}
+
+.workflow-workspace button.danger-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--wui-danger) 88%, var(--wui-text));
+}
+
+.workflow-workspace button.danger-btn:active:not(:disabled) {
+  background: color-mix(in srgb, var(--wui-danger) 76%, var(--wui-text));
+  color: var(--wui-caption-close-text);
+}
+
+/* Shared WinUI-style context navigation for version and workflow pages. */
+.wui-context-tabs {
+  min-height: 48px;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 0 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: none;
+  scrollbar-width: thin;
+}
+
+.wui-context-tabs > [role="tab"] {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 46px;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-bottom-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.wui-context-tabs > [role="tab"] :is(.fluent, .tab-img-icon) {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.wui-context-tabs > [role="tab"]:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-control-hover);
+  color: var(--wui-text);
+}
+
+.wui-context-tabs > [role="tab"]:active:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.wui-context-tabs > [role="tab"][aria-selected="true"],
+.wui-context-tabs > [role="tab"].active {
+  border-color: transparent;
+  background: transparent;
+  color: var(--wui-text);
+  font-weight: 600;
+}
+
+.wui-context-tabs > [role="tab"][aria-selected="true"]::after,
+.wui-context-tabs > [role="tab"].active::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: var(--wui-accent);
+}
+
+.wui-context-tabs > [role="tab"]:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -3px;
+}
+
+.wui-context-tabs > [role="tab"]:disabled {
+  background: transparent;
+  color: var(--wui-text-disabled);
+}
+
+.workflow-context-tabs.wui-context-tabs {
+  flex: 0 0 48px;
+  align-items: stretch;
+  margin: 0;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--wui-stroke);
+}
+
+/* Workflows use the same transparent page container and 12px card rhythm as versions. */
+.automation-shell.workflow-mode {
+  gap: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.automation-shell.workflow-mode .workflow-editor-panel.active {
+  padding: 0;
+  background: transparent;
+}
+
+.automation-shell.workflow-mode .workflow-workspace {
+  gap: var(--wui-space-md);
+  background: transparent;
+}
+
+.automation-shell.workflow-mode .workflow-commandbar {
+  flex: 0 0 auto;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card);
+}
+
+.automation-shell.workflow-mode .workflow-context-tabs.wui-context-tabs {
+  flex: 0 0 48px;
+}
+
+.automation-shell.workflow-mode .workflow-design-layout {
+  grid-template-columns: minmax(320px, 1fr) 300px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-divider);
+  box-shadow: var(--wui-shadow-card);
+}
+
+.automation-shell.workflow-mode .workflow-workspace > [role="tabpanel"]:not(.workflow-design-layout) {
+  padding: 0;
+  background: transparent;
+}
+
+.automation-shell.workflow-mode .workflow-workspace > [role="tabpanel"] > .workflow-applications-view,
+.automation-shell.workflow-mode .workflow-workspace > [role="tabpanel"] > .workflow-simple-view {
+  min-height: 100%;
+}
+
+.automation-shell.workflow-mode .workflow-applications-view .workflow-bulk-card,
+.automation-shell.workflow-mode .workflow-workspace > [role="tabpanel"] > .workflow-simple-view {
+  min-height: 100%;
+  margin: 0;
+  box-shadow: var(--wui-shadow-card);
+}
+
+.automation-shell.workflow-mode .workflow-list-view {
+  padding: 0;
+}
+
+/* Information architecture: shared top-level destination composition. */
+.ia-page-frame {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card-rest);
+}
+
+.ia-page-header {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
+.ia-page-icon,
+.daemon-page-icon.ia-page-icon,
+.tools-header-icon.ia-page-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.ia-page-icon .fluent,
+.daemon-page-icon.ia-page-icon .fluent,
+.tools-header-icon.ia-page-icon .fluent {
+  width: 22px;
+  height: 22px;
+}
+
+.ia-page-heading {
+  min-width: 0;
+}
+
+.ia-page-heading h1,
+.daemon-page-header .ia-page-heading h1,
+.tools-header .ia-page-heading h1,
+.workflow-list-header .ia-page-heading h1 {
+  margin: 0;
+  font-family: var(--wui-font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+.ia-page-heading p,
+.daemon-page-header .ia-page-heading p,
+.tools-header .ia-page-heading p,
+.workflow-list-header .ia-page-heading p {
+  max-width: 760px;
+  margin: 2px 0 0;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.ia-page-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--wui-space-sm);
+}
+
+.ia-page-body {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.collection-page-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.collection-page-body .toolbar {
+  flex: 0 0 auto;
+  grid-template-columns: minmax(220px, 1fr) max-content max-content max-content;
+  padding: 10px;
+}
+
+.collection-page-body .list-card {
+  flex: 1 1 auto;
+}
+
+.signature-view.active {
+  display: block;
+  height: 100%;
+}
+
+.signature-page-body {
+  display: grid;
+  align-content: start;
+}
+
+.signature-overview-card {
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+}
+
+.signature-overview-card > .fluent {
+  width: 24px;
+  height: 24px;
+  color: var(--wui-accent-text);
+}
+
+.signature-overview-card h2,
+.signature-overview-card p {
+  margin: 0;
+}
+
+.signature-overview-card h2 {
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.signature-overview-card p {
+  margin-top: 2px;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.daemon-page.ia-page-frame {
+  min-height: 100%;
+}
+
+.daemon-page-header.ia-page-header {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  min-height: 48px;
+  margin-bottom: 18px;
+}
+
+.daemon-refresh-group {
+  justify-self: end;
+}
+
+.history-page-frame {
+  min-height: 100%;
+}
+
+.history-page-body {
+  overflow: auto;
+}
+
+.history-list-card {
+  overflow: hidden;
+}
+
+.history-page-body .extensibility-card {
+  margin-top: var(--wui-space-sm);
+}
+
+.tools-surface.ia-page-frame {
+  min-height: 100%;
+  padding: 20px;
+}
+
+.tools-header.ia-page-header {
+  flex: 0 0 auto;
+  display: grid;
+  margin-bottom: 0;
+}
+
+.automation-shell.workflow-mode .workflow-list-view.ia-page-frame {
+  min-height: 100%;
+  padding: 20px;
+}
+
+.workflow-list-header.ia-page-header {
+  display: grid;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.workflow-list-body {
+  overflow: auto;
+}
+
+@media (max-width: 1200px) {
+  .collection-page-body .toolbar {
+    height: auto;
+    min-height: 0;
+    grid-template-columns: max-content minmax(150px, 1fr) max-content;
+    align-items: center;
+  }
+
+  .collection-page-body .toolbar .search {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .collection-page-body .toolbar .view-toggles,
+  .collection-page-body .toolbar #updatesFilter,
+  .collection-page-body .toolbar .status-filter {
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 900px) {
+  .ia-page-frame,
+  .tools-surface.ia-page-frame,
+  .automation-shell.workflow-mode .workflow-list-view.ia-page-frame {
+    padding: 16px;
+  }
+
+  .ia-page-header {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .ia-page-icon,
+  .daemon-page-icon.ia-page-icon,
+  .tools-header-icon.ia-page-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .ia-page-actions,
+  .daemon-refresh-group {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    justify-content: flex-start;
+  }
+
+  .signature-overview-card {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .signature-overview-card .primary-btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+/* Workflow editing adopts the same contextual secondary-navigation model as applications. */
+.workflow-context-sidebar-root {
+  display: none;
+  min-width: 0;
+  min-height: 0;
+}
+
+.sidebar.workflow-context-mode:has([data-secondary-nav="automation"].active) > [data-secondary-nav="automation"] {
+  display: none;
+}
+
+.sidebar.workflow-context-mode:has([data-secondary-nav="automation"].active) .workflow-context-sidebar-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-context-sidebar {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.context-back-button {
+  width: 100%;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 0 8px;
+  border-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: var(--wui-radius-control);
+  background: transparent;
+  box-shadow: none;
+  color: var(--wui-text);
+  font-size: 12px;
+  line-height: 20px;
+  text-align: left;
+}
+
+.context-back-button .fluent {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.context-back-button:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-control-hover);
+  color: var(--wui-text);
+}
+
+.context-back-button:active:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-secondary);
+}
+
+.context-back-button:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -3px;
+}
+
+.workflow-sidebar-identity {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 4px;
+  padding: 10px 8px 14px;
+  border-bottom: 1px solid var(--wui-divider);
+}
+
+.workflow-sidebar-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-accent);
+  color: var(--wui-on-accent);
+}
+
+.workflow-sidebar-identity > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.workflow-sidebar-identity strong,
+.workflow-sidebar-identity small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workflow-sidebar-identity strong {
+  color: var(--wui-text);
+  font-size: 13px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.workflow-sidebar-identity small {
+  color: var(--wui-text-secondary);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.workflow-context-sidebar > .workflow-palette {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px 0 0;
+  background: transparent;
+}
+
+.workflow-context-sidebar > .workflow-palette > header {
+  padding: 0 8px 10px;
+}
+
+.workflow-context-sidebar > .workflow-palette > section {
+  padding: 8px 0;
+}
+
+.workflow-context-sidebar .workflow-legend {
+  display: none;
+}
+
+.future-chip-list span {
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+}
+
+.future-chip-list span:hover {
+  background: var(--wui-bg-layer-alt);
+}
+
+.workflow-canvas .react-flow__attribution,
+.workflow-canvas .react-flow__attribution a {
+  background: var(--wui-bg-card) !important;
+  color: var(--wui-text-secondary) !important;
+}
+
 @media (forced-colors: active) {
   button,
   input,
@@ -1746,7 +3340,13 @@ pre {
   .app-nav-item.active::before,
   .version.active::before,
   .tab.active::after,
+  .wui-context-tabs > [role="tab"][aria-selected="true"]::after,
   .strategy-tabs button.active::after {
     background: Highlight;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    forced-color-adjust: auto;
   }
 }
