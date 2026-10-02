@@ -7,8 +7,8 @@ Apply these rules to every task in this repository.
 Before creating, editing, moving, renaming, or removing any user-interface page, section, navigation item, component, control, state, message, or visual element, use all three skills:
 
 1. `information-architecture-designer`
-2. `application-ux-ui-designer`
-3. `winui-packit-designer`
+2. `application-ux-designer`
+3. `winUI3-designer`
 
 This requirement applies to large page restructuring and to small component-level changes. Do not skip a skill because the requested edit appears visually narrow.
 
@@ -30,8 +30,8 @@ When a domain decision is translated into interface behavior or implementation, 
 
 1. `packit-knowledge` establishes the domain rules, prerequisites, object relationships, and outcomes.
 2. `information-architecture-designer` places those rules at the correct product and navigation level.
-3. `application-ux-ui-designer` shapes the understandable task flow and interaction states.
-4. `winui-packit-designer` implements the result with appropriate WinUI 3 patterns and components.
+3. `application-ux-designer` shapes the understandable task flow and interaction states.
+4. `winUI3-designer` implements the result with appropriate WinUI 3 patterns and components.
 
 Do not let the design skills invent domain behavior. Do not let current prototype behavior override confirmed PacKit requirements or current authoritative platform rules.
 
@@ -51,3 +51,18 @@ After UI changes:
 - verify light and dark themes and representative wide and compact viewports;
 - run the WinUI prototype audit, JavaScript syntax checks, and visual browser checks available in the repository;
 - preserve unrelated user changes and keep modifications local unless the user explicitly asks to push.
+
+## PacKit Page Surface Contract
+
+Use this composition template across the application unless a documented task-specific exception is necessary:
+
+1. The right content area is a continuous Mica canvas. It is structural background, not a card.
+2. A top-level destination places its identity header directly on the Mica canvas by default: icon when meaningful, title, description, page status, and page-scoped actions. It is not a card unless the whole region is itself interactive or status-bearing.
+3. A contextual object workspace uses one command-bar card containing object identity, state, and object-scoped actions instead of adding a second page header.
+4. Horizontal tabs or pivots use a separate navigation card directly below the identity or command card.
+5. Tables, operational groups, setting rows, inspectors, and editor canvases use layered task surfaces when grouping or readability requires them. Section labels and passive structure may remain directly on Mica.
+6. Do not wrap several task-region cards in another visible full-page card. Structural wrappers must remain transparent and borderless.
+7. Repeated-item cards may appear only when the items themselves are the collection, not as decoration inside another visual card.
+8. Use the shared 12px compact spacing rhythm between sibling task surfaces and align their outer edges. Use the appropriate larger content inset at the page or navigation boundary.
+
+When auditing a page, identify the canvas, identity/command region, optional local navigation, and task regions. Every visible border or filled surface must correspond to one of those responsibilities.

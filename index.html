@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="./assets/vendor/reactflow.css" />
     <link rel="stylesheet" href="./styles.css?v=20260925-workflow-editor" />
     <link rel="stylesheet" href="./winui3.css?v=20260925-workflow-editor" />
+    <link rel="stylesheet" href="./workflow-policy.css" />
+    <link rel="stylesheet" href="./deployment.css" />
   </head>
   <body data-theme="light">
     <main class="desktop" id="desktop">
@@ -101,14 +103,13 @@
             <button class="rail-btn" type="button" aria-label="Discover Tools" data-nav-tooltip="Discover Tools" data-primary-view="discover"><span class="fluent icon-tools"></span></button>
             <div class="rail-spacer"></div>
             <button class="rail-btn" type="button" aria-label="Help" data-nav-tooltip="Help"><span class="fluent icon-help"></span></button>
-            <button class="rail-btn" type="button" aria-label="Settings" data-nav-tooltip="Settings"><span class="fluent icon-settings"></span></button>
+            <button class="rail-btn" type="button" aria-label="Settings" data-nav-tooltip="Settings" data-primary-view="settings"><span class="fluent icon-settings"></span></button>
           </aside>
 
           <aside class="sidebar" aria-label="PacKit sections">
             <nav class="secondary-nav active" data-secondary-nav="applications" aria-label="Application sections">
               <button class="nav-row active" type="button" aria-current="page" data-main-view="applications"><span class="fluent icon-list"></span> Applications List</button>
               <button class="nav-row" type="button" data-main-view="signature"><span class="fluent icon-lock"></span> Digital Signature</button>
-              <button class="nav-row" type="button" data-main-view="updates"><span class="fluent icon-arrow-up"></span> Updates Available</button>
             </nav>
             <nav class="secondary-nav" data-secondary-nav="automation" aria-label="Automation sections">
               <div class="secondary-nav-title">Automation</div>
@@ -168,15 +169,87 @@
                 <span class="ia-page-icon" aria-hidden="true"><span class="fluent icon-lock"></span></span>
                 <div class="ia-page-heading">
                   <h1 id="signaturePageTitle">Digital Signature</h1>
-                  <p>Configure and apply trusted signing identities to application packages.</p>
+                  <p>Configure the signing identity PacKit uses for packages and generated PowerShell scripts.</p>
+                </div>
+                <div class="ia-page-actions signature-page-actions">
+                  <label class="signature-enable-control">
+                    <span id="signatureEnabledLabel">Enabled</span>
+                    <span class="automation-toggle">
+                      <input id="signatureEnabled" type="checkbox" role="switch" aria-labelledby="signatureEnabledLabel" checked />
+                      <span class="toggle-track" aria-hidden="true"></span>
+                    </span>
+                  </label>
                 </div>
               </header>
               <div class="ia-page-body signature-page-body">
-                <section class="automation-card signature-overview-card">
+                <div class="signature-settings" id="signatureSettings">
+                  <section class="signature-section" aria-labelledby="certificateConfigurationTitle">
+                    <header class="signature-section-heading">
+                      <h2 id="certificateConfigurationTitle">Signing identity</h2>
+                      <p>Choose where PacKit gets the code-signing certificate.</p>
+                    </header>
+                    <div class="signature-method-list" role="radiogroup" aria-label="Signing method">
+                      <section class="signature-method-card selected" data-signature-method-card="store">
+                        <label class="signature-method-selector">
+                          <input type="radio" name="signature-method" value="store" checked />
+                          <span class="signature-method-icon" aria-hidden="true"><span class="fluent icon-signature"></span></span>
+                          <span><strong>Certificate store</strong><small>Use a code-signing certificate installed on this device.</small></span>
+                        </label>
+                        <div class="signature-method-details" data-signature-method-details="store">
+                          <div class="signature-status-bar wui-info-bar warning" id="certificateStoreStatus" role="status">
+                            <span class="fluent icon-warning" aria-hidden="true"></span>
+                            <span class="wui-info-bar-content"><strong>No code-signing certificates found</strong><small>Install a valid certificate in the Windows certificate store, then check again.</small></span>
+                            <span class="wui-info-bar-actions"><button type="button" id="refreshCertificates"><span class="fluent icon-refresh"></span> Check again</button></span>
+                          </div>
+                        </div>
+                      </section>
+                      <section class="signature-method-card" data-signature-method-card="trusted">
+                        <label class="signature-method-selector">
+                          <input type="radio" name="signature-method" value="trusted" />
+                          <span class="signature-method-icon" aria-hidden="true"><span class="fluent icon-lock"></span></span>
+                          <span><strong>Microsoft Trusted Signing <em class="service-badge">Azure</em></strong><small>Use a certificate profile hosted by Microsoft Trusted Signing.</small></span>
+                        </label>
+                        <div class="signature-method-details" data-signature-method-details="trusted" hidden>
+                          <div class="signature-status-bar wui-info-bar warning" id="trustedSigningToolsStatus" role="status">
+                            <span class="fluent icon-warning" aria-hidden="true"></span>
+                            <span class="wui-info-bar-content"><strong>Trusted Signing Client Tools required</strong><small>The required tools are not installed on this device.</small></span>
+                            <span class="wui-info-bar-actions signature-status-actions"><button class="primary-btn" type="button" id="installTrustedSigningTools">Install</button><button type="button" id="downloadTrustedSigningTools"><span class="fluent icon-download"></span> Download</button></span>
+                          </div>
+                          <div class="signature-form-grid">
+                            <label class="wide">Endpoint<input id="trustedSigningEndpoint" type="url" placeholder="https://your-account.codesigning.azure.net" /></label>
+                            <label>Account name<input id="trustedSigningAccount" placeholder="Account name" /></label>
+                            <label>Certificate profile<input id="trustedSigningCertificate" placeholder="Certificate profile name" /></label>
+                            <label class="wide">Correlation ID <small>Optional</small><input id="trustedSigningCorrelation" placeholder="Correlation ID for tracking" /></label>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </section>
+                  <section class="signature-section" aria-labelledby="signingOptionsTitle">
+                    <header class="signature-section-heading">
+                      <h2 id="signingOptionsTitle">Signing behavior</h2>
+                      <p>Choose what PacKit signs and how signatures are timestamped.</p>
+                    </header>
+                    <div class="signature-options-card">
+                      <label class="signature-setting-row">
+                        <span><strong>Timestamp server</strong><small>Keeps signatures verifiable after the signing certificate expires.</small></span>
+                        <select id="timestampServer"><option value="http://timestamp.digicert.com">DigiCert</option><option value="http://timestamp.sectigo.com">Sectigo</option><option value="custom">Custom server</option></select>
+                      </label>
+                      <label class="signature-check-row">
+                        <input id="signDetectionScripts" type="checkbox" checked />
+                        <span><strong>Sign detection method scripts before uploading to Intune</strong><small>Signs generated PowerShell detection scripts with the configured identity.</small></span>
+                      </label>
+                      <label class="signature-check-row">
+                        <input id="signPsadtScripts" type="checkbox" checked />
+                        <span><strong>Sign PSADT scripts before uploading to Intune</strong><small>Signs toolkit scripts after placeholder replacement and before publication.</small></span>
+                      </label>
+                    </div>
+                  </section>
+                </div>
+                <div class="signature-disabled-state" id="signatureDisabledState" hidden>
                   <span class="fluent icon-lock" aria-hidden="true"></span>
-                  <div><h2>No signing identity configured</h2><p>Add a certificate or connect a signing service before signing packages.</p></div>
-                  <button class="primary-btn" type="button" id="addSigningIdentity"><span class="fluent icon-add"></span> Add signing identity</button>
-                </section>
+                  <div><h2>Digital signing is disabled</h2><p>Packages and generated scripts will be left unsigned until this setting is enabled.</p></div>
+                </div>
               </div>
             </div>
           </section>
@@ -306,7 +379,7 @@
           </section>
 
           <section class="workspace-view tools-view" id="toolsView" aria-labelledby="toolsPageTitle">
-            <div class="tools-surface ia-page-frame">
+            <div class="tools-surface ia-page-frame primary-destination-page">
               <header class="tools-header ia-page-header">
                 <span class="tools-header-icon ia-page-icon" aria-hidden="true"><span class="fluent icon-tools"></span></span>
                 <div class="ia-page-heading">
@@ -343,6 +416,126 @@
             </div>
           </section>
 
+          <section class="workspace-view settings-view" id="settingsView" aria-labelledby="settingsPageTitle">
+            <div class="settings-surface ia-page-frame primary-destination-page">
+              <div class="settings-root-page" id="settingsRootPage">
+              <header class="ia-page-header">
+                <span class="ia-page-icon" aria-hidden="true"><span class="fluent icon-settings"></span></span>
+                <div class="ia-page-heading">
+                  <h1 id="settingsPageTitle">Settings</h1>
+                  <p>Configure application-wide resources, project storage, and product information.</p>
+                </div>
+              </header>
+              <div class="ia-page-body settings-page-body">
+                <section class="settings-group" aria-labelledby="generalSettingsTitle">
+                  <header class="settings-group-heading">
+                    <h2 id="generalSettingsTitle">General</h2>
+                  </header>
+                  <button class="settings-row settings-navigation-row" type="button" id="managePsadtTemplates" aria-controls="psadtTemplatesPage">
+                    <span class="settings-row-icon psadt" aria-hidden="true"><img src="./assets/figma/icon-psadt.png" alt="" /></span>
+                    <span class="settings-row-copy"><strong>PSADT templates</strong><small>Manage PowerShell App Deployment Toolkit templates used for packaging.</small></span>
+                    <span class="settings-row-value" id="psadtTemplateCount">3 templates</span>
+                    <span class="fluent icon-arrow-right settings-row-chevron" aria-hidden="true"></span>
+                  </button>
+                </section>
+
+                <section class="settings-group" aria-labelledby="projectSettingsTitle">
+                  <header class="settings-group-heading">
+                    <h2 id="projectSettingsTitle">Project</h2>
+                  </header>
+                  <div class="settings-row settings-toggle-row">
+                    <span class="settings-row-icon" aria-hidden="true"><span class="fluent icon-folder"></span></span>
+                    <span class="settings-row-copy">
+                      <span class="label-with-help"><strong>Save applications as fragments</strong><button class="wui-help-tip" type="button" aria-label="Each application's data is stored in a separate XML file inside a .packit folder beside its installer. The .pkproj project file stores a reference to that fragment." data-tooltip="Each application's data is stored in a separate XML file inside a .packit folder beside its installer. The .pkproj project file stores a reference to that fragment."><span class="fluent icon-help" aria-hidden="true"></span></button></span>
+                      <small>Store application data in separate XML fragments.</small>
+                    </span>
+                    <label class="automation-toggle">
+                      <input id="saveApplicationFragments" type="checkbox" role="switch" aria-label="Save applications as fragments" checked />
+                      <span class="toggle-track" aria-hidden="true"></span>
+                    </label>
+                  </div>
+                </section>
+
+                <section class="settings-group" aria-labelledby="aboutSettingsTitle">
+                  <header class="settings-group-heading">
+                    <h2 id="aboutSettingsTitle">About</h2>
+                  </header>
+                  <div class="settings-row settings-about-row">
+                    <span class="settings-product-icon" aria-hidden="true"><img src="./assets/branding/packit-icon.png" alt="" /></span>
+                    <span class="settings-row-copy"><strong>PacKit Plus</strong><small>Copyright © 2026 Caphyon SRL. All rights reserved.</small></span>
+                    <span class="settings-row-value">Version 3.1.0</span>
+                    <button type="button" id="checkForUpdates"><span class="fluent icon-refresh"></span> Check for updates</button>
+                  </div>
+                  <div class="wui-info-bar success settings-update-status" id="settingsUpdateStatus" role="status" hidden>
+                    <span class="fluent icon-check" aria-hidden="true"></span>
+                    <span class="wui-info-bar-content"><strong>PacKit is up to date</strong><small>Version 3.1.0 is the latest available version.</small></span>
+                  </div>
+                </section>
+              </div>
+              </div>
+
+              <div class="settings-subpage" id="psadtTemplatesPage" aria-labelledby="psadtTemplatesPageTitle" hidden>
+                <header class="settings-subpage-header">
+                  <nav class="settings-breadcrumb" aria-label="Breadcrumb">
+                    <button type="button" id="backToSettings">Settings</button>
+                    <span class="fluent icon-arrow-right" aria-hidden="true"></span>
+                    <h1 id="psadtTemplatesPageTitle" tabindex="-1">PSADT templates</h1>
+                  </nav>
+                  <p>Manage the PowerShell App Deployment Toolkit templates available when creating wrappers.</p>
+                </header>
+
+                <div class="settings-subpage-body" role="radiogroup" aria-label="Default PSADT template">
+                  <section class="settings-group psadt-template-section" aria-labelledby="includedTemplatesTitle">
+                    <header class="settings-group-heading">
+                      <h2 id="includedTemplatesTitle">Included templates</h2>
+                    </header>
+                    <div class="psadt-settings-list" id="psadtTemplateList">
+                      <div class="settings-row psadt-settings-template-row psadt-template-row" data-template-source="Built in · PSADT 4.1.8">
+                        <input type="radio" name="default-psadt-template" id="defaultPsadtV4" value="4.1.8" checked />
+                        <span class="settings-row-icon psadt" aria-hidden="true"><img src="./assets/figma/icon-psadt.png" alt="" /></span>
+                        <span class="psadt-template-copy"><strong>Standard V4 PSADT template</strong><small>PSADT version 4.1.8</small><small title="C:\Program Files (x86)\Caphyon\PacKit\third-party\PSAppDeployToolkit\v4.1.8">C:\Program Files (x86)\Caphyon\PacKit\third-party\PSAppDeployToolkit\v4.1.8</small></span>
+                        <label class="psadt-default-control" for="defaultPsadtV4"><span>Default</span><span class="automation-toggle"><span class="toggle-track" aria-hidden="true"></span></span></label>
+                      </div>
+                      <div class="settings-row psadt-settings-template-row psadt-template-row" data-template-source="Built in · PSADT 3.10.1">
+                        <input type="radio" name="default-psadt-template" id="defaultPsadtV3" value="3.10.1" />
+                        <span class="settings-row-icon psadt" aria-hidden="true"><img src="./assets/figma/icon-psadt.png" alt="" /></span>
+                        <span class="psadt-template-copy"><strong>Standard V3 PSADT template</strong><small>PSADT version 3.10.1</small><small title="C:\Program Files (x86)\Caphyon\PacKit\third-party\PSAppDeployToolkit\v3.10.1">C:\Program Files (x86)\Caphyon\PacKit\third-party\PSAppDeployToolkit\v3.10.1</small></span>
+                        <label class="psadt-default-control" for="defaultPsadtV3"><span>Default</span><span class="automation-toggle"><span class="toggle-track" aria-hidden="true"></span></span></label>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section class="settings-group psadt-template-section" aria-labelledby="customTemplatesTitle">
+                    <header class="settings-group-heading settings-group-heading-with-action">
+                      <div><div class="label-with-help"><h2 id="customTemplatesTitle">Custom templates</h2><button class="wui-help-tip" type="button" aria-label="Add PSADT templates from any location on this device." data-tooltip="Add PSADT templates from any location on this device."><span class="fluent icon-help" aria-hidden="true"></span></button></div></div>
+                      <button type="button" id="addPsadtTemplate"><span class="fluent icon-add"></span> Add template</button>
+                    </header>
+                    <div class="settings-row psadt-download-row">
+                      <span class="settings-row-icon" aria-hidden="true"><span class="fluent icon-download"></span></span>
+                      <span class="settings-row-copy"><strong>Download latest from GitHub</strong><small>Version 4.1.8 is already available as a custom template.</small></span>
+                      <button class="primary-btn" type="button" id="downloadLatestPsadt"><span class="fluent icon-download"></span> Download</button>
+                    </div>
+                    <div class="psadt-settings-list" id="customPsadtTemplateList">
+                      <div class="settings-row psadt-settings-template-row psadt-template-row custom" data-template-source="GitHub release · Custom template">
+                        <input type="radio" name="default-psadt-template" id="defaultPsadtCustom" value="custom-4.1.8" />
+                        <span class="settings-row-icon" aria-hidden="true"><span class="fluent icon-folder"></span></span>
+                        <span class="psadt-template-copy"><strong>PSADT v4.1.8 (GitHub)</strong><small title="C:\Users\anghe\Documents\PSAppDeployToolkit\v4\4.1.8">C:\Users\anghe\Documents\PSAppDeployToolkit\v4\4.1.8</small></span>
+                        <label class="psadt-default-control" for="defaultPsadtCustom"><span>Default</span><span class="automation-toggle"><span class="toggle-track" aria-hidden="true"></span></span></label>
+                        <button class="icon-btn psadt-delete-template" type="button" data-delete-psadt-template aria-label="Remove PSADT v4.1.8 GitHub template"><span class="fluent icon-delete"></span></button>
+                      </div>
+                    </div>
+                    <input id="psadtTemplateFile" type="file" accept=".zip,.ps1,.psd1" aria-label="Choose a PSADT template file" hidden />
+                  </section>
+
+                  <div class="wui-info-bar informational psadt-template-note" role="note">
+                    <span class="fluent icon-info" aria-hidden="true"></span>
+                    <span class="wui-info-bar-content"><strong>Template changes apply to new wrappers</strong><small>Existing wrapped applications keep the toolkit version already included in their package.</small></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section class="workspace-view detail-view" id="detailView">
             <aside class="version-panel">
               <button class="back-link context-back-button" type="button" id="backToList"><span class="fluent icon-chevron-left"></span> Back to Applications</button>
@@ -366,7 +559,9 @@
                 <span><strong>No versions yet</strong><small>Create the first configuration to get started.</small></span>
               </div>
               <nav class="app-level-nav" id="appLevelNav" aria-label="Application level navigation">
-                <span class="app-nav-kicker"><span class="fluent icon-eye"></span> Manage & Observe</span>
+                <span class="app-nav-kicker">Application</span>
+                <button class="app-nav-item" type="button" data-app-section="applicationDetails">Application details</button>
+                <button class="app-nav-item" type="button" data-app-section="applicationWorkflow">Automation workflow</button>
                 <button class="app-nav-item" type="button" data-app-section="history">History & Logs</button>
               </nav>
             </aside>
@@ -386,12 +581,10 @@
               </section>
 
               <nav class="tabs wui-context-tabs" id="versionTabs" role="tablist" aria-label="Version configuration">
-                <button class="tab active" id="informationTab" role="tab" aria-selected="true" aria-controls="informationPanel" tabindex="0" type="button" data-tab="information"><span class="fluent icon-info"></span> Application Information</button>
-                <button class="tab" id="assignmentsTab" role="tab" aria-selected="false" aria-controls="assignmentsPanel" tabindex="-1" type="button" data-tab="assignments"><span class="fluent icon-people"></span> Assignments</button>
-                <button class="tab" id="detectionTab" role="tab" aria-selected="false" aria-controls="detectionPanel" tabindex="-1" type="button" data-tab="detection"><span class="fluent icon-detection"></span> Detection</button>
-                <button class="tab" id="scopeTab" role="tab" aria-selected="false" aria-controls="scopePanel" tabindex="-1" type="button" data-tab="scope"><span class="fluent icon-tag"></span> Scope Tags</button>
-                <button class="tab" id="wrapperTab" role="tab" aria-selected="false" aria-controls="wrapperPanel" tabindex="-1" type="button" data-tab="wrapper"><img class="tab-img-icon" src="./assets/figma/icon-psadt.png" alt="" /> Wrapper</button>
-                <button class="tab" id="updateLifecycleTab" role="tab" aria-selected="false" aria-controls="updateLifecyclePanel" tabindex="-1" type="button" data-tab="updateLifecycle"><span class="fluent icon-refresh"></span> Update Lifecycle</button>
+                <button class="tab active" id="overviewTab" role="tab" aria-selected="true" aria-controls="overviewPanel" tabindex="0" type="button" data-tab="overview"><span class="fluent icon-info"></span> Package</button>
+                <button class="tab" id="installTab" role="tab" aria-selected="false" aria-controls="installPanel" tabindex="-1" type="button" data-tab="install"><span class="fluent icon-settings"></span> Install</button>
+                <button class="tab" id="deploymentTab" role="tab" aria-selected="false" aria-controls="deploymentPanel" tabindex="-1" type="button" data-tab="deployment"><span class="fluent icon-people"></span> Deployment</button>
+                <button class="tab" id="reviewTab" role="tab" aria-selected="false" aria-controls="reviewPanel" tabindex="-1" type="button" data-tab="review"><span class="fluent icon-check"></span> Review</button>
               </nav>
 
               <section class="configuration-empty-state" id="configurationEmptyState" aria-labelledby="configurationEmptyTitle" hidden>
@@ -418,25 +611,22 @@
                 </div>
               </section>
 
-              <div class="tab-panel active" id="informationPanel">
-                <section class="expander">
-                  <header><strong>Application Name & Description</strong><button type="button" aria-label="Collapse Application Name & Description" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
-                  <div class="form-grid">
-                    <label>Name<input id="applicationNameInput" value="Contoso Finance Tools" /></label>
-                    <label>Vendor<input id="applicationVendorInput" value="Contoso" /></label>
-                    <label class="wide">Description<input id="applicationDescriptionInput" value="Finance workstation utilities packaged for Intune deployment" /></label>
-                    <label>Application Icon<span class="icon-field"><span class="app-icon-tile small" id="applicationIconPreview" style="--tile-bg: var(--wui-app-icon-default);">CF</span></span></label>
-                  </div>
+              <div class="tab-panel active overview-panel" id="overviewPanel">
+                <section class="version-identity-summary" aria-labelledby="versionIdentityTitle">
+                  <span class="app-icon-tile" id="applicationIconPreview" style="--tile-bg: var(--wui-app-icon-default);">CF</span>
+                  <span><small>Application identity</small><strong id="versionIdentityTitle">Contoso Finance Tools</strong><span>Contoso · Finance workstation utilities packaged for Intune deployment</span></span>
+                  <span class="provenance-label"><span class="fluent icon-lock"></span> Inherited</span>
+                  <button type="button" id="openApplicationDetails">Application details <span class="fluent icon-arrow-right"></span></button>
                 </section>
                 <section class="expander automation-template-summary" id="automationTemplateSummary">
-                  <header><strong>Update automation workflow</strong><button type="button" aria-label="Collapse Update automation workflow" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <header><strong>Applied automation workflow</strong><button type="button" aria-label="Collapse Applied automation workflow" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="automation-template-content">
                     <div class="automation-template-identity">
                       <span class="template-icon" aria-hidden="true"><span class="fluent icon-workflow"></span></span>
                       <span>
                         <small>Applied from Automation</small>
                         <strong id="informationTemplateName">Guided Intune Update</strong>
-                        <small id="informationTemplateMeta">Version 1.4 • Used by 18 applications</small>
+                        <small id="informationTemplateMeta">Version 1.4 • Update policy inherited</small>
                       </span>
                     </div>
                     <span class="template-state-label" id="informationTemplateState"><span class="fluent icon-lock"></span> Inherited from workflow</span>
@@ -445,7 +635,22 @@
                       <button type="button" id="changeAutomationTemplate"><span class="fluent icon-refresh"></span> Change workflow</button>
                     </div>
                   </div>
-                  <div class="info-bar subtle-info" role="note" aria-label="Information"><span class="info-badge"><span class="fluent icon-info"></span></span> Workflow changes can update Information, Assignments, Detection, Scope Tags, and Wrapper defaults for this application.</div>
+                  <div class="workflow-policy-summary" aria-label="Update policy inherited from the workflow">
+                    <div class="version-record-heading">
+                      <span><small>Update policy</small><strong>How future versions and deployments are handled</strong></span>
+                    </div>
+                    <dl class="future-policy-grid">
+                      <div><dt>Future version</dt><dd>Copy verified settings from the previous release</dd></div>
+                      <div><dt>Future assignments</dt><dd>Pilot → IT → Production; preserve assignment intent</dd></div>
+                      <div><dt>Previous version</dt><dd>Remove assignments and retire after rollout succeeds</dd></div>
+                      <div><dt>Safety gate</dt><dd>Keep active while deployment failures remain</dd></div>
+                    </dl>
+                  </div>
+                  <div class="info-bar wui-info-bar informational subtle-info" role="note" aria-label="Information">
+                    <span class="fluent icon-info" aria-hidden="true"></span>
+                    <span class="wui-info-bar-content"><strong>Managed by the applied workflow</strong><small>Package defaults and update behavior come from this workflow. Application-specific values can still be overridden on the version.</small></span>
+                    <button class="wui-info-bar-close" type="button" data-dismiss-message aria-label="Dismiss message" title="Dismiss"><span class="fluent icon-dismiss"></span></button>
+                  </div>
                 </section>
                 <section class="expander version-automation-record" id="versionAutomationRecord">
                   <header><strong id="versionAutomationRecordTitle">Automation record for version 12.3.123</strong><button type="button" aria-label="Collapse Automation record" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
@@ -509,15 +714,17 @@
                   </div>
                 </section>
                 <section class="expander">
-                  <header><strong>Package Information</strong><button type="button" aria-label="Collapse Package Information" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <header><strong>Package summary</strong><button type="button" aria-label="Collapse Package summary" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid">
                     <label>Version<input id="packageVersionInput" value="12.3.123" /></label>
                     <label>Product Code<span class="readonly"><span id="productCode">{0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1}</span><button class="inline-icon-button" id="copyProductCode" type="button" aria-label="Copy product code" title="Copy product code"><span class="fluent icon-copy"></span></button></span></label>
                     <label>Architecture<span class="readonly" id="packageArchitecture">x86</span></label>
-                    <label class="wide">Install Command<input value="“Deploy Application.exe”" /></label>
-                    <label class="wide">Uninstall Command<input value="“Deploy Application.exe” - DeploymentType Uninstall" /></label>
                   </div>
-                  <div class="info-bar" id="packageSyncInfo" role="note" aria-label="Information"><span class="info-badge"><span class="fluent icon-info"></span></span> Package install commands are automatically synced in the Wrapper <button type="button" aria-label="Dismiss package information"><span class="fluent icon-dismiss"></span></button></div>
+                  <div class="configuration-summary-grid" aria-label="Version configuration summary">
+                    <button type="button" data-summary-target="install"><span class="summary-icon"><span class="fluent icon-settings"></span></span><span><small>Installation</small><strong id="installationSummaryMethod">PSADT wrapper</strong><em id="installationSummaryDetail">Payload commands configured</em></span><span class="status success"><span class="fluent icon-check"></span> Ready</span></button>
+                    <button type="button" data-summary-target="install"><span class="summary-icon"><span class="fluent icon-detection"></span></span><span><small>Detection</small><strong>Custom PowerShell script</strong><em>Windows 10 1607 or later</em></span><span class="status success"><span class="fluent icon-check"></span> Ready</span></button>
+                    <button type="button" data-summary-target="deployment"><span class="summary-icon"><span class="fluent icon-people"></span></span><span><small>Deployment</small><strong>5 group assignments</strong><em>2 scope tags</em></span><span class="status success"><span class="fluent icon-check"></span> Ready</span></button>
+                  </div>
                   <div class="source-row">
                     <strong>Source Folder</strong>
                     <span id="sourceFolderValue">C:\Users\anghe\Desktop\Your Workspace-Files\Google.Chrome\Google Chrome_141.0.7390.123_Machine_Arm64...</span>
@@ -536,57 +743,63 @@
                 </section>
               </div>
 
-              <div class="tab-panel update-lifecycle-panel" id="updateLifecyclePanel">
-                <section class="expander future-update-handling" id="futureUpdateHandling">
-                  <header><strong>Future automatic updates</strong><button type="button" aria-label="Collapse Future automatic updates" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
-                  <div class="future-update-content">
-                    <div class="version-record-heading">
-                      <span><small>Current workflow policy</small><strong>What PacKit will prepare when the next version is detected</strong></span>
-                      <span class="status success"><span class="fluent icon-check"></span> Guided automation enabled</span>
-                    </div>
-                    <dl class="future-policy-grid">
-                      <div><dt>Trigger</dt><dd>New catalog version detected</dd></div>
-                      <div><dt>Build source</dt><dd>Previous released version</dd></div>
-                      <div><dt>Approval</dt><dd>Required before publishing</dd></div>
-                      <div><dt>Deployment targets</dt><dd>Intune and MECM</dd></div>
-                    </dl>
-                    <div class="future-update-flow" aria-label="Future automatic update stages">
-                      <span><small>1</small><strong>Detect update</strong><em>Daemon checks the linked catalog</em></span>
-                      <span class="fluent icon-arrow-right" aria-hidden="true"></span>
-                      <span><small>2</small><strong>Prepare version</strong><em>Copy and update configured fields</em></span>
-                      <span class="fluent icon-arrow-right" aria-hidden="true"></span>
-                      <span><small>3</small><strong>Review changes</strong><em>Validate tests and deployment impact</em></span>
-                      <span class="fluent icon-arrow-right" aria-hidden="true"></span>
-                      <span><small>4</small><strong>Approve publication</strong><em>Execute Intune and MECM policies</em></span>
-                    </div>
+              <div class="tab-panel review-panel" id="reviewPanel">
+                <section class="review-readiness" aria-labelledby="reviewReadinessTitle">
+                  <div class="review-readiness-heading">
+                    <span class="review-ready-icon"><span class="fluent icon-check"></span></span>
+                    <span><small>Publication readiness</small><h2 id="reviewReadinessTitle">This version is ready for review</h2><p>Required package, installation, detection, and deployment settings are configured.</p></span>
+                  </div>
+                  <dl class="readiness-checklist">
+                    <div><dt><span class="fluent icon-check"></span> Package</dt><dd>Source and identity detected</dd></div>
+                    <div><dt><span class="fluent icon-check"></span> Install</dt><dd>Wrapped payload configured</dd></div>
+                    <div><dt><span class="fluent icon-check"></span> Detection</dt><dd>Custom script selected</dd></div>
+                    <div><dt><span class="fluent icon-check"></span> Deployment</dt><dd>Assignments and scope ready</dd></div>
+                  </dl>
+                </section>
+                <section class="expander resolved-execution-card">
+                  <header><strong>Resolved execution</strong><button type="button" aria-label="Collapse Resolved execution" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <div class="execution-chain-list">
+                    <div><strong>Install</strong><span>Intune or MECM</span><span class="fluent icon-arrow-right"></span><code>Deploy-Application.exe -DeploymentType Install -DeployMode Silent</code><span class="fluent icon-arrow-right"></span><code id="reviewPayloadInstall">GoogleChromeStandaloneEnterprise64.msi /qn /norestart</code></div>
+                    <div><strong>Uninstall</strong><span>Intune or MECM</span><span class="fluent icon-arrow-right"></span><code>Deploy-Application.exe -DeploymentType Uninstall -DeployMode Silent</code><span class="fluent icon-arrow-right"></span><code id="reviewPayloadUninstall">msiexec /x {0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1} /qn /norestart</code></div>
                   </div>
                 </section>
               </div>
 
-              <div class="tab-panel wrapper-panel" id="wrapperPanel">
-                <div class="wrapper-empty" id="wrapperEmptyState">
-                  <div class="wrapper-illustration" aria-hidden="true">
-                    <span class="package-card"></span>
-                    <span class="add-badge"><span class="fluent icon-add"></span></span>
+              <div class="tab-panel install-panel" id="installPanel">
+                <section class="installation-method-card" aria-labelledby="installationMethodTitle">
+                  <div class="installation-method-state">
+                    <span class="installation-method-icon" aria-hidden="true"><span class="fluent icon-settings"></span></span>
+                    <span>
+                      <span class="policy-field-label policy-installation-label"><small>Installation method</small><span class="policy-inline-owner" id="policyWrapperOwnership"></span></span>
+                      <h2 id="installationMethodTitle">PSADT wrapper</h2>
+                      <span id="installationMethodDescription">Management platforms start PSADT, which runs the package actions.</span>
+                    </span>
                   </div>
-                  <h2>Need a custom wrapper for this package?</h2>
-                  <p>This action will create a custom PSADT for this package version</p>
-                  <div class="template-picker">
-                    <label>PSADT Template</label>
-                    <button type="button"><span class="fluent icon-folder"></span> PSADT v4.1.8_2(GitHub)<span class="fluent icon-chevron-down"></span></button>
+                  <div class="installation-method-actions">
+                    <button class="primary-btn" type="button" id="createPsadtWrapper" hidden><span class="fluent icon-add"></span> Create PSADT wrapper</button>
+                    <button type="button" id="unwrapPsadtWrapper"><span class="fluent icon-subtract"></span> Unwrap</button>
                   </div>
-                  <button class="primary-btn" type="button" id="wrapWithPsadt">Wrap with PSADT</button>
-                </div>
-                <div class="wrapper-configured" id="wrapperConfiguredState" hidden>
+                </section>
+
+                <section class="expander payload-actions-card">
+                  <header><span class="label-with-help"><strong>Payload actions</strong><button class="wui-help-tip" type="button" aria-label="Payload actions are the editable install and uninstall commands for the application. A direct installation sends them to the management platform, while a PSADT installation runs them inside the wrapper." data-tooltip="Payload actions are the editable install and uninstall commands for the application. A direct installation sends them to the management platform, while a PSADT installation runs them inside the wrapper."><span class="fluent icon-help" aria-hidden="true"></span></button></span><span class="required-label">Required</span><button type="button" aria-label="Collapse Payload actions" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <div class="form-grid single">
+                    <label>Install action<input id="payloadInstallCommand" value="GoogleChromeStandaloneEnterprise64.msi /qn /norestart" /><small>Runs inside the selected installation method.</small></label>
+                    <label>Uninstall action<input id="payloadUninstallCommand" value="msiexec /x {0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1} /qn /norestart" /><small>Runs when the application is removed.</small></label>
+                  </div>
+                </section>
+
+                <div class="wrapper-panel" id="wrapperPanel">
+                <div class="wrapper-configured" id="wrapperConfiguredState">
                   <section class="expander">
-                    <header><strong>PSADT Commands</strong><button type="button" aria-label="Collapse PSADT Commands" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                    <header><span class="label-with-help"><strong>Wrapper entry commands</strong><button class="wui-help-tip" type="button" aria-label="Intune or MECM uses these generated commands to start the wrapper. PacKit derives them from the selected PSADT template and keeps them synchronized; the wrapper then runs the payload actions." data-tooltip="Intune or MECM uses these generated commands to start the wrapper. PacKit derives them from the selected PSADT template and keeps them synchronized; the wrapper then runs the payload actions."><span class="fluent icon-help" aria-hidden="true"></span></button></span><span class="generated-label">Generated</span><button type="button" aria-label="Collapse Wrapper entry commands" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                     <div class="template-row">
-                      <span>Used PSADT Template</span>
-                      <button type="button"><img class="service-icon" src="./assets/figma/icon-psadt.png" alt="" /> PSADT v4.1.8_2(GitHub)</button>
+                      <span>PSADT template</span>
+                      <strong class="wrapper-template-value"><img class="service-icon" src="./assets/figma/icon-psadt.png" alt="" /> <span id="activePsadtTemplateName">PSADT v4.1.8_2</span></strong>
                     </div>
                     <div class="form-grid single">
-                      <label>Install Command<input value="“Deploy Application.exe”" /></label>
-                      <label>Uninstall Command<input value="“Deploy Application.exe” - DeploymentType Uninstall" /></label>
+                      <label>Platform install command<span class="readonly generated-command">Deploy-Application.exe -DeploymentType Install -DeployMode Silent</span></label>
+                      <label>Platform uninstall command<span class="readonly generated-command">Deploy-Application.exe -DeploymentType Uninstall -DeployMode Silent</span></label>
                     </div>
                     <div class="source-row">
                       <strong>Source Folder</strong>
@@ -627,51 +840,62 @@
                     <footer>Script loaded successfully</footer>
                   </section>
                 </div>
-              </div>
-
-              <div class="tab-panel assignment-panel" id="assignmentsPanel">
-                <div class="panel-actions">
-                  <span>Add assignments:</span>
-                  <button type="button"><span class="fluent icon-add"></span> Add Available</button>
-                  <button type="button"><span class="fluent icon-add"></span> Add Required</button>
-                  <button type="button"><span class="fluent icon-add"></span> Add Uninstall</button>
                 </div>
-                <section class="assignment-section">
-                  <header><strong>Available</strong><button type="button">Edit</button></header>
-                  <div class="data-list">
-                    <div class="list-heading">Group</div>
-                    <div class="data-row"><span>BBN</span><button type="button" aria-label="Remove BBN"><span class="fluent icon-dismiss"></span></button></div>
-                    <div class="data-row"><span>CAPHYON SRL</span><button type="button" aria-label="Remove CAPHYON SRL"><span class="fluent icon-dismiss"></span></button></div>
-                    <div class="data-row"><span>Testers</span><button type="button" aria-label="Remove Testers"><span class="fluent icon-dismiss"></span></button></div>
+                <section class="expander advanced-installation-options" data-default-collapsed="true">
+                  <header><strong>Advanced installation options</strong><span class="generated-label">Optional</span><button type="button" aria-label="Expand Advanced installation options" aria-expanded="false"><span class="fluent icon-chevron-down"></span></button></header>
+                  <div class="form-grid two">
+                    <label>Install context<select><option>System</option><option>User</option></select></label>
+                    <label>Maximum run time<input type="number" value="60" min="1" max="1440" /><small>Minutes</small></label>
+                    <label>Restart behavior<select><option>Determine from return code</option><option>Suppress restart</option><option>Force restart</option></select></label>
+                    <div class="deploy-code-link"><span>Return codes</span><button type="button" id="openDeploymentReturnCodes">Manage return codes <span class="fluent icon-arrow-right" aria-hidden="true"></span></button></div>
                   </div>
                 </section>
-                <section class="assignment-section">
-                  <header><strong>Required</strong><button type="button">Edit</button></header>
-                  <div class="data-list">
-                    <div class="list-heading">Group</div>
-                    <div class="data-row"><span>BBN</span><button type="button" aria-label="Remove BBN"><span class="fluent icon-dismiss"></span></button></div>
-                    <div class="data-row"><span>Testers</span><button type="button" aria-label="Remove Testers"><span class="fluent icon-dismiss"></span></button></div>
-                  </div>
-                </section>
-                <div class="license-warning"><span class="fluent icon-warning"></span> This feature requires a commercial license. However, feel free to explore and try it for evaluation purposes. <button type="button">More details</button></div>
               </div>
 
-              <div class="tab-panel detection-panel" id="detectionPanel">
+              <div class="tab-panel deployment-panel" id="deploymentPanel">
+                <section class="deploy-surface" aria-labelledby="deploymentAssignmentsTitle">
+                  <header class="deploy-heading"><h2 id="deploymentAssignmentsTitle">Group assignments</h2><span class="deploy-meta">Intune</span></header>
+                  <div id="deploymentAssignments"></div>
+                </section>
+                <details class="deploy-surface deploy-disclosure" id="deploymentScopes" open>
+                  <summary><span>Scope tags</span><span class="deploy-meta" id="deploymentScopeCount"></span><span class="fluent icon-chevron-down" aria-hidden="true"></span></summary>
+                  <div class="deploy-body">
+                    <div class="deploy-toolbar"><span class="label-with-help">Admin visibility<button class="wui-help-tip" type="button" aria-label="About scope tags" data-tooltip="Scope tags control which Intune administrators can see and manage this app. They do not target devices or users."><span class="fluent icon-help" aria-hidden="true"></span></button></span><button type="button" id="deploymentChooseTags"><span class="fluent icon-add" aria-hidden="true"></span> Select tags</button></div>
+                    <ul class="deploy-tag-list" id="deploymentTagList" aria-label="Assigned scope tags"></ul>
+                  </div>
+                </details>
+                <details class="deploy-surface deploy-disclosure" id="deploymentReturnCodes" open>
+                  <summary><span>Return codes</span><span class="deploy-meta" id="deploymentCodeCount"></span><span class="fluent icon-chevron-down" aria-hidden="true"></span></summary>
+                  <div class="deploy-body">
+                    <div class="deploy-toolbar"><span class="label-with-help">Installer results<button class="wui-help-tip" type="button" aria-label="About return codes" data-tooltip="Map the exit code received by Intune to success, failure, a restart, or retry. With PSADT, this is the code returned by the wrapper. Unlisted codes are treated as failures."><span class="fluent icon-help" aria-hidden="true"></span></button></span><button type="button" id="deploymentAddCode"><span class="fluent icon-add" aria-hidden="true"></span> Add return code</button></div>
+                    <table class="deploy-table deploy-codes"><caption class="visually-hidden">Installer return code mappings</caption><thead><tr><th scope="col">Return code</th><th scope="col">Code type</th><th scope="col"><span class="visually-hidden">Remove</span></th></tr></thead><tbody id="deploymentCodeRows"></tbody></table>
+                    <div id="deploymentCodeError" class="wui-info-bar error" role="alert" hidden></div>
+                  </div>
+                </details>
+                <div class="license-warning wui-info-bar warning" role="note" aria-label="Commercial license required">
+                  <span class="fluent icon-warning" aria-hidden="true"></span>
+                  <span class="wui-info-bar-content"><strong>Commercial license required</strong><small>You can explore assignment management during evaluation, but publishing these assignments requires a commercial license.</small></span>
+                  <span class="wui-info-bar-actions"><button type="button" id="licenseDetailsAction">More details</button></span>
+                </div>
+                <span class="visually-hidden" id="deploymentAnnouncement" role="status" aria-live="polite"></span>
+              </div>
+
+              <div class="detection-panel" id="detectionPanel">
                 <section class="expander">
-                  <header><strong>Operating System Configuration</strong><button type="button" aria-label="Collapse Operating System Configuration" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <header><strong>Requirements</strong><span class="required-label">Required</span><button type="button" aria-label="Collapse Requirements" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid two">
                     <label>Operating System Architecture<select><option>64-bit</option><option>32-bit</option></select></label>
                     <label>Minimum Operating System<input value="Windows 10 1607" /></label>
                   </div>
                 </section>
                 <section class="expander">
-                  <header><strong>Detection Method</strong><button type="button" aria-label="Collapse Detection Method" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <header><strong>Detection</strong><span class="required-label">Required</span><button type="button" aria-label="Collapse Detection" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid single">
                     <label>Rules format<select><option>Use a custom detection script</option><option>Configure rules manually</option></select></label>
                   </div>
                   <div class="source-row">
                     <span>C:\Users\anghe\Desktop\Your Workspace-Files\DetectionScripts\google_chrome_detection.ps1</span>
-                    <button type="button"><span class="fluent icon-folder"></span> Browse</button>
+                    <button class="detection-browse-button" type="button"><span class="fluent icon-folder" aria-hidden="true"></span> Browse</button>
                   </div>
                   <div class="editor-tools">
                     <button type="button">Load Template</button>
@@ -691,23 +915,22 @@
                 </section>
               </div>
 
-              <div class="tab-panel scope-panel" id="scopePanel">
-                <section class="assignment-section">
-                  <header><strong>Scope Tags</strong><button type="button">Edit</button></header>
-                  <div class="scope-tags">
-                    <span>Default</span>
-                    <span>Packaging</span>
-                    <span>Endpoint Engineering</span>
-                  </div>
-                  <div class="data-list">
-                    <div class="list-heading">Assigned scope tags</div>
-                    <div class="data-row"><span>Default</span><button type="button" aria-label="Remove Default"><span class="fluent icon-dismiss"></span></button></div>
-                    <div class="data-row"><span>Packaging</span><button type="button" aria-label="Remove Packaging"><span class="fluent icon-dismiss"></span></button></div>
+
+              <div class="app-panel policy-page" id="applicationWorkflowPanel"></div>
+              <div class="app-panel application-details-panel" id="applicationDetailsPanel">
+                <section class="expander">
+                  <header><span class="label-with-help"><strong>Application identity</strong><button class="wui-help-tip" type="button" aria-label="Name, vendor, description, and icon belong to the application and are inherited by every package version." data-tooltip="Name, vendor, description, and icon belong to the application and are inherited by every package version."><span class="fluent icon-help" aria-hidden="true"></span></button></span><button type="button" aria-label="Collapse Application identity" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <div class="section-intro"><p>Shared identity inherited by every package version.</p></div>
+                  <div class="form-grid">
+                    <label>Name<input id="applicationNameInput" value="Contoso Finance Tools" /></label>
+                    <label>Vendor<input id="applicationVendorInput" value="Contoso" /></label>
+                    <label class="wide">Description<input id="applicationDescriptionInput" value="Finance workstation utilities packaged for Intune deployment" /></label>
+                    <label>Application icon<span class="icon-field"><span class="app-icon-tile small" style="--tile-bg: var(--wui-app-icon-default);">CF</span></span></label>
                   </div>
                 </section>
               </div>
 
-              <div class="app-panel update-strategy-panel" id="updateStrategyPanel">
+              <div class="app-panel update-strategy-panel" id="updateStrategyPanel" hidden aria-hidden="true">
                 <section class="strategy-empty-state" id="strategyChoicePanel">
                   <div class="strategy-choice-card">
                     <h2>When PacKit detects a new version, how should it behave?</h2>
@@ -848,18 +1071,18 @@
                   </header>
                   <div class="preview-summary-grid">
                     <section class="preview-card version-flow">
-                      <h3>Version <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum version impact details."></span></h3>
+                      <h3><span>Version</span><button class="wui-help-tip" type="button" aria-label="Shows the current package version and the next version PacKit will prepare when the workflow runs." data-tooltip="Shows the current package version and the next version PacKit will prepare when the workflow runs."><span class="fluent icon-help" aria-hidden="true"></span></button></h3>
                       <div><span><small>Current version</small><strong>12.3.123</strong><small class="version-success"><span class="fluent icon-check"></span> Upload success</small></span><span class="fluent icon-arrow-right"></span><span><small>Automated</small><strong class="next-version-label">Next version</strong><small>New</small></span></div>
                     </section>
                     <section class="preview-card">
-                      <h3>App objects <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum object creation and modification summary."></span></h3>
+                      <h3><span>App objects</span><button class="wui-help-tip" type="button" aria-label="Summarizes which management-platform application objects will be created or changed by this update." data-tooltip="Summarizes which management-platform application objects will be created or changed by this update."><span class="fluent icon-help" aria-hidden="true"></span></button></h3>
                       <ul class="scan-list">
                         <li><strong>Next version</strong><span>New main app object</span></li>
                         <li><strong>12.3.123</strong><span>Current object modified</span></li>
                       </ul>
                     </section>
                     <section class="preview-card">
-                      <h3>Assignment highlights <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum assignment rule highlights."></span></h3>
+                      <h3><span>Assignment highlights</span><button class="wui-help-tip" type="button" aria-label="Summarizes how Required, Available, and Uninstall assignments move between the current and next versions." data-tooltip="Summarizes how Required, Available, and Uninstall assignments move between the current and next versions."><span class="fluent icon-help" aria-hidden="true"></span></button></h3>
                       <ul class="scan-list">
                         <li><strong>Required</strong><span>Move to next version</span></li>
                         <li><strong>Available</strong><span>Move to next version</span></li>
@@ -869,7 +1092,7 @@
                     </section>
                   </div>
                   <section class="preview-card assignment-impact">
-                    <header><h3>Assignment impact <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum ring assignment impact explanation."></span></h3><span>Assignment source: <strong>Guided Intune Update workflow</strong></span></header>
+                    <header><h3><span>Assignment impact</span><button class="wui-help-tip" type="button" aria-label="Compares the current and planned assignment state for each deployment ring before any changes are published." data-tooltip="Compares the current and planned assignment state for each deployment ring before any changes are published."><span class="fluent icon-help" aria-hidden="true"></span></button></h3><span>Assignment source: <strong>Guided Intune Update workflow</strong></span></header>
                     <div class="ring-impact-table">
                       <span>Ring</span><span>Required</span><span>Available</span><span>Uninstall</span><span>Existing installation</span>
                       <div class="ring-list">
@@ -884,7 +1107,7 @@
                     </div>
                   </section>
                   <section class="preview-card rollout-card">
-                    <h3>Rollout timeline <span class="fluent icon-info info-tip" data-tooltip="Lorem ipsum rollout timing and sequencing details."></span></h3>
+                    <h3><span>Rollout timeline</span><button class="wui-help-tip" type="button" aria-label="Shows when each deployment ring starts and when assignments from the previous version are cleaned up." data-tooltip="Shows when each deployment ring starts and when assignments from the previous version are cleaned up."><span class="fluent icon-help" aria-hidden="true"></span></button></h3>
                     <div class="rollout-timeline">
                       <span><strong>Publish</strong><small>Create next version</small></span>
                       <span class="timeline-arrow" aria-hidden="true"><span class="fluent icon-arrow-right"></span></span>
@@ -983,9 +1206,9 @@
               </span>
             </label>
           </div>
-          <div class="dialog-warning" id="sharedTemplateImpact" role="alert" hidden>
+          <div class="dialog-warning wui-info-bar warning" id="sharedTemplateImpact" role="alert" hidden>
             <span class="fluent icon-warning" aria-hidden="true"></span>
-            <span><strong>18 applications use this workflow.</strong> Updating it will change their inherited configuration.</span>
+            <span class="wui-info-bar-content"><strong>18 applications use this workflow</strong><small>Updating it will change their inherited configuration.</small></span>
           </div>
           <footer>
             <button type="button" id="cancelSaveConfiguration">Cancel</button>
@@ -1017,9 +1240,9 @@
               <span><strong>WinGet standard update</strong><small>Version 3.1 • Used by 24 applications</small></span>
             </label>
           </div>
-          <div class="dialog-warning neutral" id="replaceTemplateImpact" role="status">
+          <div class="dialog-warning wui-info-bar informational neutral" id="replaceTemplateImpact" role="status">
             <span class="fluent icon-info" aria-hidden="true"></span>
-            <span>Information, Assignments, Detection, Scope Tags, and Wrapper defaults will be replaced.</span>
+            <span class="wui-info-bar-content"><strong>Inherited settings will be replaced</strong><small>Package, deployment, detection, scope tag, and wrapper defaults will use the selected workflow.</small></span>
           </div>
           <footer>
             <button type="button" id="cancelAutomationTemplate">Cancel</button>
@@ -1071,6 +1294,47 @@
         </form>
       </dialog>
 
+      <dialog class="content-dialog psadt-wrapper-dialog" id="createPsadtWrapperDialog" aria-labelledby="createPsadtWrapperDialogTitle" aria-describedby="createPsadtWrapperDialogDescription">
+        <form method="dialog">
+          <header>
+            <div>
+              <h2 id="createPsadtWrapperDialogTitle">Create PSADT wrapper</h2>
+              <p id="createPsadtWrapperDialogDescription">Choose the template to copy into this application version.</p>
+            </div>
+            <button class="dialog-close" type="button" id="closeCreatePsadtWrapperDialog" aria-label="Close"><span class="fluent icon-dismiss"></span></button>
+          </header>
+          <div class="psadt-template-list" id="wrapperTemplateList" role="radiogroup" aria-label="Available PSADT templates"></div>
+          <div class="wui-info-bar informational psadt-template-note" role="note">
+            <span class="fluent icon-info" aria-hidden="true"></span>
+            <span class="wui-info-bar-content"><strong>The template is copied into this wrapper</strong><small>Changing the default template later will not modify this application version.</small></span>
+          </div>
+          <footer>
+            <button type="button" id="cancelCreatePsadtWrapper">Cancel</button>
+            <button class="primary-btn" type="button" id="confirmCreatePsadtWrapper"><span class="fluent icon-add"></span> Create wrapper</button>
+          </footer>
+        </form>
+      </dialog>
+
+      <dialog class="content-dialog" id="unwrapPsadtDialog" aria-labelledby="unwrapPsadtDialogTitle" aria-describedby="unwrapPsadtDialogDescription">
+        <form method="dialog">
+          <header>
+            <div>
+              <h2 id="unwrapPsadtDialogTitle">Unwrap this package?</h2>
+              <p id="unwrapPsadtDialogDescription">PacKit will remove the generated PSADT wrapper from this application version.</p>
+            </div>
+            <button class="dialog-close" type="button" id="closeUnwrapPsadtDialog" aria-label="Close"><span class="fluent icon-dismiss"></span></button>
+          </header>
+          <div class="dialog-warning neutral">
+            <span class="fluent icon-info" aria-hidden="true"></span>
+            <span>The original package and its install and uninstall actions will be kept. Generated wrapper files and wrapper-specific script changes will be removed.</span>
+          </div>
+          <footer>
+            <button type="button" id="cancelUnwrapPsadt">Cancel</button>
+            <button class="danger-btn" type="button" id="confirmUnwrapPsadt"><span class="fluent icon-subtract"></span> Unwrap</button>
+          </footer>
+        </form>
+      </dialog>
+
       <dialog class="content-dialog account-remove-dialog" id="removeIntuneAccountDialog" aria-labelledby="removeIntuneAccountDialogTitle" aria-describedby="removeIntuneAccountDialogDescription">
         <form method="dialog">
           <header>
@@ -1091,8 +1355,14 @@
         </form>
       </dialog>
 
-      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <div class="toast app-notification informational" id="toast" role="status" aria-live="polite" aria-atomic="true">
+        <span class="fluent icon-info toast-icon" aria-hidden="true"></span>
+        <span id="toastMessage"></span>
+        <button type="button" id="closeToast" aria-label="Dismiss notification" title="Dismiss"><span class="fluent icon-dismiss"></span></button>
+      </div>
     </main>
+    <script src="./workflow-policy.js"></script>
+    <script src="./deployment.js"></script>
     <script src="./script.js?v=20260925-workflow-editor"></script>
     <script src="./assets/vendor/react.production.min.js"></script>
     <script src="./assets/vendor/react-dom.production.min.js"></script>
@@ -1105,5 +1375,6 @@
     </script>
     <script src="./assets/vendor/reactflow.umd.js"></script>
     <script src="./workflow-editor.js?v=20260925-workflow-editor"></script>
+    <script src="./workflow-policy-ui.js"></script>
   </body>
 </html>

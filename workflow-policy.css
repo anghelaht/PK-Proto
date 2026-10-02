@@ -1,0 +1,67 @@
+.policy-page { min-width: 0; }
+.policy-page.active { display: flex; flex-direction: column; gap: 12px; }
+.policy-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.policy-heading h2 { font-size: 20px; margin: 0; }
+.policy-heading p { margin: 4px 0 0; color: var(--wui-text-secondary); }
+.policy-heading small, .policy-row small { display: block; margin-top: 4px; color: var(--wui-text-secondary); }
+.policy-surface { background: var(--wui-bg-card); border: 1px solid var(--wui-stroke); border-radius: 4px; padding: 16px; }
+.policy-group { padding: 0; overflow: hidden; }
+.policy-groups { display: flex; flex-direction: column; gap: 12px; }
+.policy-group summary { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 12px 16px; cursor: pointer; }
+.policy-group summary .fluent { margin-left: auto; }
+.policy-group[open] summary .fluent { transform: rotate(180deg); }
+.policy-group summary:hover { background: var(--wui-list-item-hover); }
+.policy-group summary:active { background: var(--wui-list-item-pressed); }
+.policy-group summary:focus-visible, .policy-dialog button:focus-visible { outline: 2px solid var(--wui-focus); outline-offset: -2px; }
+.policy-row { display: grid; grid-template-columns: minmax(160px,1fr) minmax(120px,.42fr) auto; align-items: center; gap: 16px; padding: 12px 16px; border-top: 1px solid var(--wui-divider); }
+.policy-row > span { overflow-wrap: anywhere; min-width: 0; }
+.policy-source { font-size: 12px; color: var(--wui-text-secondary); }
+.policy-source.application, .policy-source.version { color: var(--wui-accent-text); }
+.policy-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.policy-actions button, .policy-inline-edit, .policy-context-strip button { display: inline-flex; align-items: center; gap: 8px; }
+.policy-meta { color: var(--wui-text-secondary); font-size: 12px; }
+.policy-info { display: flex; align-items: start; gap: 12px; }
+.policy-update { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--wui-divider); }
+.policy-scope-select { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.policy-scope-select select { width: auto; min-width: 180px; }
+.policy-dialog { width: min(540px, calc(100vw - 32px)); max-width: none; padding: 0; max-height: calc(100dvh - 48px); background: var(--wui-bg-layer-alt); }
+.policy-dialog.policy-dialog-wide { width: min(920px, calc(100vw - 32px)); }
+.policy-dialog form { display: flex; flex-direction: column; max-height: calc(100dvh - 50px); min-width: 0; }
+.policy-dialog header { padding: 24px 24px 12px; }
+.policy-dialog h2 { font-size: 20px; margin: 0; }
+.policy-dialog-body { display: flex; flex-direction: column; gap: 16px; padding: 12px 24px 24px; overflow: auto; min-height: 0; }
+.policy-dialog-body p { margin: 0; }
+.policy-dialog footer { flex-shrink: 0; padding: 16px 24px; display: flex; justify-content: flex-end; gap: 8px; }
+.policy-field { display: flex; flex-direction: column; gap: 8px; }
+.policy-field input, .policy-field select { width: 100%; }
+.policy-scope { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.policy-scope legend { margin-bottom: 12px; }
+.policy-scope label, .policy-ack { display: flex; align-items: start; gap: 8px; }
+.policy-scope input, .policy-ack input { flex-shrink: 0; }
+.policy-error { color: var(--wui-danger); }
+.policy-table-scroll { overflow: auto; }
+.policy-compare { width: 100%; border-collapse: collapse; font-size: 13px; }
+.policy-compare th, .policy-compare td { padding: 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--wui-divider); }
+.policy-compare td small { display: block; margin: 6px 0; }
+.policy-compare th { font-weight: 600; }
+.policy-snapshot-code { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
+.policy-input-summary h3 { font-size: 14px; margin: 0 0 4px; }
+.policy-input-summary p { font-size: 12px; color: var(--wui-text-secondary); margin: 0; }
+.policy-field-label { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.policy-field-name { min-width: 0; overflow-wrap: anywhere; }
+.policy-inline-owner { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 2px; margin-left: auto; }
+.policy-inline-owner:empty { display: none; }
+button.policy-source-tip { color: var(--wui-text-secondary); }
+button.policy-source-tip.exception { color: var(--wui-accent-text); }
+button.policy-inline-edit { min-width: auto; min-height: 24px; height: 24px; padding: 0 6px; border-color: transparent; background: transparent; color: var(--wui-accent-text); font-size: 12px; font-weight: 600; }
+button.policy-inline-edit:hover:not(:disabled) { background: var(--wui-list-item-hover); }
+button.policy-inline-edit:active:not(:disabled) { background: var(--wui-list-item-pressed); color: var(--wui-text-secondary); }
+.policy-installation-label { width: max-content; max-width: 100%; justify-content: flex-start; }
+.policy-context-strip { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 4px 0; font-size: 12px; color: var(--wui-text-secondary); }
+.policy-workflow-notice { margin: 12px 0 0; display: flex; gap: 12px; font-size: 12px; }
+@media (max-width: 1000px) {
+  .policy-row { grid-template-columns: minmax(140px, 1fr) auto; gap: 8px; }
+  .policy-row .policy-source { grid-column: 1; }
+  .policy-row .policy-actions { grid-column: 2; grid-row: 1 / span 2; flex-direction: column; align-items: stretch; }
+  .policy-scope-select { flex-wrap: wrap; }
+}

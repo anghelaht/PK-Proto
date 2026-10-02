@@ -92,6 +92,7 @@
   --wui-space-xl: 20px;
   --wui-space-xxl: 24px;
   --wui-page-container-inset: var(--wui-space-md);
+  --wui-card-stack-gap: var(--wui-space-md);
 
   /* Compatibility aliases for the original prototype stylesheet. */
   --win-accent-default: var(--wui-accent);
@@ -447,6 +448,12 @@ input[type="checkbox"]:checked,
 input[type="radio"]:checked {
   border-color: var(--wui-accent);
   background: var(--wui-accent);
+}
+
+input[type="checkbox"]:checked:hover:not(:disabled),
+input[type="radio"]:checked:hover:not(:disabled) {
+  border-color: var(--wui-accent-hover);
+  background: var(--wui-accent-hover);
 }
 
 input[type="checkbox"]:checked::after,
@@ -1465,15 +1472,18 @@ h3 {
   background: transparent;
 }
 
-.shell.tools-mode {
+.shell.tools-mode,
+.shell.settings-mode {
   grid-template-columns: 48px minmax(0, 1fr);
 }
 
-.shell.tools-mode .sidebar {
+.shell.tools-mode .sidebar,
+.shell.settings-mode .sidebar {
   display: none;
 }
 
-.tools-view {
+.tools-view,
+.settings-view {
   grid-column: 2 / -1;
 }
 
@@ -1530,9 +1540,9 @@ h3 {
   flex: 1;
   grid-template-columns: repeat(4, minmax(170px, 220px));
   justify-content: center;
-  align-content: center;
+  align-content: start;
   gap: 20px;
-  padding: 40px 0;
+  padding: var(--wui-space-xl) 0;
 }
 
 .tool-tile {
@@ -2064,7 +2074,7 @@ button.primary-btn:disabled,
 .tab-panel.active {
   display: flex;
   flex-direction: column;
-  gap: var(--wui-space-sm);
+  gap: var(--wui-card-stack-gap);
 }
 
 .tab-panel.active > :last-child:not(.collapsed) {
@@ -2104,6 +2114,472 @@ button.primary-btn:disabled,
   background: var(--wui-bg-card);
 }
 
+.settings-view.active {
+  display: block;
+  height: 100%;
+}
+
+.ia-page-frame.primary-destination-page {
+  width: min(960px, 100%);
+  margin-inline: auto;
+}
+
+.settings-surface {
+  align-items: stretch;
+}
+
+.settings-view .ia-page-header,
+.settings-page-body {
+  width: 100%;
+}
+
+.settings-page-body {
+  overflow: auto;
+  padding: 0 2px var(--wui-space-xxl);
+}
+
+.settings-group {
+  display: grid;
+  gap: var(--wui-space-sm);
+}
+
+.settings-group + .settings-group {
+  margin-top: var(--wui-space-xl);
+}
+
+.settings-group-heading h2,
+.settings-group-heading p {
+  margin: 0;
+}
+
+.settings-group-heading h2 {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.settings-row,
+.settings-about {
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card-rest);
+}
+
+.settings-row {
+  width: 100%;
+  min-height: 68px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--wui-space-md);
+  padding: 12px 16px;
+  color: var(--wui-text);
+  text-align: left;
+}
+
+.settings-navigation-row:hover:not(:disabled) {
+  background: var(--wui-bg-card-hover);
+}
+
+.settings-navigation-row:active:not(:disabled) {
+  background: var(--wui-control-pressed);
+}
+
+.settings-row:focus-visible,
+.settings-about summary:focus-visible,
+.psadt-template-row:has(input:focus-visible) {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -3px;
+}
+
+.settings-row-icon,
+.settings-product-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.settings-row-icon .fluent {
+  width: 20px;
+  height: 20px;
+}
+
+.settings-row-icon.psadt img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.settings-product-icon img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.settings-row-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.settings-row-copy strong {
+  color: var(--wui-text);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.settings-row-copy small,
+.settings-row-value {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.settings-row-value {
+  white-space: nowrap;
+}
+
+.settings-row-chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--wui-text-secondary);
+}
+
+.settings-toggle-row {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+}
+
+.settings-about-row {
+  grid-template-columns: 40px minmax(0, 1fr) auto auto;
+}
+
+.settings-about {
+  overflow: hidden;
+}
+
+.settings-about summary {
+  min-height: 72px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--wui-space-md);
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.settings-about summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-about summary:hover {
+  background: var(--wui-bg-card-hover);
+}
+
+.settings-about-chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform 120ms ease;
+}
+
+.settings-about[open] .settings-about-chevron {
+  transform: rotate(180deg);
+}
+
+.settings-about-content {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--wui-space-xl);
+  padding: 16px;
+  border-top: 1px solid var(--wui-divider);
+  background: var(--wui-bg-layer-alt);
+}
+
+.settings-about-content dl {
+  min-width: 280px;
+  display: grid;
+  gap: var(--wui-space-md);
+  margin: 0;
+}
+
+.settings-about-content dl > div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: var(--wui-space-md);
+}
+
+.settings-about-content dt,
+.settings-about-content dd {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.settings-about-content dt {
+  color: var(--wui-text-secondary);
+  font-weight: 600;
+}
+
+.settings-update-status {
+  margin: 0;
+}
+
+.settings-root-page,
+.settings-subpage {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.settings-root-page,
+.settings-subpage:not([hidden]) {
+  display: flex;
+}
+
+.settings-subpage-header {
+  display: grid;
+  gap: var(--wui-space-sm);
+  margin-bottom: var(--wui-space-xl);
+  padding: 8px 4px 0;
+}
+
+.settings-subpage-header > p {
+  margin: 0;
+  color: var(--wui-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.settings-breadcrumb {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-breadcrumb button {
+  min-height: 32px;
+  padding: 0 6px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--wui-text);
+  font-size: 16px;
+}
+
+.settings-breadcrumb button:hover:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-control-hover);
+}
+
+.settings-breadcrumb button:active:not(:disabled) {
+  border-color: transparent;
+  background: var(--wui-control-pressed);
+}
+
+.settings-breadcrumb .fluent {
+  width: 14px;
+  height: 14px;
+  color: var(--wui-text-secondary);
+}
+
+.settings-breadcrumb h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+}
+
+.settings-breadcrumb h1:focus {
+  outline: none;
+}
+
+.settings-subpage-body {
+  min-height: 0;
+  overflow: auto;
+  padding: 0 2px var(--wui-space-xxl);
+}
+
+.psadt-template-section + .psadt-template-section {
+  margin-top: var(--wui-space-xxl);
+}
+
+.settings-group-heading-with-action {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--wui-space-xl);
+}
+
+.settings-group-heading-with-action > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.settings-group-heading-with-action p {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.psadt-settings-list {
+  display: grid;
+  gap: var(--wui-space-md);
+}
+
+.settings-subpage .psadt-settings-template-row {
+  position: relative;
+  min-height: 88px;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  padding: 12px 16px;
+  border-color: var(--wui-stroke);
+  background: var(--wui-bg-card);
+  cursor: default;
+}
+
+.settings-subpage .psadt-settings-template-row.custom {
+  grid-template-columns: 40px minmax(0, 1fr) auto 32px;
+}
+
+.settings-subpage .psadt-settings-template-row:has(> input:checked) {
+  background: var(--wui-bg-card);
+}
+
+.psadt-settings-template-row > input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.psadt-settings-template-row:has(> input:focus-visible) {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -3px;
+}
+
+.psadt-template-copy {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.psadt-template-copy strong {
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.psadt-template-copy small {
+  overflow: hidden;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.psadt-default-control {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wui-space-md);
+  color: var(--wui-text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.psadt-default-control .automation-toggle {
+  pointer-events: none;
+}
+
+.psadt-settings-template-row.default .psadt-default-control .toggle-track {
+  border-color: var(--wui-accent);
+  background: var(--wui-accent);
+}
+
+.psadt-settings-template-row.default .psadt-default-control .toggle-track::after {
+  background: var(--wui-on-accent);
+  transform: translateX(20px);
+}
+
+.psadt-settings-template-row:has(> input:focus-visible) .psadt-default-control .toggle-track {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 2px;
+}
+
+.psadt-delete-template {
+  width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+}
+
+.psadt-download-row {
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+}
+
+.settings-subpage .psadt-template-note {
+  margin: var(--wui-space-xl) 0 0;
+}
+
+.psadt-template-list {
+  display: grid;
+  padding: 16px 20px;
+}
+
+.psadt-template-row {
+  min-height: 68px;
+  display: grid;
+  grid-template-columns: 18px 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--wui-space-md);
+  padding: 10px 12px;
+  border: 1px solid var(--wui-stroke-control);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control);
+  cursor: pointer;
+}
+
+.psadt-template-row:has(input:checked) {
+  background: var(--wui-list-item-selected);
+}
+
+.psadt-template-row > span:nth-of-type(2) {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.psadt-template-row strong,
+.psadt-template-row small {
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.psadt-template-row small {
+  color: var(--wui-text-secondary);
+}
+
+.psadt-template-row .service-badge[hidden] {
+  display: none;
+}
+
+.psadt-template-note {
+  margin: 0 20px 16px;
+}
+
+.psadt-templates-dialog footer {
+  justify-content: space-between;
+}
+
 #informationPanel > .expander:last-child .resources {
   margin-top: auto;
 }
@@ -2124,7 +2600,7 @@ button.primary-btn:disabled,
 .app-panel > .expander + .expander,
 .strategy-page > .strategy-card + .strategy-card,
 .automation-panel > .automation-card + .automation-card {
-  margin-top: var(--wui-space-sm);
+  margin-top: var(--wui-card-stack-gap);
 }
 
 .expander > header,
@@ -2203,6 +2679,15 @@ button.primary-btn:disabled,
   width: 32px;
   min-width: 32px;
   padding: 0;
+}
+
+.source-row > .detection-browse-button {
+  width: auto;
+  min-width: max-content;
+  flex: 0 0 auto;
+  gap: var(--wui-space-sm);
+  padding: 0 12px;
+  text-decoration: none;
 }
 
 .source-row,
@@ -2304,26 +2789,105 @@ button.primary-btn:disabled,
   border-color: var(--wui-divider);
 }
 
-.info-tip {
+.label-with-help,
+.preview-card h3 {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wui-space-xs);
+}
+
+button.wui-help-tip {
   position: relative;
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  display: inline-grid;
+  flex: 0 0 20px;
+  place-items: center;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
   color: var(--wui-text-secondary);
   cursor: help;
 }
 
-.info-tip:hover::after,
-.info-tip:focus::after {
-  z-index: 100;
-  min-width: 180px;
-  max-width: 280px;
-  padding: 8px 10px;
-  border: 1px solid var(--wui-stroke);
-  border-radius: var(--wui-radius-overlay);
-  background: var(--wui-bg-layer-alt);
-  box-shadow: var(--wui-shadow-flyout);
+button.wui-help-tip .fluent {
+  width: 16px;
+  height: 16px;
+  flex-basis: 16px;
+}
+
+button.wui-help-tip:hover:not(:disabled) {
+  background: var(--wui-list-item-hover);
   color: var(--wui-text);
+}
+
+button.wui-help-tip:active:not(:disabled) {
+  background: var(--wui-list-item-pressed);
+  color: var(--wui-text-secondary);
+}
+
+button.wui-help-tip:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 1px;
+}
+
+button.wui-help-tip::before,
+button.wui-help-tip::after {
+  position: absolute;
+  z-index: 260;
+  left: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0ms linear 500ms, visibility 0ms linear 500ms;
+}
+
+button.wui-help-tip::before {
+  top: calc(100% + 1px);
+  border: 5px solid transparent;
+  border-bottom-color: var(--wui-tooltip-bg);
+  content: "";
+  transform: translateX(5px);
+}
+
+button.wui-help-tip::after {
+  top: calc(100% + 10px);
+  width: max-content;
+  max-width: 300px;
+  padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--wui-tooltip-text) 12%, transparent);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-tooltip-bg);
+  color: var(--wui-tooltip-text);
+  box-shadow: var(--wui-shadow-flyout);
+  content: attr(data-tooltip);
   font-family: var(--wui-font);
   font-size: 12px;
   font-weight: 400;
+  line-height: 16px;
+  text-align: left;
+  transform: none;
+  white-space: normal;
+}
+
+button.wui-help-tip:hover::before,
+button.wui-help-tip:hover::after,
+button.wui-help-tip:focus-visible::before,
+button.wui-help-tip:focus-visible::after {
+  visibility: visible;
+  opacity: 1;
+}
+
+button.wui-help-tip:active::before,
+button.wui-help-tip:active::after {
+  visibility: hidden;
+  opacity: 0;
+  transition-delay: 0ms;
 }
 
 .history-switch {
@@ -2483,9 +3047,7 @@ pre code,
 
 pre {
   border-color: var(--wui-stroke-control);
-  background:
-    linear-gradient(90deg, var(--wui-code-gutter) 0 56px, var(--wui-code-bg) 56px),
-    var(--wui-code-bg);
+  background: var(--wui-code-bg);
   color: var(--wui-text);
 }
 
@@ -2498,10 +3060,10 @@ pre {
 }
 
 .automation-shell {
-  gap: var(--wui-space-md);
+  gap: 0;
   border: 0;
-  border-radius: var(--wui-radius-card);
-  background: var(--wui-bg-card);
+  border-radius: 0;
+  background: transparent;
   box-shadow: none;
 }
 
@@ -2512,6 +3074,11 @@ pre {
 .automation-content {
   min-height: 0;
   scrollbar-color: var(--wui-control-strong) transparent;
+}
+
+.daemon-overview,
+#historyAutomationPanel {
+  padding: 0;
 }
 
 .node-chain > span:not(.fluent),
@@ -3023,36 +3590,526 @@ pre {
 }
 
 .signature-page-body {
-  display: grid;
-  align-content: start;
+  overflow: auto;
 }
 
-.signature-overview-card {
-  min-height: 112px;
+.signature-page-actions,
+.signature-enable-control {
+  display: flex;
+  align-items: center;
+  gap: var(--wui-space-md);
+}
+
+.signature-enable-control {
+  min-height: 32px;
+  color: var(--wui-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.signature-settings {
+  width: 100%;
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(520px, 1.35fr) minmax(340px, 0.65fr);
+  align-items: start;
+  gap: var(--wui-space-xxl);
+  padding-bottom: var(--wui-space-xl);
+}
+
+.signature-section {
+  display: grid;
+  gap: var(--wui-space-md);
+}
+
+.signature-section-heading h2,
+.signature-section-heading p {
+  margin: 0;
+}
+
+.signature-section-heading h2 {
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.signature-section-heading p {
+  margin-top: 2px;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.signature-method-list {
+  display: grid;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card-rest);
+}
+
+.signature-options-card,
+.signature-disabled-state {
+  overflow: hidden;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card-rest);
+}
+
+.signature-method-card {
+  overflow: hidden;
+  background: transparent;
+}
+
+.signature-method-card + .signature-method-card {
+  border-top: 1px solid var(--wui-divider);
+}
+
+.signature-method-selector {
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 18px 36px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--wui-space-md);
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 100ms ease;
+}
+
+.signature-method-card.selected > .signature-method-selector {
+  background: var(--wui-control-selected);
+}
+
+.signature-method-selector:hover {
+  background: var(--wui-list-item-hover);
+}
+
+.signature-method-card.selected > .signature-method-selector:hover {
+  background: var(--wui-list-item-selected-hover);
+}
+
+.signature-method-selector:active {
+  background: var(--wui-list-item-pressed);
+}
+
+.signature-method-selector:has(input:focus-visible) {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -3px;
+}
+
+.signature-method-selector input:focus-visible {
+  outline: 0;
+}
+
+.signature-method-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.signature-method-icon .fluent {
+  width: 18px;
+  height: 18px;
+}
+
+.signature-method-selector > span:last-child,
+.signature-status-bar > span:nth-child(2),
+.signature-setting-row > span,
+.signature-check-row > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.signature-method-selector strong,
+.signature-setting-row strong,
+.signature-check-row strong,
+.signature-status-bar strong {
+  color: var(--wui-text);
+  font-size: 13px;
+  font-style: normal;
+  line-height: 18px;
+}
+
+.signature-method-selector small,
+.signature-setting-row small,
+.signature-check-row small,
+.signature-status-bar small {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.service-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  vertical-align: 1px;
+}
+
+.signature-method-details {
+  display: grid;
+  gap: var(--wui-space-lg);
+  padding: 16px;
+  border-top: 1px solid var(--wui-divider);
+  background: var(--wui-bg-layer-alt);
+}
+
+.signature-section:last-child .signature-setting-row {
+  grid-template-columns: 1fr;
+  gap: var(--wui-space-sm);
+}
+
+.signature-section:last-child .signature-setting-row select {
+  width: 100%;
+}
+
+.signature-status-bar {
+  min-height: 56px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--wui-space-md);
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--wui-radius-control);
+}
+
+.signature-status-bar.warning {
+  border-color: color-mix(in srgb, var(--wui-warning) 30%, transparent);
+  background: var(--wui-warning-bg);
+  color: var(--wui-warning);
+}
+
+.signature-status-bar.success {
+  border-color: color-mix(in srgb, var(--wui-success) 30%, transparent);
+  background: var(--wui-success-bg);
+  color: var(--wui-success);
+}
+
+.signature-status-bar > .fluent {
+  width: 18px;
+  height: 18px;
+}
+
+.signature-status-actions {
+  display: flex;
+  gap: var(--wui-space-sm);
+}
+
+/* Shared WinUI InfoBar contract for contextual and actionable in-app messages. */
+.wui-info-bar {
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--wui-space-md);
+  padding: 10px 12px;
+  border: 1px solid var(--wui-stroke-control);
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-bg-card);
+  color: var(--wui-text);
+  box-shadow: none;
+  font-size: 13px;
+}
+
+.wui-info-bar.informational {
+  border-color: color-mix(in srgb, var(--wui-accent) 28%, var(--wui-stroke));
+  background: var(--wui-info-bg);
+}
+
+.wui-info-bar.success {
+  border-color: color-mix(in srgb, var(--wui-success) 35%, var(--wui-stroke));
+  background: var(--wui-success-bg);
+}
+
+.wui-info-bar.warning {
+  border-color: color-mix(in srgb, var(--wui-warning) 38%, var(--wui-stroke));
+  background: var(--wui-warning-bg);
+}
+
+.wui-info-bar.error {
+  border-color: color-mix(in srgb, var(--wui-danger) 38%, var(--wui-stroke));
+  background: var(--wui-danger-bg);
+}
+
+.wui-info-bar > .fluent {
+  width: 18px;
+  height: 18px;
+  align-self: start;
+  margin-top: 2px;
+}
+
+.wui-info-bar.informational > .fluent {
+  color: var(--wui-accent-text);
+}
+
+.wui-info-bar.success > .fluent {
+  color: var(--wui-success);
+}
+
+.wui-info-bar.warning > .fluent {
+  color: var(--wui-warning);
+}
+
+.wui-info-bar.error > .fluent {
+  color: var(--wui-danger);
+}
+
+.wui-info-bar-content {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  color: var(--wui-text);
+}
+
+.wui-info-bar-content strong {
+  color: var(--wui-text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.wui-info-bar-content small {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.wui-info-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--wui-space-sm);
+}
+
+.wui-info-bar-actions > button {
+  width: auto;
+  min-width: 0;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.wui-info-bar-close {
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0 !important;
+  border-color: transparent;
+  background: transparent;
+}
+
+.wui-info-bar-close .fluent {
+  width: 14px;
+  height: 14px;
+}
+
+.license-warning.wui-info-bar,
+.dialog-warning.wui-info-bar,
+.workflow-list-note.wui-info-bar,
+.signature-status-bar.wui-info-bar {
+  display: grid;
+}
+
+.license-warning.wui-info-bar {
+  margin: 14px 16px;
+}
+
+.dialog-warning.wui-info-bar {
+  margin: 0 20px 16px;
+}
+
+.workflow-list-note.wui-info-bar {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+.signature-status-bar.wui-info-bar {
+  padding: 10px 12px;
+}
+
+.app-notification {
+  min-width: 280px;
+  max-width: min(520px, calc(100vw - 32px));
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 32px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid var(--wui-stroke-control);
+  border-radius: var(--wui-radius-overlay);
+  background: var(--wui-bg-flyout);
+  box-shadow: var(--wui-shadow-flyout);
+  color: var(--wui-text);
+}
+
+.app-notification .toast-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.app-notification.informational .toast-icon {
+  color: var(--wui-accent-text);
+}
+
+.app-notification.success .toast-icon {
+  color: var(--wui-success);
+}
+
+.app-notification.warning .toast-icon {
+  color: var(--wui-warning);
+}
+
+.app-notification.error .toast-icon {
+  color: var(--wui-danger);
+}
+
+.app-notification #closeToast {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+.app-notification #closeToast .fluent {
+  width: 14px;
+  height: 14px;
+}
+
+body[data-theme="dark"] button.primary-btn:disabled,
+body[data-theme="dark"] .command-bar button.primary-btn:disabled {
+  appearance: none;
+  border-color: var(--wui-stroke-control);
+  border-bottom-color: var(--wui-stroke-control);
+  background-color: var(--wui-control-disabled) !important;
+  color: var(--wui-text-disabled) !important;
+  -webkit-text-fill-color: var(--wui-text-disabled);
+}
+
+@media (max-width: 680px) {
+  .wui-info-bar {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+  }
+
+  .wui-info-bar-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .wui-info-bar-close {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+.signature-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--wui-space-md);
+}
+
+.signature-form-grid label {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.signature-form-grid label.wide {
+  grid-column: 1 / -1;
+}
+
+.signature-form-grid label > small {
+  display: inline;
+  margin-left: 4px;
+  color: var(--wui-text-secondary);
+}
+
+.signature-form-grid input,
+.signature-setting-row select {
+  width: 100%;
+  min-width: 0;
+  padding: 0 10px;
+}
+
+.signature-setting-row,
+.signature-check-row {
+  min-height: 64px;
+  display: grid;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+}
+
+.signature-setting-row {
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 280px);
+}
+
+.signature-check-row {
+  grid-template-columns: 18px minmax(0, 1fr);
+  cursor: pointer;
+}
+
+.signature-setting-row + .signature-check-row,
+.signature-check-row + .signature-check-row {
+  border-top: 1px solid var(--wui-divider);
+}
+
+.signature-check-row:hover {
+  background: var(--wui-list-item-hover);
+}
+
+.signature-check-row:active {
+  background: var(--wui-list-item-pressed);
+}
+
+.signature-disabled-state {
+  width: min(720px, 100%);
+  min-height: 104px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
   align-items: center;
   gap: 14px;
   padding: 18px;
 }
 
-.signature-overview-card > .fluent {
-  width: 24px;
-  height: 24px;
-  color: var(--wui-accent-text);
+.signature-disabled-state > .fluent {
+  width: 22px;
+  height: 22px;
+  color: var(--wui-text-secondary);
 }
 
-.signature-overview-card h2,
-.signature-overview-card p {
+.signature-disabled-state h2,
+.signature-disabled-state p {
   margin: 0;
 }
 
-.signature-overview-card h2 {
+.signature-disabled-state h2 {
   font-size: 15px;
   line-height: 22px;
 }
 
-.signature-overview-card p {
+.signature-disabled-state p {
   margin-top: 2px;
   color: var(--wui-text-secondary);
   font-size: 12px;
@@ -3086,7 +4143,7 @@ pre {
 }
 
 .history-page-body .extensibility-card {
-  margin-top: var(--wui-space-sm);
+  margin-top: var(--wui-card-stack-gap);
 }
 
 .tools-surface.ia-page-frame {
@@ -3135,6 +4192,12 @@ pre {
   }
 }
 
+@media (max-width: 1180px) {
+  .signature-settings {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 900px) {
   .ia-page-frame,
   .tools-surface.ia-page-frame,
@@ -3161,13 +4224,81 @@ pre {
     justify-content: flex-start;
   }
 
-  .signature-overview-card {
-    grid-template-columns: 40px minmax(0, 1fr);
+  .signature-page-actions {
+    flex-wrap: wrap;
   }
 
-  .signature-overview-card .primary-btn {
-    grid-column: 1 / -1;
+}
+
+@media (max-width: 680px) {
+  .signature-form-grid,
+  .signature-setting-row {
+    grid-template-columns: 1fr;
+  }
+
+  .signature-form-grid label.wide {
+    grid-column: auto;
+  }
+
+  .signature-status-bar {
+    grid-template-columns: 20px minmax(0, 1fr);
+  }
+
+  .signature-status-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .settings-row {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    padding: 12px;
+  }
+
+  .settings-row-value {
+    display: none;
+  }
+
+  .settings-row-icon,
+  .settings-product-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .settings-group-heading-with-action {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-group-heading-with-action > button {
+    align-self: flex-start;
+  }
+
+  .psadt-settings-template-row,
+  .psadt-settings-template-row.custom {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+
+  .psadt-settings-template-row .psadt-default-control {
+    grid-column: 2;
     justify-self: start;
+  }
+
+  .psadt-settings-template-row.custom .psadt-delete-template {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .settings-about-content {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .settings-about-content dl {
+    min-width: 0;
+  }
+
+  .settings-about-content button {
+    align-self: flex-start;
   }
 }
 
@@ -3319,6 +4450,398 @@ pre {
 .workflow-canvas .react-flow__attribution a {
   background: var(--wui-bg-card) !important;
   color: var(--wui-text-secondary) !important;
+}
+
+/* Selected collection filters retain accent contrast across themes and states. */
+.collection-page-body #updatesFilter[aria-pressed="true"] {
+  border-color: var(--wui-accent);
+  border-bottom-color: var(--wui-accent-pressed);
+  background: var(--wui-accent);
+  color: var(--wui-on-accent);
+}
+
+.collection-page-body #updatesFilter[aria-pressed="true"]:hover:not(:disabled) {
+  border-color: var(--wui-accent-hover);
+  background: var(--wui-accent-hover);
+  color: var(--wui-on-accent);
+}
+
+.collection-page-body #updatesFilter[aria-pressed="true"]:active:not(:disabled) {
+  border-color: var(--wui-accent-pressed);
+  background: var(--wui-accent-pressed);
+  color: var(--wui-on-accent);
+}
+
+.collection-page-body #updatesFilter:focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 2px;
+}
+
+/* Version information architecture: application identity, four task facets, and progressive disclosure. */
+.version-identity-summary,
+.installation-method-card,
+.review-readiness {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+  box-shadow: var(--wui-shadow-card);
+}
+
+.version-identity-summary > span:nth-child(2),
+.installation-method-heading > span:first-child,
+.review-readiness-heading > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.version-identity-summary small,
+.installation-method-heading small,
+.review-readiness-heading small {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.version-identity-summary > span:nth-child(2) > span,
+.review-readiness-heading p,
+.section-intro p {
+  margin: 0;
+  color: var(--wui-text-secondary);
+}
+
+.version-identity-summary > button {
+  margin-left: auto;
+}
+
+.provenance-label,
+.required-label,
+.generated-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: max-content;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.required-label,
+.generated-label {
+  margin-left: auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.configuration-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.configuration-summary-grid > button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 72px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.configuration-summary-grid > button > span:nth-child(2) {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.configuration-summary-grid small,
+.configuration-summary-grid em {
+  overflow: hidden;
+  color: var(--wui-text-secondary);
+  font-size: 11px;
+  font-style: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-icon,
+.review-ready-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.installation-method-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.installation-method-state {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.installation-method-state > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.installation-method-state small,
+.installation-method-state #installationMethodDescription {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.installation-method-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-selected);
+  color: var(--wui-accent-text);
+}
+
+.installation-method-icon .fluent {
+  width: 20px;
+  height: 20px;
+}
+
+.installation-method-state h2,
+.review-readiness-heading h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 24px;
+}
+
+.installation-method-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.section-intro {
+  padding: 12px 16px 0;
+}
+
+.payload-actions-card label small {
+  color: var(--wui-text-secondary);
+  font-weight: 400;
+}
+
+.generated-command {
+  display: flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+
+.install-panel,
+.deployment-panel,
+.review-panel,
+.wrapper-panel,
+.detection-panel,
+.scope-panel,
+.application-details-panel.active {
+  gap: var(--wui-card-stack-gap);
+}
+
+.wrapper-panel,
+.detection-panel,
+.scope-panel,
+.application-details-panel.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.wrapper-configured {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wui-card-stack-gap);
+}
+
+.wrapper-template-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wui-text);
+  font-weight: 600;
+}
+
+.psadt-wrapper-dialog .psadt-template-list {
+  max-height: 330px;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.psadt-wrapper-dialog .psadt-template-row:not(:has(.service-badge)) {
+  grid-template-columns: 18px 40px minmax(0, 1fr);
+}
+
+.review-readiness {
+  display: grid;
+  grid-template-columns: minmax(280px, .85fr) minmax(440px, 1.15fr);
+}
+
+.review-readiness-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.readiness-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  margin: 0;
+}
+
+.readiness-checklist div {
+  display: grid;
+  gap: 2px;
+}
+
+.readiness-checklist dt {
+  font-weight: 600;
+}
+
+.readiness-checklist dt .fluent {
+  color: var(--wui-success);
+}
+
+.readiness-checklist dd {
+  margin: 0;
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.execution-chain-list {
+  display: grid;
+  gap: 1px;
+  padding: 12px 16px 16px;
+}
+
+.execution-chain-list > div {
+  display: grid;
+  grid-template-columns: 76px 100px auto minmax(220px, .8fr) auto minmax(280px, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--wui-divider);
+}
+
+.execution-chain-list > div:last-child {
+  border-bottom: 0;
+}
+
+.execution-chain-list code {
+  overflow: hidden;
+  padding: 5px 8px;
+  border-radius: var(--wui-radius-control);
+  background: var(--wui-control-pressed);
+  color: var(--wui-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.execution-chain-list .icon-arrow-right {
+  color: var(--wui-text-secondary);
+}
+
+.application-details-panel {
+  padding-top: 0;
+}
+
+.overview-panel.active > :last-child,
+.install-panel.active > :last-child,
+.deployment-panel.active > :last-child,
+.review-panel.active > :last-child {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1120px) {
+  .configuration-summary-grid,
+  .review-readiness {
+    grid-template-columns: 1fr;
+  }
+
+  .execution-chain-list > div {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .execution-chain-list > div > :not(strong) {
+    grid-column: 2;
+  }
+
+  .execution-chain-list > div > .icon-arrow-right {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .installation-method-card {
+    grid-template-columns: 1fr;
+  }
+
+  .installation-method-actions {
+    justify-content: flex-start;
+  }
+
+  .version-identity-summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .version-identity-summary > button {
+    margin-left: 50px;
+  }
+}
+
+/* PacKit page-surface contract: Mica canvas with sibling task cards. */
+.ia-page-frame,
+.tools-surface.ia-page-frame,
+.automation-shell.workflow-mode .workflow-list-view.ia-page-frame {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.ia-page-header,
+.daemon-page-header.ia-page-header,
+.tools-header.ia-page-header,
+.workflow-list-header.ia-page-header {
+  min-height: 72px;
+  margin: 0 0 var(--wui-space-md);
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.tools-surface.ia-page-frame {
+  overflow: hidden;
 }
 
 @media (forced-colors: active) {

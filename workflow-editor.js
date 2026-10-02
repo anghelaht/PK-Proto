@@ -21,7 +21,7 @@
   const starterWorkflow = {
     id: "starter",
     name: "Standard application update",
-    description: "A safe starting point for detecting, preparing and publishing application updates.",
+    description: "Detect, prepare, assign and retire application versions with one reusable update policy.",
     revision: "1.3",
     revisions: 4,
     applications: 0,
@@ -30,7 +30,7 @@
     modified: "Included with PacKit"
   };
 
-  const assignableApplications = [
+  const legacyAssignableApplications = [
     { id: "fabrikam", name: "Fabrikam Helpdesk Agent", publisher: "Fabrikam", version: "Not configured", readiness: "Ready to configure", tone: "neutral" },
     { id: "tailspin", name: "Tailspin Inventory Client", publisher: "Tailspin Toys", version: "12.3.10", readiness: "Ready", tone: "success" },
     { id: "northwind", name: "Northwind VPN Client", publisher: "Northwind Traders", version: "12.3.10", readiness: "Ready", tone: "success" },
@@ -48,21 +48,21 @@
     { id: "requirements", label: "Requirements", icon: "icon-list", summary: "Architecture and minimum OS", required: true },
     { id: "detection", label: "Detection", icon: "icon-detection", summary: "Prove the installed application state", required: true },
     { id: "returnCodes", label: "Return codes & restart", icon: "icon-refresh", summary: "Interpret process outcomes consistently", required: true },
-    { id: "transition", label: "Version transition", icon: "icon-copy", summary: "Copy forward and handle the current version", required: true },
+    { id: "transition", label: "Future version handling", icon: "icon-copy", summary: "Create and configure the next package version", required: true },
     { id: "build", label: "Build package", icon: "icon-folder", summary: "Create the selected deployment artifact", required: true },
     { id: "validate", label: "Build & verify", icon: "icon-check", summary: "Validate installation, upgrade and detection", required: true },
     { id: "approval", label: "Review & approval", icon: "icon-people", summary: "Review resolved changes before execution", required: true },
     { id: "publish", label: "Publish output", icon: "icon-download", summary: "Build only, Intune, MECM or both", required: true },
+    { id: "assignments", label: "Future assignments", icon: "icon-people", summary: "Move or preserve Required, Available and Uninstall", required: true },
+    { id: "cleanup", label: "Previous version handling", icon: "icon-history", summary: "Retain, unassign or retire after deployment", required: true },
     { id: "wrapper", label: "Wrapper", icon: "icon-tools", summary: "PSAppDeployToolkit or custom wrapper", required: false },
     { id: "customScripts", label: "Custom scripts", icon: "icon-signature", summary: "Pre-install and post-install actions", required: false },
     { id: "repair", label: "Repair behavior", icon: "icon-tools", summary: "Define an optional repair path", required: false },
     { id: "dependencies", label: "Dependencies", icon: "icon-workflow", summary: "Resolve prerequisite applications", required: false },
     { id: "scopeTags", label: "Scope tags", icon: "icon-tag", summary: "No tags selected", required: false },
-    { id: "assignments", label: "Assignment rollout", icon: "icon-people", summary: "Required, available, uninstall and rings", required: false },
     { id: "signing", label: "Digital signing", icon: "icon-signature", summary: "Apply the configured signing profile", required: false },
     { id: "notifications", label: "Notifications", icon: "icon-feedback", summary: "Notify owners about approvals and failures", required: false },
-    { id: "monitoring", label: "Post-publish monitoring", icon: "icon-eye", summary: "Observe deployment and device results", required: false },
-    { id: "cleanup", label: "Cleanup & retirement", icon: "icon-dismiss", summary: "Retire old objects after rollout", required: false }
+    { id: "monitoring", label: "Post-publish monitoring", icon: "icon-eye", summary: "Observe deployment and device results", required: false }
   ];
 
   const requiredIds = nodeDefinitions.filter((node) => node.required).map((node) => node.id);
@@ -79,12 +79,10 @@
       customScripts: { x: 360, y: 534 },
       repair: { x: 360, y: 650 },
       dependencies: { x: 360, y: 766 },
-      assignments: { x: 360, y: 998 },
       signing: { x: 360, y: 1114 },
       scopeTags: { x: 360, y: 1230 },
       notifications: { x: 360, y: 1346 },
-      monitoring: { x: 360, y: 1462 },
-      cleanup: { x: 360, y: 1578 }
+      monitoring: { x: 360, y: 1462 }
     };
     const optionalNodes = nodeDefinitions.filter((node) => !node.required).map((node) => ({
       id: node.id,
@@ -110,12 +108,10 @@
       { id: "program-customScripts", source: "program", target: "customScripts", type: "smoothstep", className: "workflow-optional-edge" },
       { id: "program-repair", source: "program", target: "repair", type: "smoothstep", className: "workflow-optional-edge" },
       { id: "requirements-dependencies", source: "requirements", target: "dependencies", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "transition-assignments", source: "transition", target: "assignments", type: "smoothstep", className: "workflow-optional-edge" },
       { id: "build-signing", source: "build", target: "signing", type: "smoothstep", className: "workflow-optional-edge" },
       { id: "publish-scopeTags", source: "publish", target: "scopeTags", type: "smoothstep", className: "workflow-optional-edge" },
       { id: "approval-notifications", source: "approval", target: "notifications", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "publish-monitoring", source: "publish", target: "monitoring", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "transition-cleanup", source: "transition", target: "cleanup", type: "smoothstep", className: "workflow-optional-edge" }
+      { id: "publish-monitoring", source: "publish", target: "monitoring", type: "smoothstep", className: "workflow-optional-edge" }
     ];
   }
 
@@ -192,7 +188,7 @@
       { key: "failure", label: "If publication fails", type: "select", options: ["Stop and keep the current deployment", "Pause for review", "Retry the failed target"] }
     ],
     wrapper: [
-      { key: "wrapper", label: "Wrapper", type: "select", options: ["PSAppDeployToolkit v4", "PSAppDeployToolkit v3 compatibility", "Custom PowerShell"] },
+      { key: "wrapper", label: "Wrapper", type: "select", options: ["PSAppDeployToolkit v4", "PSAppDeployToolkit v3 compatibility", "Custom PowerShell", "Direct installer"] },
       { key: "interaction", label: "User interaction", type: "select", options: ["Silent", "Allow deferral", "Close blocking processes"] }
     ],
     returnCodes: [
@@ -203,9 +199,8 @@
     transition: [
       { key: "copySource", label: "Build the next version from", type: "select", options: ["Previous released version", "Latest successful upload", "Clean configuration"] },
       { key: "copyPolicy", label: "Copy-forward policy", type: "select", options: ["Copy verified reusable configuration", "Copy all configuration for review", "Resolve every value again"] },
-      { key: "relationship", label: "Deployment relationship", type: "select", options: ["Supersede current version", "Replace and uninstall current version", "Create without a relationship"] },
-      { key: "currentVersion", label: "Current version after publication", type: "select", options: ["Keep available during rollout", "Remove assignments after successful rollout", "Retire only after approval"] },
-      { key: "existingInstalls", label: "Existing installations", type: "select", options: ["Update when the current version is detected", "Leave unchanged", "Require assignment policy"] }
+      { key: "relationship", label: "Deployment relationship", type: "select", options: ["Supersede the previous version", "Replace and uninstall the previous version", "Create without a relationship"] },
+      { key: "existingInstalls", label: "Devices with the previous version", type: "select", options: ["Update through the Required assignment policy", "Leave unchanged until assigned", "Pause for review"] }
     ],
     customScripts: [
       { key: "preInstall", label: "Pre-install action", type: "select", options: ["None", "Run configured PowerShell script", "Require application binding"] },
@@ -223,7 +218,7 @@
       { key: "source", label: "Scope tag source", type: "select", options: ["Application binding", "Workspace default", "Require selection before publication"] }
     ],
     assignments: [
-      { key: "source", label: "Assignment source", type: "select", options: ["Existing version assignments", "Assignment workflow", "No assignment source"] },
+      { key: "source", label: "Start from", type: "select", options: ["Previous version assignments", "Workflow assignment defaults", "No existing assignments"] },
       { key: "rings", label: "Assignment rings", type: "select", options: ["Pilot → IT → Production", "Pilot → Production", "Single ring"] },
       { key: "required", label: "Required assignments", type: "radio", defaultValue: "Keep current Required assignments and require the next version", options: ["Move Required assignments to the next version", "Keep current Required assignments and require the next version", "Do not automate Required assignments"] },
       { key: "available", label: "Available assignments", type: "radio", defaultValue: "Move Available assignments to the next version", options: ["Move Available assignments to the next version", "Keep current Available assignments and make the next version available", "Do not automate Available assignments"] },
@@ -243,8 +238,10 @@
       { key: "failureGate", label: "Pause rollout on failure threshold", type: "checkbox", checked: true }
     ],
     cleanup: [
-      { key: "when", label: "Cleanup timing", type: "select", options: ["After rollout succeeds", "After explicit approval", "After a retention period"] },
-      { key: "action", label: "Previous object action", type: "select", options: ["Remove assignments", "Retire deployment object", "Remove assignments and retire"] }
+      { key: "when", label: "When the rollout is complete", type: "select", options: ["After the Production ring succeeds", "After explicit approval", "After a retention period"] },
+      { key: "retention", label: "Retention period", type: "select", options: ["No delay", "3 days", "7 days", "14 days", "30 days"] },
+      { key: "action", label: "Previous version action", type: "select", options: ["Keep the version and its assignments", "Remove assignments only", "Retire the deployment object", "Remove assignments and retire"] },
+      { key: "failureGate", label: "Keep the previous version active while deployment failures remain", type: "checkbox", checked: true }
     ]
   };
 
@@ -266,7 +263,7 @@
       author: "Andrei Pop",
       created: "19 Sep 2026",
       changes: "Added assignment rings and PSADT wrapper defaults",
-      optionalIds: ["wrapper", "assignments"],
+      optionalIds: ["wrapper"],
       configuration: {
         source: { acquisition: "Linked catalog", variant: "Prefer x64 stable release" },
         wrapper: { wrapper: "PSAppDeployToolkit v4", interaction: "Allow deferral" },
@@ -305,6 +302,19 @@
     }
   ];
 
+  const policy = window.packitPolicy;
+  const existingVersionIds = [...document.querySelectorAll("#versionList [data-version]")].map(button => button.dataset.version);
+  const policyCatalog = apps.map(app => ({ ...app, existingVersions: app.empty ? [] : existingVersionIds }));
+  const policyValues = policy.register(fieldDefinitions, nodeDefinitions, policyCatalog, starterRevisionHistory);
+  const assignableApplications = apps.map(app => ({ ...app, id: app.name, readiness: app.empty ? "Not configured" : "Ready", tone: "neutral" }));
+  const workflowRows = () => Object.values(policy.state().workflows).map(item => ({
+    ...item, revision: item.revisions[0]?.version || "0.1", revisions: item.revisions.length,
+    applications: Object.values(policy.state().applications).filter(app => app.binding?.workflowId === item.id).length,
+    runs: 0,
+    previews: policy.state().previews.filter(run => run.binding?.workflowId === item.id).length,
+    status: item.draft ? "Saved draft" : item.revisions.length ? "Published" : "Draft"
+  }));
+
   function WorkflowInspector({ node, configuration, onConfigurationChange, onActivate }) {
     if (!node) {
       return h("aside", { className: "workflow-inspector empty" },
@@ -330,6 +340,7 @@
             h("button", { className: "primary-btn", type: "button", onClick: () => onActivate(node.id) }, h(FluentIcon, { name: "icon-add" }), " Add to workflow")
           )
         : h("div", { className: "workflow-inspector-form" },
+            h("p", { className: "policy-meta" }, "Inherited by assigned applications. Local exceptions must be explicitly confirmed; publishing creates a revision for review."),
             fields.map((field) => field.type === "radio"
               ? h("fieldset", { key: field.key, className: "workflow-radio-field" },
                   h("legend", null, field.label),
@@ -463,6 +474,7 @@
   }
 
   function WorkflowListView({ workflows, onOpen, onNew }) {
+    const [showGuidance, setShowGuidance] = React.useState(true);
     return h("div", { className: "workflow-list-view ia-page-frame" },
       h("header", { className: "workflow-list-header ia-page-header" },
         h("span", { className: "ia-page-icon", "aria-hidden": "true" }, h(FluentIcon, { name: "icon-workflow" })),
@@ -493,14 +505,18 @@
             h("td", null, h("span", { className: "status neutral" }, workflow.status)),
             h("td", null, h("strong", null, workflow.applications), h("small", null, workflow.applications === 1 ? "application" : "applications")),
             h("td", null, h("strong", null, workflow.revisions), h("small", null, `Current v${workflow.revision}`)),
-            h("td", null, h("strong", null, workflow.runs), h("small", null, workflow.runs === 1 ? "run" : "runs")),
+            h("td", null, h("strong", null, "0 runs"), h("small", null, `${workflow.previews || 0} configuration previews`)),
             h("td", null, h("button", { type: "button", onClick: () => onOpen(workflow.id) }, "Open workflow", h(FluentIcon, { name: "icon-arrow-right" })))
           )))
         )
       ),
-      h("div", { className: "workflow-list-note", role: "status" },
+      showGuidance && h("div", { className: "workflow-list-note wui-info-bar informational", role: "note" },
         h(FluentIcon, { name: "icon-info" }),
-        h("span", null, h("strong", null, "Start with the PacKit workflow, then make it yours."), " No applications are affected until you assign and publish the workflow.")
+        h("span", { className: "wui-info-bar-content" },
+          h("strong", null, "Start with the PacKit workflow, then make it yours"),
+          h("small", null, "No applications are affected until you assign and publish the workflow.")
+        ),
+        h("button", { className: "wui-info-bar-close", type: "button", "aria-label": "Dismiss message", title: "Dismiss", onClick: () => setShowGuidance(false) }, h(FluentIcon, { name: "icon-dismiss" }))
       )
       )
     );
@@ -514,7 +530,7 @@
 
       const selector = "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href], [tabindex]:not([tabindex='-1'])";
       const focusables = () => Array.from(dialog.querySelectorAll(selector)).filter((element) => element.getClientRects().length > 0);
-      (dialog.querySelector("[autofocus]") || focusables()[0])?.focus();
+      (dialog.querySelector("[data-dialog-initial-focus='true']") || dialog.querySelector("[autofocus]") || focusables()[0])?.focus();
 
       const handleKeyDown = (event) => {
         if (event.key === "Escape") {
@@ -549,14 +565,42 @@
 
   function AssignApplicationsDialog({ workflow, applications, onAssign, onClose }) {
     const [selected, setSelected] = React.useState(new Set());
+    const [query, setQuery] = React.useState("");
     const dialogRef = React.useRef(null);
+    const selectAllRef = React.useRef(null);
     const titleId = `assignApplicationsTitle-${workflow.id}`;
     const descriptionId = `assignApplicationsDescription-${workflow.id}`;
+    const searchId = `assignApplicationsSearch-${workflow.id}`;
+    const listId = `assignApplicationsList-${workflow.id}`;
     useDialogFocus(dialogRef, onClose);
+
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    const visibleApplications = React.useMemo(() => applications.filter((app) => {
+      if (!normalizedQuery) return true;
+      return [app.name, app.publisher, app.version, app.readiness].some((value) => String(value || "").toLocaleLowerCase().includes(normalizedQuery));
+    }), [applications, normalizedQuery]);
+    const selectedVisibleCount = visibleApplications.reduce((count, app) => count + (selected.has(app.id) ? 1 : 0), 0);
+    const allVisibleSelected = visibleApplications.length > 0 && selectedVisibleCount === visibleApplications.length;
+
+    React.useEffect(() => {
+      if (selectAllRef.current) selectAllRef.current.indeterminate = selectedVisibleCount > 0 && !allVisibleSelected;
+    }, [selectedVisibleCount, allVisibleSelected]);
+
+    React.useEffect(() => {
+      document.body.classList.add("workflow-modal-open");
+      return () => document.body.classList.remove("workflow-modal-open");
+    }, []);
 
     const toggle = (id) => setSelected((current) => {
       const next = new Set(current);
       next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+    const toggleVisible = () => setSelected((current) => {
+      const next = new Set(current);
+      if (allVisibleSelected) visibleApplications.forEach((app) => next.delete(app.id));
+      else visibleApplications.forEach((app) => next.add(app.id));
       return next;
     });
 
@@ -566,26 +610,46 @@
       onClose();
     };
 
-    return h("div", { className: "workflow-dialog-backdrop workflow-assignment-backdrop" },
+    return ReactDOM.createPortal(h("div", { className: "workflow-dialog-backdrop workflow-assignment-backdrop" },
       h("dialog", { ref: dialogRef, className: "workflow-assignment-dialog", open: true, "aria-modal": "true", "aria-labelledby": titleId, "aria-describedby": descriptionId },
         h("header", null,
           h("div", null,
             h("h2", { id: titleId }, "Assign applications"),
-            h("p", { id: descriptionId }, `Select the applications that should use ${workflow.name}.`)
+            h("p", { id: descriptionId }, `Assign ${workflow.name} to future versions. Existing versions keep their recorded configuration.`)
           ),
           h("button", { className: "icon-btn", type: "button", "aria-label": "Close assign applications dialog", title: "Close", onClick: onClose }, h(FluentIcon, { name: "icon-dismiss" }))
         ),
+        applications.length > 0 && h("div", { className: "workflow-assignment-tools" },
+          h("label", { className: "workflow-assignment-search", htmlFor: searchId },
+            h(FluentIcon, { name: "icon-search" }),
+            h("input", { id: searchId, type: "search", value: query, placeholder: "Search applications", "aria-label": "Search applications", "aria-controls": listId, autoFocus: true, "data-dialog-initial-focus": "true", onChange: (event) => setQuery(event.target.value) })
+          ),
+          h("div", { className: "workflow-assignment-select-all" },
+            h("label", null,
+              h("input", { ref: selectAllRef, type: "checkbox", checked: allVisibleSelected, disabled: visibleApplications.length === 0, "aria-label": normalizedQuery ? "Select all filtered applications" : "Select all available applications", onChange: toggleVisible }),
+              h("span", null, "Select all")
+            ),
+            h("small", { role: "status", "aria-live": "polite" }, `${visibleApplications.length} ${visibleApplications.length === 1 ? "application" : "applications"} shown`)
+          )
+        ),
         applications.length > 0
-          ? h("div", { className: "workflow-assignment-list", role: "group", "aria-label": "Applications available to assign" },
-              applications.map((app) => h("label", { className: `workflow-assignment-row ${selected.has(app.id) ? "selected" : ""}`, key: app.id },
-                h("input", { type: "checkbox", checked: selected.has(app.id), onChange: () => toggle(app.id) }),
-                h("span", { className: "workflow-assignment-app" },
-                  h("strong", null, app.name),
-                  h("small", null, `${app.publisher} · ${app.version}`)
-                ),
-                h("span", { className: `status ${app.tone}` }, app.readiness)
-              ))
-            )
+          ? visibleApplications.length > 0
+            ? h("div", { className: "workflow-assignment-list", id: listId, role: "group", "aria-label": "Applications available to assign" },
+                visibleApplications.map((app) => h("label", { className: `workflow-assignment-row ${selected.has(app.id) ? "selected" : ""}`, key: app.id },
+                  h("input", { type: "checkbox", checked: selected.has(app.id), "aria-label": `Select ${app.name}`, onChange: () => toggle(app.id) }),
+                  h("span", { className: "workflow-assignment-app" },
+                    h("strong", null, app.name),
+                    h("small", null, `${app.publisher} · ${app.version}`)
+                  ),
+                  h("span", { className: `status ${app.tone}` }, app.readiness)
+                ))
+              )
+            : h("div", { className: "workflow-dialog-empty workflow-filter-empty" },
+                h(FluentIcon, { name: "icon-search" }),
+                h("strong", null, "No matching applications"),
+                h("p", null, "Try another name, publisher, version, or readiness state."),
+                h("button", { type: "button", onClick: () => setQuery("") }, "Clear search")
+              )
           : h("div", { className: "workflow-dialog-empty" },
               h(FluentIcon, { name: "icon-check" }),
               h("strong", null, "All available applications are assigned"),
@@ -599,12 +663,13 @@
           )
         )
       )
-    );
+    ), document.body);
   }
 
   function ApplicationsView({ workflow, applications, availableApplications, onAssign, onRemove }) {
     const [selected, setSelected] = React.useState(new Set());
     const [showAssignDialog, setShowAssignDialog] = React.useState(false);
+    const canAssign = Boolean(policy.latest(workflow.id));
 
     React.useEffect(() => {
       setSelected((current) => new Set(Array.from(current).filter((id) => applications.some((app) => app.id === id))));
@@ -631,15 +696,15 @@
           ),
           h("div", { className: "workflow-bulk-actions" },
             applications.length > 0 && h("button", { className: "workflow-remove-app", type: "button", disabled: selected.size === 0, onClick: removeSelected }, h(FluentIcon, { name: "icon-dismiss" }), " Remove app from workflow"),
-            h("button", { className: "primary-btn", type: "button", onClick: () => setShowAssignDialog(true) }, h(FluentIcon, { name: "icon-add" }), " Assign applications")
+            h("button", { className: "primary-btn", type: "button", disabled: !canAssign, title: canAssign ? "Assign a published revision" : "Publish a revision before assigning applications", onClick: () => setShowAssignDialog(true) }, h(FluentIcon, { name: "icon-add" }), " Assign applications")
           )
         ),
         applications.length === 0
           ? h("div", { className: "workflow-empty-state workflow-applications-empty" },
               h(FluentIcon, { name: "icon-people" }),
               h("h3", null, "No applications assigned"),
-              h("p", null, "Assign applications to use this workflow for future package updates."),
-              h("button", { className: "primary-btn", type: "button", onClick: () => setShowAssignDialog(true) }, h(FluentIcon, { name: "icon-add" }), " Assign applications")
+              h("p", null, canAssign ? "Assign applications to use this workflow for future package updates." : "Publish a revision before assigning applications."),
+              h("button", { className: "primary-btn", type: "button", disabled: !canAssign, onClick: () => setShowAssignDialog(true) }, h(FluentIcon, { name: "icon-add" }), " Assign applications")
             )
           : h("div", { className: "workflow-app-table", role: "table", "aria-label": "Applications assigned to this workflow" },
               h("div", { className: "workflow-app-row heading", role: "row" }, h("span", null), h("span", null, "Application"), h("span", null, "Current version"), h("span", null, "Publisher"), h("span", null, "Workflow")),
@@ -648,7 +713,10 @@
                 h("strong", null, app.name),
                 h("span", null, app.version),
                 h("span", null, app.publisher),
-                h("span", { className: "status success" }, h(FluentIcon, { name: "icon-check" }), ` Applied · v${workflow.revision}`)
+                h("span", null,
+                  h("span", { className: "policy-meta" }, `Pinned v${policy.state().applications[app.id]?.binding?.revision} · ${Object.keys(policy.state().applications[app.id]?.overrides || {}).length} application exceptions · ${Object.values(policy.state().applications[app.id]?.versions || {}).reduce((sum, version) => sum + Object.keys(version.overrides).length, 0)} version exceptions`),
+                  h("button", { type: "button", onClick: () => window.packitPolicyUI.openApplication(app.id) }, "View configuration")
+                )
               ))
             )
       ),
@@ -657,8 +725,14 @@
   }
 
   function RunsView({ workflow }) {
+    const previews = policy.state().previews.filter(item => item.binding?.workflowId === workflow.id);
     return h("section", { className: "workflow-simple-view" },
-      h("header", null, h("div", null, h("h2", null, "Workflow runs"), h("p", null, `Executions of ${workflow.name} across assigned applications.`)), h("button", { type: "button", disabled: workflow.runs === 0 }, h(FluentIcon, { name: "icon-download" }), " Export logs")),
+      h("header", null, h("div", null, h("h2", null, "Runs and configuration previews"), h("p", null, "Previews capture configuration only. No deployment or external drift check is performed."))),
+      previews.length ? h("div", { className: "policy-run-list" }, previews.map(item => h("div", { key: item.id, className: "policy-row" },
+        h("span", null, h("strong", null, item.application), h("small", null, `${item.version} · v${item.binding.revision} · ${new Date(item.created).toLocaleString()}`)),
+        h("span", null, "Configuration preview"),
+        h("button", { type: "button", onClick: () => window.packitPolicyUI.showSnapshot(item) }, "View snapshot")
+      ))) :
       h("div", { className: "workflow-empty-state" },
         h(FluentIcon, { name: "icon-history" }),
         h("h3", null, "No runs yet"),
@@ -668,9 +742,7 @@
   }
 
   function RevisionsView({ workflow, onRevert }) {
-    const rows = workflow.id === starterWorkflow.id
-      ? starterRevisionHistory
-      : [{ version: workflow.revision, state: "Current draft", tone: "neutral", author: "You", created: "Just now", changes: "Initial workflow draft", optionalIds: [], configuration: {} }];
+    const rows = policy.state().workflows[workflow.id].revisions.map((row, index) => ({ ...row, state: index ? "Published" : "Latest published", tone: "neutral", changes: "Immutable configuration snapshot" }));
     return h("section", { className: "workflow-simple-view" },
       h("header", null, h("div", null, h("h2", null, "Workflow revisions"), h("p", null, "Draft changes remain isolated until a revision is published."))),
       h("div", { className: "workflow-simple-table revisions", role: "table", "aria-label": "Workflow revision history" },
@@ -706,7 +778,7 @@
   }
 
   function WorkflowEditor() {
-    const [workflows, setWorkflows] = React.useState([starterWorkflow]);
+    const [workflows, setWorkflows] = React.useState(workflowRows);
     const [pageMode, setPageMode] = React.useState("list");
     const [workflowId, setWorkflowId] = React.useState(starterWorkflow.id);
     const [activeView, setActiveView] = React.useState("design");
@@ -718,7 +790,6 @@
     const [canPublish, setCanPublish] = React.useState(false);
     const [isNewWorkflow, setIsNewWorkflow] = React.useState(false);
     const [showDiscardDialog, setShowDiscardDialog] = React.useState(false);
-    const [workflowAssignments, setWorkflowAssignments] = React.useState({});
     const [restoredRevision, setRestoredRevision] = React.useState(null);
     const [theme, setTheme] = React.useState(document.body.dataset.theme || "light");
 
@@ -730,12 +801,16 @@
 
     React.useEffect(() => {
       const selectWorkflow = (event) => {
-        setWorkflowId(starterWorkflow.id);
-        setPageMode("editor");
-        setActiveView("design");
+        openWorkflow(event.detail.workflowId);
       };
       window.addEventListener("packit:workflow-selected", selectWorkflow);
       return () => window.removeEventListener("packit:workflow-selected", selectWorkflow);
+    }, []);
+
+    React.useEffect(() => {
+      const refresh = () => setWorkflows(workflowRows());
+      window.addEventListener("packit:policy-changed", refresh);
+      return () => window.removeEventListener("packit:policy-changed", refresh);
     }, []);
 
     React.useEffect(() => {
@@ -769,7 +844,7 @@
     };
     const returnToList = ({ discardNew = false } = {}) => {
       if (discardNew && isNewWorkflow) {
-        setWorkflows((current) => current.filter((item) => item.id !== workflow.id));
+        policy.discard(workflow.id);
       }
       resetEditor();
       setPageMode("list");
@@ -780,6 +855,14 @@
     const discardChanges = () => returnToList({ discardNew: true });
     const openWorkflow = (id) => {
       resetEditor();
+      const stored = policy.state().workflows[id];
+      if (!stored) return;
+      const saved = stored.draft || stored.revisions[0];
+      if (saved) {
+        setConfiguration(saved.configuration);
+        setNodes(createInitialNodes().map(node => ({ ...node, data: { ...node.data, enabled: node.data.required || saved.optionalIds.includes(node.id) } })));
+      }
+      setCanPublish(Boolean(stored.draft));
       setWorkflowId(id);
       setPageMode("editor");
       setIsNewWorkflow(false);
@@ -807,24 +890,25 @@
       setActiveView("design");
     };
     const saveDraft = () => {
+      const optionalIds = nodes.filter(node => !node.data.required && node.data.enabled).map(node => node.id);
+      policy.saveDraft(workflow.id, { configuration, optionalIds, values: policyValues(optionalIds, configuration) });
       setDirty(false);
       setCanPublish(true);
       setIsNewWorkflow(false);
       setRestoredRevision(null);
-      setWorkflows((current) => current.map((item) => item.id === workflow.id ? { ...item, status: "Draft", modified: "Just now" } : item));
     };
     const publishWorkflow = () => {
+      policy.publish(workflow.id);
       setDirty(false);
       setCanPublish(false);
       setRestoredRevision(null);
-      setWorkflows((current) => current.map((item) => item.id === workflow.id ? { ...item, status: "Published", modified: "Just now" } : item));
       setPageMode("list");
       setIsNewWorkflow(false);
     };
     const createWorkflow = () => {
       const id = `custom-${Date.now()}`;
       const created = { id, name: "Untitled update workflow", description: "New workflow created from the PacKit required backbone.", revision: "0.1", revisions: 1, applications: 0, runs: 0, status: "Draft", modified: "Just now" };
-      setWorkflows((current) => [created, ...current]);
+      policy.create(id, created.name, created.description);
       setWorkflowId(id);
       resetEditor();
       setPageMode("editor");
@@ -832,18 +916,14 @@
       setCanPublish(false);
       setIsNewWorkflow(true);
     };
-    const updateWorkflowAssignments = (update) => {
-      setWorkflowAssignments((current) => {
-        const nextIds = update(current[workflow.id] || []);
-        setWorkflows((currentWorkflows) => currentWorkflows.map((item) => item.id === workflow.id ? { ...item, applications: nextIds.length, modified: "Just now" } : item));
-        return { ...current, [workflow.id]: nextIds };
-      });
+    const assignApplications = (ids) => {
+      if (!policy.latest(workflow.id)) { showToast("Publish a revision before assigning applications"); return; }
+      ids.forEach(id => policy.bind(id, workflow.id));
     };
-    const assignApplications = (ids) => updateWorkflowAssignments((current) => Array.from(new Set([...current, ...ids])));
-    const removeApplications = (ids) => updateWorkflowAssignments((current) => current.filter((id) => !ids.includes(id)));
-    const assignedApplicationIds = workflowAssignments[workflow.id] || [];
+    const removeApplications = ids => window.packitPolicyUI.confirmDetach(ids);
+    const assignedApplicationIds = Object.values(policy.state().applications).filter(app => app.binding?.workflowId === workflow.id).map(app => app.id);
     const assignedApplications = assignableApplications.filter((app) => assignedApplicationIds.includes(app.id));
-    const availableApplications = assignableApplications.filter((app) => !assignedApplicationIds.includes(app.id));
+    const availableApplications = assignableApplications.filter((app) => !policy.state().applications[app.id]?.binding);
 
     const nodeTypes = React.useMemo(() => ({ packitNode: PackitNode }), []);
     const isValidConnection = React.useCallback((connection) => connection.source !== connection.target, []);
@@ -883,6 +963,10 @@
         tabs.map((item, index) =>
           h("button", { key: item[0], id: `workflow-tab-${item[0]}`, type: "button", role: "tab", tabIndex: activeView === item[0] ? 0 : -1, className: activeView === item[0] ? "active" : "", "aria-selected": activeView === item[0], "aria-controls": `workflow-panel-${item[0]}`, onKeyDown: (event) => selectAdjacentTab(event, index), onClick: () => setActiveView(item[0]) }, h(FluentIcon, { name: item[2] }), item[1])
         )
+      ),
+      h("div", { className: "policy-workflow-notice wui-info-bar informational", role: "note" },
+        h(FluentIcon, { name: "icon-info" }),
+        h("span", null, "Published revisions are immutable. Applications keep their pinned revision and exceptions until an update is reviewed. Existing versions retain their recorded configuration.")
       ),
       activeView === "design" && h("div", { className: "workflow-design-layout", id: "workflow-panel-design", role: "tabpanel", "aria-labelledby": "workflow-tab-design", tabIndex: 0 },
         h("section", { className: "workflow-canvas", "aria-label": "Workflow canvas" },

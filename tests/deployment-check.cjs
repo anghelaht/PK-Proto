@@ -1,0 +1,126 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+(async () => {
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage({viewport:{width:1440,height:1000}});
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto('http://localhost:4173', {waitUntil:'networkidle'});
+    await page.evaluate(() => localStorage.removeItem('packit-deployment-v1'));
+    await page.reload({waitUntil:'networkidle'});
+    await page.locator('.app-row').first().click();
+    await page.locator('#deploymentTab').click();
+    const state = () => page.evaluate(() => packitDeployment.capture());
+    const initial = await state();
+    const picker = page.locator('#deploymentPicker');
+    const edit = async (intent, group, target = 'include') => {
+      await page.locator(`[data-add-groups="${intent}"]`).click();
+      const selected = picker.locator(`[data-picker-group="${group}"][data-target="${target}"]`);
+      const opposite = picker.locator(`[data-picker-group="${group}"][data-target="${target === 'include' ? 'exclude' : 'include'}"]`);
+      await selected.check();
+      assert(await selected.isChecked());
+      assert(!await opposite.isChecked());
+      await page.locator('#deploymentPickerApply').click();
+    };
+    await edit('available','it');
+    assert((await state()).assignments.available.some(row => row.id === 'it'));
+    await edit('required','production','exclude');
+    assert((await state()).assignments.required.some(row => row.id === 'production' && row.target === 'exclude'));
+    await page.locator('[data-add-groups="uninstall"]').click();
+    assert(await picker.locator('[data-picker-group="bbn"][data-target="include"]').isDisabled());
+    assert(!await picker.locator('[data-picker-group="bbn"][data-target="exclude"]').isDisabled());
+    await page.locator('#deploymentPickerSearch').fill('retired');
+    await picker.locator('[data-picker-group="retired"][data-target="include"]').check();
+    await page.locator('#deploymentPickerApply').click();
+    assert.equal((await state()).assignments.uninstall.length, 1);
+    await page.locator('[data-remove-group="retired"]').click();
+    assert.equal((await state()).assignments.uninstall.length, 0);
+    await page.locator('[data-configuration-action="cancel"]').click();
+    assert.deepEqual(await state(), initial);
+    await page.locator('[data-add-groups="available"]').click();
+    await picker.locator('[data-picker-group="caphyon"][data-target="include"]').uncheck();
+    await page.locator('#deploymentPickerApply').click();
+    assert(!(await state()).assignments.available.some(row => row.id === 'caphyon'));
+    await page.locator('[data-configuration-action="cancel"]').click();
+    assert.deepEqual(await state(), initial);
+    for (const intent of ['available','required']) {
+      await page.locator(`[data-intent="${intent}"][data-remove-group="bbn"]`).click();
+      assert(!(await state()).assignments[intent].some(row => row.id === 'bbn'));
+    }
+    await page.locator('[data-configuration-action="cancel"]').click();
+    assert.deepEqual(await state(), initial);
+    await page.locator('#deploymentChooseTags').click();
+    await picker.locator('input[value="Default"]').uncheck();
+    await picker.locator('input[value="Packaging"]').uncheck();
+    await page.locator('#deploymentPickerApply').click();
+    assert.deepEqual((await state()).tags, []);
+    assert(await page.locator('#deploymentTagList').innerText().then(text => text.includes('Default')));
+    await page.locator('[data-configuration-action="cancel"]').click();
+    assert.deepEqual(await state(), initial);
+    assert((await page.locator('#policyCodesOwnership .policy-source-tip').getAttribute('data-tooltip')).includes('Guided Intune Update v1.4'));
+    await page.getByRole('button', { name: 'Edit Return codes', exact: true }).click();
+    await page.locator('#policyCodesReason').fill('Add vendor-specific error code');
+    await page.locator('#policyDialog button[type=submit]').click();
+    await page.locator('#deploymentAddCode').click();
+    await page.locator('[data-code-index="5"]').fill('0');
+    assert.equal(await page.locator('[data-code-index="5"]').getAttribute('aria-invalid'),'true');
+    await page.locator('[data-configuration-action="save"]').click();
+    assert(!await page.locator('#saveConfigurationDialog').isVisible());
+    await page.locator('[data-code-index="5"]').fill('666');
+    await page.locator('[data-type-index="5"]').selectOption('Failed');
+    await edit('uninstall','retired');
+    await page.locator('[data-configuration-action="save"]').click();
+    const committed = await state();
+    await page.locator('[data-code-index="0"]').fill('22');
+    await page.locator('[data-configuration-action="cancel"]').click();
+    assert.deepEqual(await state(), committed);
+    await page.locator('.version[data-version="12.3.122"]').click();
+    assert.equal((await state()).assignments.uninstall.length, 0);
+    await page.locator('.version[data-version="12.3.123"]').click();
+    assert.deepEqual(await state(), committed);
+    await page.reload({waitUntil:'networkidle'});
+    await page.locator('.app-row').first().click();
+    await page.locator('#deploymentTab').click();
+    assert.deepEqual(await state(), committed);
+    await page.locator('[data-add-groups="required"]').click();
+    await page.locator('#deploymentPickerSearch').fill('no-such-group');
+    assert(await picker.getByText('No matching results.').isVisible());
+    await page.keyboard.press('Escape');
+    assert(!await picker.isVisible());
+    await page.locator('#backToList').click();
+    await page.locator('.app-row').nth(2).click();
+    await page.locator('#deploymentTab').click();
+    assert.equal((await state()).assignments.uninstall.length,0);
+    await page.locator('#backToList').click();
+    await page.locator('.app-row').first().click();
+    await page.locator('#deploymentTab').click();
+    assert.deepEqual(await state(),committed);
+    const results = [];
+    for (const width of [1440,900]) {
+      await page.setViewportSize({width,height:1000});
+      for (const theme of ['light','dark']) {
+        await page.locator('#themeToggle').click();
+        await page.locator(`[data-theme-choice="${theme}"]`).click();
+        await page.locator('#deploymentAssignmentsTitle').scrollIntoViewIfNeeded();
+        await page.waitForTimeout(250);
+        await page.screenshot({path:`/tmp/deployment-${width}-${theme}.png`});
+        await page.locator('#deploymentAddCode').scrollIntoViewIfNeeded();
+        await page.waitForTimeout(250);
+        await page.screenshot({path:`/tmp/deployment-codes-${width}-${theme}.png`});
+        results.push(await page.evaluate(() => {
+          const cards = [...document.querySelectorAll('#deploymentPanel > .deploy-surface')];
+          const icon = document.querySelector('[data-add-groups] .fluent');
+          return {width:innerWidth, theme:document.body.dataset.theme, overflow:document.documentElement.scrollWidth - innerWidth, gaps: cards.slice(1).map((el,i) => el.getBoundingClientRect().top - cards[i].getBoundingClientRect().bottom), icon:{color:getComputedStyle(icon).color, background:getComputedStyle(icon).backgroundColor, mask:getComputedStyle(icon).maskImage}};
+        }));
+        await page.locator('[data-add-groups="available"]').click();
+        await page.waitForTimeout(150);
+        await page.screenshot({path:`/tmp/deployment-picker-${width}-${theme}.png`});
+        await page.keyboard.press('Escape');
+      }
+    }
+    assert.deepEqual(errors, []);
+    assert(results.every(result => result.overflow === 0 && result.gaps.every(gap => gap === 12)));
+    console.log(JSON.stringify({passed:true,results}, null,2));
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

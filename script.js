@@ -65,18 +65,49 @@ let searchQuery = "";
 const appList = document.querySelector("#appList");
 const listView = document.querySelector("#listView");
 const signatureView = document.querySelector("#signatureView");
+const signatureEnabled = document.querySelector("#signatureEnabled");
+const signatureEnabledLabel = document.querySelector("#signatureEnabledLabel");
+const signatureSettings = document.querySelector("#signatureSettings");
+const signatureDisabledState = document.querySelector("#signatureDisabledState");
+const signatureMethodInputs = [...document.querySelectorAll("input[name='signature-method']")];
+const trustedSigningToolsStatus = document.querySelector("#trustedSigningToolsStatus");
+const installTrustedSigningTools = document.querySelector("#installTrustedSigningTools");
+const downloadTrustedSigningTools = document.querySelector("#downloadTrustedSigningTools");
+const refreshCertificates = document.querySelector("#refreshCertificates");
 const automationView = document.querySelector("#automationView");
 const toolsView = document.querySelector("#toolsView");
+const settingsView = document.querySelector("#settingsView");
+const settingsRootPage = document.querySelector("#settingsRootPage");
+const psadtTemplatesPage = document.querySelector("#psadtTemplatesPage");
+const psadtTemplateList = document.querySelector("#psadtTemplateList");
+const customPsadtTemplateList = document.querySelector("#customPsadtTemplateList");
+const psadtTemplateFile = document.querySelector("#psadtTemplateFile");
+const psadtTemplateCount = document.querySelector("#psadtTemplateCount");
+const saveApplicationFragments = document.querySelector("#saveApplicationFragments");
+const settingsUpdateStatus = document.querySelector("#settingsUpdateStatus");
 const automationShell = document.querySelector(".automation-shell");
 const detailView = document.querySelector("#detailView");
 const shell = document.querySelector("#shell");
 const toast = document.querySelector("#toast");
+const toastMessage = document.querySelector("#toastMessage");
+const toastIcon = toast.querySelector(".toast-icon");
+const closeToast = document.querySelector("#closeToast");
 const statusMenu = document.querySelector("#statusMenu");
 const searchInput = document.querySelector("#applicationSearch");
 const clearSearch = document.querySelector("#clearApplicationSearch");
-const wrapWithPsadt = document.querySelector("#wrapWithPsadt");
-const wrapperEmptyState = document.querySelector("#wrapperEmptyState");
+const createPsadtWrapper = document.querySelector("#createPsadtWrapper");
+const unwrapPsadtWrapper = document.querySelector("#unwrapPsadtWrapper");
 const wrapperConfiguredState = document.querySelector("#wrapperConfiguredState");
+const wrapperPanel = document.querySelector("#wrapperPanel");
+const activePsadtTemplateName = document.querySelector("#activePsadtTemplateName");
+const createPsadtWrapperDialog = document.querySelector("#createPsadtWrapperDialog");
+const wrapperTemplateList = document.querySelector("#wrapperTemplateList");
+const unwrapPsadtDialog = document.querySelector("#unwrapPsadtDialog");
+let activePsadtTemplate = {
+  id: "4.1.8",
+  name: "PSADT v4.1.8_2",
+  source: "GitHub release · Built in"
+};
 const contextCommandBar = document.querySelector("#contextCommandBar");
 const detailMain = document.querySelector(".detail-main");
 const commandContextMeta = document.querySelector("#commandContextMeta");
@@ -101,7 +132,7 @@ const informationTemplateMeta = document.querySelector("#informationTemplateMeta
 const informationTemplateState = document.querySelector("#informationTemplateState");
 const changeAutomationTemplate = document.querySelector("#changeAutomationTemplate");
 const manageAutomationTemplate = document.querySelector("#manageAutomationTemplate");
-const updateLifecyclePanel = document.querySelector("#updateLifecyclePanel");
+const updateLifecyclePanel = document.querySelector("#reviewPanel");
 const automationTemplateSummary = document.querySelector("#automationTemplateSummary");
 const versionAutomationRecord = document.querySelector("#versionAutomationRecord");
 const viewAppliedSnapshot = document.querySelector("#viewAppliedSnapshot");
@@ -181,6 +212,14 @@ const applicationDescriptionInput = document.querySelector("#applicationDescript
 const applicationIconPreview = document.querySelector("#applicationIconPreview");
 const automationTemplateDialogTitle = document.querySelector("#automationTemplateDialogTitle");
 const automationTemplateDialogDescription = document.querySelector("#automationTemplateDialogDescription");
+
+function composeVersionInformationArchitecture() {
+  const installPanel = document.querySelector("#installPanel");
+  const detectionPanel = document.querySelector("#detectionPanel");
+  if (installPanel && detectionPanel) installPanel.append(detectionPanel);
+}
+
+composeVersionInformationArchitecture();
 const defaultVersionListMarkup = versionList.innerHTML;
 const defaultPackagePresentation = {
   productCode: document.querySelector("#productCode").textContent,
@@ -274,6 +313,7 @@ function renderDeploymentTargetStatus(article, status) {
 
 function syncVersionAutomationRecord(version = selectedVersion) {
   selectedVersion = version;
+  window.packitDeployment.select(selectedApplication.name, version);
   const record = versionAutomationRecords[version] || versionAutomationRecords["12.3.123"];
   versionAutomationRecordTitle.textContent = `Automation record for version ${version}`;
   provenanceSourceVersion.textContent = record.source;
@@ -290,6 +330,7 @@ function syncVersionAutomationRecord(version = selectedVersion) {
     ? `<span class="status issue"><span class="fluent icon-copy"></span> Modified after creation</span>`
     : `<span class="status success"><span class="fluent icon-check"></span> Unchanged since creation</span>`;
   if (!versionConfigurationDirty) lastSavedVersionConfiguration = captureVersionConfiguration();
+  window.packitPolicyUI?.selectVersion();
 }
 
 function selectAutomationTemplate(templateId = appliedStrategyTemplateId, { focus = false } = {}) {
@@ -320,13 +361,15 @@ function selectAutomationTemplate(templateId = appliedStrategyTemplateId, { focu
 }
 
 function manageCurrentAutomationTemplate() {
+  if (window.packitPolicyUI) return window.packitPolicyUI.manageWorkflow(selectedVersion);
   showWorkspaceView("automation");
   setAutomationTab("workflows");
   selectAutomationTemplate(appliedStrategyTemplateId, { focus: true });
 }
 
 function getVersionManagedControls() {
-  return [...document.querySelectorAll(".tab-panel input, .tab-panel select, .tab-panel textarea")];
+  return [...document.querySelectorAll(".tab-panel input, .tab-panel select, .tab-panel textarea")]
+    .filter(control => !control.closest('#deploymentPanel'));
 }
 
 function captureVersionConfiguration() {
@@ -335,11 +378,14 @@ function captureVersionConfiguration() {
       value: control.value,
       checked: control.checked
     })),
-    wrapperConfigured: !wrapperConfiguredState.hidden
+    wrapperConfigured: !wrapperConfiguredState.hidden,
+    wrapperTemplate: activePsadtTemplate ? { ...activePsadtTemplate } : null,
+    deployment: window.packitDeployment.capture()
   };
 }
 
 function restoreVersionConfiguration(snapshot) {
+  window.packitDeployment.restore(snapshot.deployment);
   getVersionManagedControls().forEach((control, index) => {
     const stored = snapshot.controls[index];
     if (!stored) return;
@@ -347,7 +393,12 @@ function restoreVersionConfiguration(snapshot) {
     if (control.type === "checkbox" || control.type === "radio") control.checked = stored.checked;
   });
   wrapperConfiguredState.hidden = !snapshot.wrapperConfigured;
-  wrapperEmptyState.hidden = snapshot.wrapperConfigured;
+  activePsadtTemplate = snapshot.wrapperTemplate
+    ? { ...snapshot.wrapperTemplate }
+    : snapshot.wrapperConfigured
+      ? getDefaultPsadtTemplate()
+      : null;
+  syncInstallationMethod();
 }
 
 const automationTemplateSnapshots = {
@@ -399,6 +450,7 @@ function syncAppliedTemplateUI({ rerenderCommands = true } = {}) {
     renderAppliedTemplateControl();
     if (rerenderCommands) renderContextCommands("version");
   }
+  window.packitPolicyUI?.syncLabels();
 }
 
 function markVersionConfigurationDirty() {
@@ -408,6 +460,7 @@ function markVersionConfigurationDirty() {
 }
 
 function cancelVersionConfigurationEdits() {
+  window.packitPolicyUI?.cancelPending();
   restoreVersionConfiguration(lastSavedVersionConfiguration);
   versionConfigurationDirty = false;
   syncAppliedTemplateUI();
@@ -415,6 +468,8 @@ function cancelVersionConfigurationEdits() {
 }
 
 function openSaveConfigurationDialog() {
+  if (window.packitPolicyUI) return window.packitPolicyUI.saveVersionInputs();
+  if (!window.packitDeployment.validate()) return;
   const defaultScope = saveConfigurationDialog.querySelector("input[value='application']");
   defaultScope.checked = true;
   newConfigurationTemplateNameField.hidden = true;
@@ -439,6 +494,7 @@ function syncSaveConfigurationDialog() {
 }
 
 function saveVersionConfiguration() {
+  if (!window.packitDeployment.validate()) return;
   const scope = saveConfigurationDialog.querySelector("input[name='configuration-save-scope']:checked")?.value || "application";
   if (scope === "new" && !newConfigurationTemplateName.value.trim()) {
     newConfigurationTemplateName.setCustomValidity("Enter a workflow name");
@@ -475,6 +531,7 @@ function saveVersionConfiguration() {
     showToast(`${appliedStrategyTemplateName} updated for ${appliedStrategyTemplateApplications} applications`);
   }
 
+  window.packitDeployment.commit();
   versionConfigurationDirty = false;
   modifiedVersionRecords.add(selectedVersion);
   saveConfigurationDialog.close();
@@ -492,41 +549,57 @@ function buildTemplateSnapshot(templateId) {
     detectionArchitecture.selectedIndex = 0;
     minimumOperatingSystem.value = "Windows 11 22H2";
     detectionMethod.selectedIndex = 1;
-    wrapperEmptyState.hidden = true;
     wrapperConfiguredState.hidden = false;
+    activePsadtTemplate = getDefaultPsadtTemplate();
   } else if (templateId === "winget") {
     detectionArchitecture.selectedIndex = 0;
     minimumOperatingSystem.value = "Windows 10 1809";
     detectionMethod.selectedIndex = 0;
-    wrapperEmptyState.hidden = false;
     wrapperConfiguredState.hidden = true;
+    activePsadtTemplate = null;
   }
 
   automationTemplateSnapshots[templateId] = captureVersionConfiguration();
   return automationTemplateSnapshots[templateId];
 }
 
+function setInfoBarCopy(infoBar, title, message) {
+  const content = infoBar.querySelector(".wui-info-bar-content");
+  content.querySelector("strong").textContent = title;
+  content.querySelector("small").textContent = message;
+}
+
 function openAutomationTemplateDialog() {
+  if (window.packitPolicyUI) return window.packitPolicyUI.openConfiguration(selectedVersion);
   initializingEmptyApplication = false;
   automationTemplateDialogTitle.textContent = "Change automation workflow";
   automationTemplateDialogDescription.textContent = "Replacing the workflow resets its managed configuration for this application.";
   automationTemplateDialog.querySelectorAll("input[name='automation-template']").forEach((input) => {
     input.checked = input.value === appliedStrategyTemplateId;
   });
-  replaceTemplateImpact.querySelector("span:last-child").textContent = versionConfigurationDirty || strategyHasApplicationOverride
-    ? "Applying another workflow will discard unsaved changes or the current application override and replace all workflow-managed defaults."
-    : "Information, Assignments, Detection, Scope Tags, and Wrapper defaults will be replaced.";
+  setInfoBarCopy(
+    replaceTemplateImpact,
+    versionConfigurationDirty || strategyHasApplicationOverride ? "Current changes will be discarded" : "Inherited settings will be replaced",
+    versionConfigurationDirty || strategyHasApplicationOverride
+      ? "Applying another workflow discards unsaved changes or the current application override and replaces all workflow-managed defaults."
+      : "Package, deployment, detection, scope tag, and wrapper defaults will use the selected workflow."
+  );
   automationTemplateDialog.showModal();
 }
 
 function openInitialAutomationTemplateDialog() {
+  if (window.packitPolicyUI) return window.packitPolicyUI.assignWorkflow(true);
   initializingEmptyApplication = true;
   automationTemplateDialogTitle.textContent = "Apply automation workflow";
   automationTemplateDialogDescription.textContent = `Choose the managed defaults for ${selectedApplication.name}.`;
   automationTemplateDialog.querySelectorAll("input[name='automation-template']").forEach((input) => {
     input.checked = input.value === "guided";
   });
-  replaceTemplateImpact.querySelector("span:last-child").textContent = "The selected workflow will create the first version and populate its managed configuration defaults.";
+  setInfoBarCopy(
+    replaceTemplateImpact,
+    "The first version will use workflow defaults",
+    "The selected workflow creates the first version and populates its managed package and deployment settings."
+  );
   automationTemplateDialog.showModal();
 }
 
@@ -737,7 +810,10 @@ function renderContextCommands(context = "version") {
 
   contextCommandBar.querySelectorAll("[data-primary-command]").forEach((button) => {
     const command = primaryCommands[Number(button.dataset.primaryCommand)];
-    button.addEventListener("click", () => showToast(command.label));
+    button.addEventListener("click", () => {
+      if (window.packitPolicyUI && !window.packitPolicyUI.validateVersionInputs()) return;
+      showToast(command.label);
+    });
   });
 
   const overflow = contextCommandBar.querySelector(".command-overflow");
@@ -797,11 +873,18 @@ function setCommandContext(context = "version") {
       <button class="primary-btn" type="button" data-draft-action="save"><span class="fluent icon-check"></span> Save configuration</button>
     `;
     contextCommandBar.querySelector("[data-draft-action='cancel']")?.addEventListener("click", cancelInitialConfiguration);
-    contextCommandBar.querySelector("[data-draft-action='save']")?.addEventListener("click", () => showToast("Draft configuration saved"));
+    contextCommandBar.querySelector("[data-draft-action='save']")?.addEventListener("click", () => {
+      if (window.packitPolicyUI) return window.packitPolicyUI.saveVersionInputs();
+      if (!window.packitDeployment.validate()) return;
+      window.packitDeployment.commit();
+      lastSavedVersionConfiguration = captureVersionConfiguration();
+      versionConfigurationDirty = false;
+      showToast("Draft configuration saved");
+    });
     return;
   }
 
-  if (context === "updateStrategy" || context === "history") {
+  if (context === "applicationDetails" || context === "applicationWorkflow" || context === "updateStrategy" || context === "history") {
     commandContextMeta.textContent = "";
     commandContextMeta.hidden = true;
     commandStatus.textContent = "";
@@ -991,7 +1074,7 @@ function renderApps() {
   `).join("");
 
   document.querySelectorAll(".app-row").forEach((row) => {
-    row.addEventListener("click", () => openDetail("information", filtered[Number(row.dataset.index)]));
+    row.addEventListener("click", () => openDetail("overview", filtered[Number(row.dataset.index)]));
   });
 }
 
@@ -1001,7 +1084,7 @@ function syncSearchControls() {
 }
 
 function setSectionExpanded(section, expanded) {
-  const toggle = section.querySelector(":scope > header button");
+  const toggle = section.querySelector(":scope > header button[aria-expanded]");
   const title = section.querySelector(":scope > header strong")?.textContent.trim() || "section";
   section.classList.toggle("collapsed", !expanded);
   section.setAttribute("aria-expanded", String(expanded));
@@ -1015,12 +1098,14 @@ function setSectionExpanded(section, expanded) {
 function initCollapsibleSections() {
   document.querySelectorAll(".expander, .script-editor, .assignment-behaviour-section").forEach((section) => {
     const header = section.querySelector(":scope > header");
-    const toggle = header?.querySelector("button");
+    const toggle = header?.querySelector("button[aria-expanded]");
     if (!header || !toggle) return;
 
-    setSectionExpanded(section, true);
+    setSectionExpanded(section, section.dataset.defaultCollapsed !== "true");
 
-    header.addEventListener("click", () => {
+    header.addEventListener("click", (event) => {
+      const interactiveTarget = event.target.closest("button, a, input, select, textarea");
+      if (interactiveTarget && interactiveTarget !== toggle) return;
       const expanded = !section.classList.contains("collapsed");
       setSectionExpanded(section, !expanded);
     });
@@ -1043,6 +1128,10 @@ function syncDetailApplicationIdentity(app) {
   applicationDescriptionInput.value = app.name === "Contoso Finance Tools"
     ? "Finance workstation utilities packaged for Intune deployment"
     : "";
+  const versionIdentityTitle = document.querySelector("#versionIdentityTitle");
+  const versionIdentityMeta = versionIdentityTitle?.nextElementSibling;
+  if (versionIdentityTitle) versionIdentityTitle.textContent = app.name;
+  if (versionIdentityMeta) versionIdentityMeta.textContent = `${app.publisher} · ${applicationDescriptionInput.value || "No description"}`;
 }
 
 function bindVersionButtons() {
@@ -1058,7 +1147,7 @@ function bindVersionButtons() {
         if (active) item.setAttribute("aria-current", "page");
         else item.removeAttribute("aria-current");
       });
-      const activeTabName = document.querySelector(".tab.active")?.dataset.tab || "information";
+      const activeTabName = document.querySelector(".tab.active")?.dataset.tab || "overview";
       setTab(activeTabName);
       syncVersionAutomationRecord(version.dataset.version);
     });
@@ -1085,7 +1174,8 @@ function prepareInitialPackageData() {
   document.querySelector("#wingetCatalogSelect").selectedIndex = -1;
   document.querySelector("#resourceItemCount").textContent = "0 items";
   document.querySelector("#resourceSize").textContent = "0 B";
-  document.querySelector("#packageSyncInfo").hidden = false;
+  const packageSyncInfo = document.querySelector("#packageSyncInfo");
+  if (packageSyncInfo) packageSyncInfo.hidden = false;
 }
 
 function restoreDefaultPackagePresentation() {
@@ -1095,7 +1185,8 @@ function restoreDefaultPackagePresentation() {
   document.querySelector("#wingetLinkStatus").hidden = false;
   document.querySelector("#resourceItemCount").textContent = defaultPackagePresentation.resourceItems;
   document.querySelector("#resourceSize").textContent = defaultPackagePresentation.resourceSize;
-  document.querySelector("#packageSyncInfo").hidden = false;
+  const packageSyncInfo = document.querySelector("#packageSyncInfo");
+  if (packageSyncInfo) packageSyncInfo.hidden = false;
 }
 
 function prepareBlankConfiguration() {
@@ -1107,9 +1198,10 @@ function prepareBlankConfiguration() {
   applicationNameInput.value = selectedApplication.name;
   applicationVendorInput.value = selectedApplication.publisher;
   prepareInitialPackageData();
-  document.querySelector("#packageSyncInfo").hidden = true;
-  wrapperEmptyState.hidden = false;
+  const packageSyncInfo = document.querySelector("#packageSyncInfo");
+  if (packageSyncInfo) packageSyncInfo.hidden = true;
   wrapperConfiguredState.hidden = true;
+  activePsadtTemplate = null;
 }
 
 function initializeEmptyApplication(mode) {
@@ -1121,6 +1213,8 @@ function initializeEmptyApplication(mode) {
   selectedVersion = "draft";
   if (mode === "scratch") prepareBlankConfiguration();
   else prepareInitialPackageData();
+  window.packitDeployment.select(selectedApplication.name, selectedVersion);
+  lastSavedVersionConfiguration = captureVersionConfiguration();
   versionList.innerHTML = `
     <button class="version active" type="button" aria-current="page" data-version="draft">
       New version <span class="status issue">Draft</span>
@@ -1138,12 +1232,14 @@ function initializeEmptyApplication(mode) {
   applicationDescriptionInput.value = "";
   automationTemplateSummary.hidden = mode !== "template";
   versionAutomationRecord.hidden = true;
-  setTab("information");
+  setTab("overview");
   renderApps();
-  document.querySelector("#informationPanel input")?.focus();
+  document.querySelector("#overviewPanel input")?.focus();
 }
 
 function cancelInitialConfiguration() {
+  restoreVersionConfiguration(lastSavedVersionConfiguration);
+  versionConfigurationDirty = false;
   selectedApplication.empty = true;
   delete selectedApplication.configurationMode;
   selectedApplication.versions = "No versions";
@@ -1155,14 +1251,17 @@ function cancelInitialConfiguration() {
 }
 
 function openDetail(tabName, app = apps[0]) {
+  if (versionConfigurationDirty) { showToast("Save or cancel configuration changes before switching applications"); return; }
   selectedApplication = app;
   listView.classList.remove("active");
   signatureView.classList.remove("active");
   automationView.classList.remove("active");
   toolsView.classList.remove("active");
+  settingsView.classList.remove("active");
   detailView.classList.add("active");
   shell.classList.add("detail-mode");
   shell.classList.remove("tools-mode");
+  shell.classList.remove("settings-mode");
   setSidebarActive("applications");
   syncDetailApplicationIdentity(app);
   if (app.empty) {
@@ -1189,33 +1288,30 @@ function openDetail(tabName, app = apps[0]) {
   if (!app.configurationMode) syncVersionAutomationRecord(selectedVersion);
 }
 
-function showList(sidebarView = "applications") {
+function showList() {
+  if (versionConfigurationDirty) { showToast("Save or cancel configuration changes before leaving this version"); return; }
   automationView.classList.remove("active");
   toolsView.classList.remove("active");
+  settingsView.classList.remove("active");
   signatureView.classList.remove("active");
   detailView.classList.remove("active");
   listView.classList.add("active");
   shell.classList.remove("detail-mode");
   shell.classList.remove("tools-mode");
-  setSidebarActive(sidebarView);
-  const updatesPage = sidebarView === "updates";
-  document.querySelector("#updatesFilter").hidden = updatesPage;
-  document.querySelector("#applicationPageTitle").textContent = updatesPage ? "Updates Available" : "Applications List";
-  document.querySelector("#applicationPageDescription").textContent = updatesPage
-    ? "Review applications with newer catalog versions ready for packaging."
-    : "Find, review, and manage packaged applications in this workspace.";
-  const pageIcon = document.querySelector("#applicationPageIcon .fluent");
-  pageIcon.className = `fluent ${updatesPage ? "icon-arrow-up" : "icon-list"}`;
+  shell.classList.remove("settings-mode");
+  setSidebarActive("applications");
 }
 
 function showSignature() {
   listView.classList.remove("active");
   automationView.classList.remove("active");
   toolsView.classList.remove("active");
+  settingsView.classList.remove("active");
   detailView.classList.remove("active");
   signatureView.classList.add("active");
   shell.classList.remove("detail-mode");
   shell.classList.remove("tools-mode");
+  shell.classList.remove("settings-mode");
   setPrimaryNavigation("applications");
   setSidebarActive("signature");
 }
@@ -1242,6 +1338,7 @@ function setPrimaryNavigation(viewName) {
 }
 
 function showWorkspaceView(viewName) {
+  if (versionConfigurationDirty) { showToast("Save or cancel configuration changes before leaving this version"); return; }
   if (viewName === "applications") {
     setPrimaryNavigation("applications");
     updatesOnly = false;
@@ -1252,24 +1349,16 @@ function showWorkspaceView(viewName) {
     return;
   }
 
-  if (viewName === "updates") {
-    setPrimaryNavigation("applications");
-    updatesOnly = true;
-    document.querySelector("#updatesFilter").classList.add("active");
-    document.querySelector("#updatesFilter").setAttribute("aria-pressed", "true");
-    showList("updates");
-    renderApps();
-    return;
-  }
-
   if (viewName === "automation") {
     listView.classList.remove("active");
     signatureView.classList.remove("active");
     detailView.classList.remove("active");
     toolsView.classList.remove("active");
+    settingsView.classList.remove("active");
     automationView.classList.add("active");
     shell.classList.remove("detail-mode");
     shell.classList.remove("tools-mode");
+    shell.classList.remove("settings-mode");
     setPrimaryNavigation("automation");
     return;
   }
@@ -1279,10 +1368,27 @@ function showWorkspaceView(viewName) {
     signatureView.classList.remove("active");
     detailView.classList.remove("active");
     automationView.classList.remove("active");
+    settingsView.classList.remove("active");
     toolsView.classList.add("active");
     shell.classList.remove("detail-mode");
+    shell.classList.remove("settings-mode");
     shell.classList.add("tools-mode");
     setPrimaryNavigation("discover");
+    return;
+  }
+
+  if (viewName === "settings") {
+    listView.classList.remove("active");
+    signatureView.classList.remove("active");
+    detailView.classList.remove("active");
+    automationView.classList.remove("active");
+    toolsView.classList.remove("active");
+    settingsView.classList.add("active");
+    shell.classList.remove("detail-mode");
+    shell.classList.remove("tools-mode");
+    shell.classList.add("settings-mode");
+    setPrimaryNavigation("settings");
+    showSettingsRoot();
     return;
   }
 
@@ -1314,6 +1420,7 @@ function setTab(tabName) {
 }
 
 function setAppSection(sectionName) {
+  if (versionConfigurationDirty) { showToast("Save or cancel version changes before switching sections"); return; }
   detailMain.classList.add("app-section-mode");
   setCommandContext(sectionName);
   document.querySelectorAll(".version").forEach((version) => {
@@ -1337,6 +1444,7 @@ function setAppSection(sectionName) {
   const target = document.querySelector(`#${sectionName}Panel`);
   if (target) target.classList.add("active");
   if (sectionName === "updateStrategy") syncStrategyChoice();
+  if (sectionName === "applicationWorkflow") window.packitPolicyUI?.openConfiguration(null, false);
 }
 
 function setStrategyTab(tabName) {
@@ -1356,12 +1464,51 @@ function setStrategyTab(tabName) {
   }
 }
 
-function showToast(message) {
-  toast.textContent = message;
+function getNotificationSeverity(message, requestedSeverity) {
+  if (requestedSeverity) return requestedSeverity;
+  if (/failed|error/i.test(message)) return "error";
+  if (/save or cancel|required|before saving|no valid|not connected|not set/i.test(message)) return "warning";
+  if (/saved|created|applied|updated|reset|started|stopped|restarted|refreshed|added|removed|copied|installed|disabled/i.test(message)) return "success";
+  return "informational";
+}
+
+function hideToast() {
+  window.clearTimeout(showToast.timeout);
+  toast.classList.remove("visible");
+}
+
+function showToast(message, requestedSeverity) {
+  const severity = getNotificationSeverity(message, requestedSeverity);
+  const iconBySeverity = {
+    informational: "icon-info",
+    success: "icon-check",
+    warning: "icon-warning",
+    error: "icon-dismiss"
+  };
+  toast.classList.remove("informational", "success", "warning", "error");
+  toast.classList.add(severity);
+  toastMessage.textContent = message;
+  toastIcon.className = `fluent ${iconBySeverity[severity]} toast-icon`;
+  toast.setAttribute("aria-live", severity === "error" ? "assertive" : "polite");
   toast.classList.add("visible");
   window.clearTimeout(showToast.timeout);
-  showToast.timeout = window.setTimeout(() => toast.classList.remove("visible"), 1800);
+  showToast.timeout = window.setTimeout(hideToast, severity === "warning" || severity === "error" ? 5000 : 3200);
 }
+
+closeToast.addEventListener("click", hideToast);
+
+document.addEventListener("click", (event) => {
+  const dismissButton = event.target.closest("[data-dismiss-message]");
+  if (!dismissButton) return;
+  const message = dismissButton.closest(".wui-info-bar");
+  if (!message) return;
+  message.hidden = true;
+  dismissButton.blur();
+});
+
+document.querySelector("#licenseDetailsAction")?.addEventListener("click", () => {
+  showToast("Commercial licensing details opened", "informational");
+});
 
 function setMaximized(maximized) {
   desktop.classList.toggle("is-maximized", maximized);
@@ -1430,12 +1577,195 @@ document.querySelectorAll("[data-primary-view]").forEach((item) => {
 
 document.querySelector("#backToList").addEventListener("click", showList);
 document.querySelector("#addApplication").addEventListener("click", () => showToast("Import from catalog template opened"));
-document.querySelector("#addSigningIdentity").addEventListener("click", () => showToast("Signing identity setup opened"));
-wrapWithPsadt.addEventListener("click", () => {
-  wrapperEmptyState.hidden = true;
+
+let trustedSigningToolsInstalled = false;
+
+function syncSignatureMethod() {
+  const selectedMethod = document.querySelector("input[name='signature-method']:checked")?.value || "store";
+  document.querySelectorAll("[data-signature-method-card]").forEach((card) => {
+    card.classList.toggle("selected", card.dataset.signatureMethodCard === selectedMethod);
+  });
+  document.querySelectorAll("[data-signature-method-details]").forEach((details) => {
+    details.hidden = details.dataset.signatureMethodDetails !== selectedMethod;
+  });
+}
+
+function syncSignatureEnabled() {
+  const enabled = signatureEnabled.checked;
+  signatureEnabledLabel.textContent = enabled ? "Enabled" : "Disabled";
+  signatureSettings.hidden = !enabled;
+  signatureDisabledState.hidden = enabled;
+}
+
+function installTrustedSigningDependencies() {
+  trustedSigningToolsInstalled = true;
+  trustedSigningToolsStatus.classList.remove("warning");
+  trustedSigningToolsStatus.classList.add("success");
+  trustedSigningToolsStatus.querySelector(":scope > .fluent").className = "fluent icon-check";
+  const statusCopy = trustedSigningToolsStatus.querySelector(".wui-info-bar-content");
+  statusCopy.innerHTML = "<strong>Trusted Signing Client Tools installed</strong><small>This device is ready to use Microsoft Trusted Signing.</small>";
+  trustedSigningToolsStatus.querySelector(".signature-status-actions").hidden = true;
+  showToast("Trusted Signing Client Tools installed");
+}
+
+signatureMethodInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    syncSignatureMethod();
+  });
+});
+
+signatureEnabled.addEventListener("change", () => {
+  syncSignatureEnabled();
+});
+
+installTrustedSigningTools.addEventListener("click", installTrustedSigningDependencies);
+downloadTrustedSigningTools.addEventListener("click", () => showToast("Trusted Signing Client Tools download opened"));
+refreshCertificates.addEventListener("click", () => showToast("No valid code-signing certificate found", "warning"));
+
+function syncInstallationMethod() {
+  const wrapped = !wrapperConfiguredState.hidden;
+  const method = wrapped ? "wrapper" : "direct";
+  if (wrapperPanel) wrapperPanel.hidden = !wrapped;
+  createPsadtWrapper.hidden = wrapped;
+  unwrapPsadtWrapper.hidden = !wrapped;
+  const methodTitle = document.querySelector("#installationMethodTitle");
+  const methodDescription = document.querySelector("#installationMethodDescription");
+  const methodIcon = document.querySelector(".installation-method-icon .fluent");
+  if (methodTitle) methodTitle.textContent = wrapped ? "PSADT wrapper" : "Direct installer";
+  if (methodDescription) {
+    methodDescription.textContent = wrapped
+      ? `Created from ${activePsadtTemplate?.name || "the selected PSADT template"}. Management platforms start the wrapper.`
+      : "Management platforms run the package install and uninstall actions directly.";
+  }
+  if (methodIcon) methodIcon.className = `fluent ${wrapped ? "icon-settings" : "icon-folder"}`;
+  if (activePsadtTemplateName) activePsadtTemplateName.textContent = activePsadtTemplate?.name || "No template selected";
+  const summaryMethod = document.querySelector("#installationSummaryMethod");
+  const summaryDetail = document.querySelector("#installationSummaryDetail");
+  if (summaryMethod) summaryMethod.textContent = wrapped ? "PSADT wrapper" : "Direct installer";
+  if (summaryDetail) summaryDetail.textContent = wrapped ? activePsadtTemplate?.name || "Template configured" : "Platform runs payload commands";
+  const payloadInstall = document.querySelector("#payloadInstallCommand");
+  const payloadUninstall = document.querySelector("#payloadUninstallCommand");
+  const reviewInstall = document.querySelector("#reviewPayloadInstall");
+  const reviewUninstall = document.querySelector("#reviewPayloadUninstall");
+  if (reviewInstall && payloadInstall) reviewInstall.textContent = payloadInstall.value;
+  if (reviewUninstall && payloadUninstall) reviewUninstall.textContent = payloadUninstall.value;
+  document.querySelectorAll(".execution-chain-list > div").forEach((row) => {
+    row.classList.toggle("direct-execution", method === "direct");
+    const platformCommand = row.querySelector("code:first-of-type");
+    const payloadCommand = row.querySelector("code:last-of-type");
+    const arrow = row.querySelectorAll(".icon-arrow-right")[1];
+    if (platformCommand) platformCommand.hidden = method === "direct";
+    if (arrow) arrow.hidden = method === "direct";
+    if (payloadCommand) payloadCommand.hidden = false;
+  });
+}
+
+function getPsadtTemplates() {
+  return [...psadtTemplatesPage.querySelectorAll(".psadt-template-row")].map((row) => {
+    const input = row.querySelector("input[type='radio']");
+    return {
+      id: input.value,
+      name: row.querySelector("strong")?.textContent.trim() || input.value,
+      source: row.dataset.templateSource || row.querySelector("small")?.textContent.trim() || "Installed template",
+      isDefault: input.checked
+    };
+  });
+}
+
+function getDefaultPsadtTemplate() {
+  const templates = getPsadtTemplates();
+  const template = templates.find((item) => item.isDefault) || templates[0];
+  return template ? { id: template.id, name: template.name, source: template.source } : null;
+}
+
+function renderWrapperTemplateChoices() {
+  const templates = getPsadtTemplates();
+  const preferred = activePsadtTemplate?.id || templates.find((item) => item.isDefault)?.id || templates[0]?.id;
+  wrapperTemplateList.replaceChildren();
+
+  templates.forEach((template) => {
+    const row = document.createElement("label");
+    row.className = "psadt-template-row";
+
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "wrapper-psadt-template";
+    radio.value = template.id;
+    radio.checked = template.id === preferred;
+
+    const icon = document.createElement("span");
+    icon.className = "settings-row-icon psadt";
+    icon.setAttribute("aria-hidden", "true");
+    const image = document.createElement("img");
+    image.src = "./assets/figma/icon-psadt.png";
+    image.alt = "";
+    icon.append(image);
+
+    const copy = document.createElement("span");
+    const name = document.createElement("strong");
+    name.textContent = template.name;
+    const source = document.createElement("small");
+    source.textContent = template.source;
+    copy.append(name, source);
+
+    if (template.isDefault) {
+      const badge = document.createElement("span");
+      badge.className = "service-badge";
+      badge.textContent = "Default";
+      row.append(radio, icon, copy, badge);
+    } else {
+      row.append(radio, icon, copy);
+    }
+    wrapperTemplateList.append(row);
+  });
+}
+
+[document.querySelector("#payloadInstallCommand"), document.querySelector("#payloadUninstallCommand")].forEach((input) => {
+  input?.addEventListener("input", syncInstallationMethod);
+});
+
+document.querySelectorAll("[data-summary-target]").forEach((button) => {
+  button.addEventListener("click", () => setTab(button.dataset.summaryTarget));
+});
+
+document.querySelector("#openApplicationDetails")?.addEventListener("click", () => setAppSection("applicationDetails"));
+
+createPsadtWrapper.addEventListener("click", () => {
+  const proceed = () => { renderWrapperTemplateChoices(); createPsadtWrapperDialog.showModal(); };
+  if (window.packitPolicyUI) window.packitPolicyUI.authorizeWrapper(proceed);
+  else proceed();
+});
+
+document.querySelector("#closeCreatePsadtWrapperDialog").addEventListener("click", () => createPsadtWrapperDialog.close());
+document.querySelector("#cancelCreatePsadtWrapper").addEventListener("click", () => createPsadtWrapperDialog.close());
+
+document.querySelector("#confirmCreatePsadtWrapper").addEventListener("click", () => {
+  const selected = wrapperTemplateList.querySelector("input[name='wrapper-psadt-template']:checked");
+  const template = getPsadtTemplates().find((item) => item.id === selected?.value);
+  if (!template) return;
+  activePsadtTemplate = { id: template.id, name: template.name, source: template.source };
   wrapperConfiguredState.hidden = false;
+  window.packitPolicyUI?.wrapperChanged();
+  syncInstallationMethod();
   markVersionConfigurationDirty();
-  showToast("PSADT wrapper created from template");
+  createPsadtWrapperDialog.close();
+  showToast(`PSADT wrapper created from ${template.name}`);
+});
+
+unwrapPsadtWrapper.addEventListener("click", () => {
+  if (window.packitPolicyUI) window.packitPolicyUI.authorizeWrapper(() => unwrapPsadtDialog.showModal());
+  else unwrapPsadtDialog.showModal();
+});
+document.querySelector("#closeUnwrapPsadtDialog").addEventListener("click", () => unwrapPsadtDialog.close());
+document.querySelector("#cancelUnwrapPsadt").addEventListener("click", () => unwrapPsadtDialog.close());
+document.querySelector("#confirmUnwrapPsadt").addEventListener("click", () => {
+  wrapperConfiguredState.hidden = true;
+  activePsadtTemplate = null;
+  window.packitPolicyUI?.wrapperChanged();
+  syncInstallationMethod();
+  markVersionConfigurationDirty();
+  unwrapPsadtDialog.close();
+  showToast("PSADT wrapper removed. Direct installer restored.");
 });
 searchInput.addEventListener("input", (event) => {
   searchQuery = event.currentTarget.value;
@@ -1907,14 +2237,8 @@ titlebar.addEventListener("dblclick", (event) => {
   setMaximized(!appWindow.classList.contains("maximized"));
 });
 
-document.querySelectorAll(".info-tip").forEach((tip) => {
-  tip.tabIndex = 0;
-  tip.setAttribute("role", "img");
-  tip.setAttribute("aria-label", tip.dataset.tooltip || "More information");
-});
-
 document.querySelectorAll("button[aria-label]").forEach((button) => {
-  if (!button.title && !button.dataset.titlebarTooltip && !button.dataset.navTooltip && !button.textContent.trim()) {
+  if (!button.title && !button.dataset.titlebarTooltip && !button.dataset.navTooltip && !button.dataset.tooltip && !button.textContent.trim()) {
     button.title = button.getAttribute("aria-label");
   }
 });
@@ -1929,9 +2253,150 @@ document.querySelectorAll("[data-tool-name]").forEach((button) => {
   button.addEventListener("click", () => showToast(`${button.dataset.toolName} opened`));
 });
 
+function showSettingsRoot({ restoreFocus = false } = {}) {
+  settingsRootPage.hidden = false;
+  psadtTemplatesPage.hidden = true;
+  settingsView.setAttribute("aria-labelledby", "settingsPageTitle");
+  if (restoreFocus) document.querySelector("#managePsadtTemplates").focus();
+}
+
+function showPsadtTemplatesPage() {
+  settingsRootPage.hidden = true;
+  psadtTemplatesPage.hidden = false;
+  settingsView.setAttribute("aria-labelledby", "psadtTemplatesPageTitle");
+  document.querySelector("#psadtTemplatesPageTitle").focus();
+}
+
+document.querySelector("#managePsadtTemplates").addEventListener("click", showPsadtTemplatesPage);
+document.querySelector("#backToSettings").addEventListener("click", () => showSettingsRoot({ restoreFocus: true }));
+
+function syncPsadtTemplateDefaults() {
+  const rows = [...psadtTemplatesPage.querySelectorAll(".psadt-template-row")];
+  rows.forEach((row) => {
+    const input = row.querySelector("input[type='radio']");
+    row.classList.toggle("default", input.checked);
+    input.setAttribute("aria-label", `Use ${row.querySelector("strong")?.textContent.trim()} as the default PSADT template`);
+  });
+  psadtTemplateCount.textContent = `${rows.length} ${rows.length === 1 ? "template" : "templates"}`;
+}
+
+document.querySelector("#addPsadtTemplate").addEventListener("click", () => {
+  psadtTemplateFile.click();
+});
+
+psadtTemplateFile.addEventListener("change", () => {
+  const file = psadtTemplateFile.files?.[0];
+  if (!file) return;
+
+  const row = document.createElement("div");
+  row.className = "settings-row psadt-settings-template-row psadt-template-row custom";
+  row.dataset.templateSource = "Local · Custom template";
+
+  const radio = document.createElement("input");
+  radio.type = "radio";
+  radio.name = "default-psadt-template";
+  radio.value = file.name;
+  radio.id = `default-psadt-${Date.now()}`;
+  radio.checked = true;
+
+  const icon = document.createElement("span");
+  icon.className = "settings-row-icon";
+  icon.setAttribute("aria-hidden", "true");
+  const folderIcon = document.createElement("span");
+  folderIcon.className = "fluent icon-folder";
+  icon.append(folderIcon);
+
+  const copy = document.createElement("span");
+  copy.className = "psadt-template-copy";
+  const name = document.createElement("strong");
+  name.textContent = file.name.replace(/\.[^.]+$/, "");
+  const source = document.createElement("small");
+  source.textContent = file.name;
+  source.title = file.name;
+  copy.append(name, source);
+
+  const defaultControl = document.createElement("label");
+  defaultControl.className = "psadt-default-control";
+  defaultControl.htmlFor = radio.id;
+  defaultControl.innerHTML = '<span>Default</span><span class="automation-toggle"><span class="toggle-track" aria-hidden="true"></span></span>';
+
+  const remove = document.createElement("button");
+  remove.className = "icon-btn psadt-delete-template";
+  remove.type = "button";
+  remove.dataset.deletePsadtTemplate = "";
+  remove.setAttribute("aria-label", `Remove ${name.textContent}`);
+  remove.innerHTML = '<span class="fluent icon-delete"></span>';
+
+  row.append(radio, icon, copy, defaultControl, remove);
+  customPsadtTemplateList.append(row);
+  syncPsadtTemplateDefaults();
+  psadtTemplateFile.value = "";
+  showToast(`${name.textContent} added and set as default`);
+});
+
+psadtTemplatesPage.addEventListener("change", (event) => {
+  if (!event.target.matches("input[name='default-psadt-template']")) return;
+  syncPsadtTemplateDefaults();
+  const template = getDefaultPsadtTemplate();
+  if (template) showToast(`${template.name} is now the default template`);
+});
+
+psadtTemplatesPage.addEventListener("click", (event) => {
+  const remove = event.target.closest("[data-delete-psadt-template]");
+  if (!remove) return;
+  const row = remove.closest(".psadt-template-row");
+  const removedName = row.querySelector("strong")?.textContent.trim() || "Template";
+  const removedDefault = row.querySelector("input[type='radio']").checked;
+  row.remove();
+  if (removedDefault) {
+    const fallback = psadtTemplatesPage.querySelector("input[name='default-psadt-template']");
+    if (fallback) fallback.checked = true;
+  }
+  syncPsadtTemplateDefaults();
+  showToast(`${removedName} removed`);
+});
+
+document.querySelector("#downloadLatestPsadt").addEventListener("click", (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.innerHTML = '<span class="fluent icon-refresh"></span> Checking...';
+  window.setTimeout(() => {
+    button.disabled = false;
+    button.innerHTML = '<span class="fluent icon-download"></span> Download';
+    showToast("PSADT 4.1.8 is already available");
+  }, 650);
+});
+
+syncPsadtTemplateDefaults();
+
+saveApplicationFragments.addEventListener("change", () => {
+  showToast(saveApplicationFragments.checked ? "Applications will be saved as fragments" : "Applications will be stored inside the project file");
+});
+
+document.querySelector("#checkForUpdates").addEventListener("click", (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.innerHTML = '<span class="fluent icon-refresh"></span> Checking...';
+  settingsUpdateStatus.hidden = true;
+  window.setTimeout(() => {
+    button.disabled = false;
+    button.innerHTML = '<span class="fluent icon-refresh"></span> Check for updates';
+    settingsUpdateStatus.hidden = false;
+  }, 650);
+});
+
+[applicationNameInput, applicationVendorInput, applicationDescriptionInput].forEach((input) => {
+  input.addEventListener("input", () => {
+    const title = document.querySelector("#versionIdentityTitle");
+    const meta = title?.nextElementSibling;
+    if (title) title.textContent = applicationNameInput.value || "Unnamed application";
+    if (meta) meta.textContent = `${applicationVendorInput.value || "Unknown vendor"} · ${applicationDescriptionInput.value || "No description"}`;
+  });
+});
+
 initTabKeyboardNavigation(".tabs, .strategy-tabs, .history-switch");
 
-updateLifecyclePanel.prepend(automationTemplateSummary);
+updateLifecyclePanel.append(automationTemplateSummary);
 updateLifecyclePanel.append(versionAutomationRecord);
 renderApps();
 setCommandContext("version");
@@ -1940,4 +2405,7 @@ syncAppliedTemplateUI();
 syncVersionAutomationRecord();
 selectAutomationTemplate();
 syncSearchControls();
+syncInstallationMethod();
+syncSignatureMethod();
+syncSignatureEnabled();
 initCollapsibleSections();
