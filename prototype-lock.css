@@ -1,0 +1,74 @@
+.prototype-locked body {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.prototype-locked .desktop {
+  visibility: hidden;
+}
+
+.prototype-unlocked .prototype-lock {
+  display: none;
+}
+
+.prototype-lock {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(rgba(242, 247, 252, 0.84), rgba(235, 242, 248, 0.92)),
+    var(--wui-desktop-fallback);
+  color: var(--wui-text);
+}
+
+.prototype-lock-card {
+  width: min(320px, 100%);
+}
+
+#prototypeLockForm {
+  display: grid;
+  gap: 8px;
+}
+
+.prototype-lock-label {
+  color: var(--wui-text-secondary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+#prototypePassword {
+  min-height: 36px;
+  width: 100%;
+}
+
+.prototype-lock-submit {
+  justify-self: end;
+  min-height: 32px;
+  padding-inline: 16px;
+}
+
+#prototypePassword[aria-invalid="true"] {
+  border-color: var(--wui-danger);
+}
+
+.prototype-lock-error {
+  margin: 0;
+  color: var(--wui-danger);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.prototype-lock :is(input, button):focus-visible {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: 1px;
+}
+
+@media (max-width: 520px) {
+  .prototype-lock {
+    padding: 12px;
+  }
+
+}

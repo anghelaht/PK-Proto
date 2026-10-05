@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({viewport:{width:1440,height:1000}});
+    await page.addInitScript(() => sessionStorage.setItem('packit.prototype.access.v1', 'unlocked'));
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
     await page.goto('http://localhost:4173', {waitUntil:'networkidle'});
@@ -80,6 +81,9 @@ const assert = require('node:assert/strict');
     await page.locator('.version[data-version="12.3.123"]').click();
     assert.deepEqual(await state(), committed);
     await page.reload({waitUntil:'networkidle'});
+    assert(await page.locator('#deploymentPanel').isVisible());
+    assert.deepEqual(await state(), committed);
+    await page.goto('http://localhost:4173/?page=applications', {waitUntil:'networkidle'});
     await page.locator('.app-row').first().click();
     await page.locator('#deploymentTab').click();
     assert.deepEqual(await state(), committed);

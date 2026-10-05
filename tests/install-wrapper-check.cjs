@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    await page.addInitScript(() => sessionStorage.setItem('packit.prototype.access.v1', 'unlocked'));
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto('http://localhost:4173', { waitUntil: 'networkidle' });

@@ -66,6 +66,7 @@
   ];
 
   const requiredIds = nodeDefinitions.filter((node) => node.required).map((node) => node.id);
+  const workflowViews = new Set(["design", "applications", "runs", "revisions"]);
 
   function createInitialNodes() {
     const requiredNodes = nodeDefinitions.filter((node) => node.required).map((node, index) => ({
@@ -458,7 +459,7 @@
 
   function WorkflowContextSidebar({ workflow, nodes, selectedId, onSelect, onActivate, onBack, restoredRevision }) {
     return h("div", { className: "workflow-context-sidebar" },
-      h("button", { className: "workflow-sidebar-back context-back-button", type: "button", onClick: onBack },
+          h("button", { className: "workflow-sidebar-back context-back-button", type: "button", "data-workflow-back": "true", onClick: onBack },
         h(FluentIcon, { name: "icon-chevron-left" }),
         "Back to Workflows"
       ),
@@ -483,7 +484,7 @@
           h("p", null, "Create reusable packaging and update automation, then assign it to applications when ready.")
         ),
         h("div", { className: "ia-page-actions" },
-          h("button", { className: "primary-btn", type: "button", onClick: onNew }, h(FluentIcon, { name: "icon-add" }), " New workflow")
+          h("button", { className: "primary-btn", type: "button", "data-workflow-new": "true", onClick: onNew }, h(FluentIcon, { name: "icon-add" }), " New workflow")
         )
       ),
       h("div", { className: "ia-page-body workflow-list-body" },
@@ -506,7 +507,7 @@
             h("td", null, h("strong", null, workflow.applications), h("small", null, workflow.applications === 1 ? "application" : "applications")),
             h("td", null, h("strong", null, workflow.revisions), h("small", null, `Current v${workflow.revision}`)),
             h("td", null, h("strong", null, "0 runs"), h("small", null, `${workflow.previews || 0} configuration previews`)),
-            h("td", null, h("button", { type: "button", onClick: () => onOpen(workflow.id) }, "Open workflow", h(FluentIcon, { name: "icon-arrow-right" })))
+            h("td", null, h("button", { type: "button", "data-workflow-open": workflow.id, onClick: () => onOpen(workflow.id) }, "Open workflow", h(FluentIcon, { name: "icon-arrow-right" })))
           )))
         )
       ),
@@ -806,6 +807,34 @@
       window.addEventListener("packit:workflow-selected", selectWorkflow);
       return () => window.removeEventListener("packit:workflow-selected", selectWorkflow);
     }, []);
+
+    React.useEffect(() => {
+      const openRoute = (event) => {
+        const { workflow: routeWorkflow, view } = event.detail || {};
+        if (routeWorkflow === "new") {
+          if (pageMode === "list") createWorkflow();
+          return;
+        }
+        if (!routeWorkflow) {
+          if (pageMode === "editor" && !dirty) returnToList();
+          return;
+        }
+        openWorkflow(routeWorkflow);
+        if (workflowViews.has(view)) setActiveView(view);
+      };
+      window.addEventListener("packit:workflow-route", openRoute);
+      return () => window.removeEventListener("packit:workflow-route", openRoute);
+    }, [pageMode, dirty]);
+
+    React.useEffect(() => {
+      window.packitWorkflowRouteState = {
+        mode: pageMode,
+        workflowId,
+        view: activeView,
+        isNew: isNewWorkflow
+      };
+      window.dispatchEvent(new CustomEvent("packit:workflow-route-state"));
+    }, [pageMode, workflowId, activeView, isNewWorkflow]);
 
     React.useEffect(() => {
       const refresh = () => setWorkflows(workflowRows());

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="prototype-locked">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,9 +10,22 @@
     <link rel="stylesheet" href="./winui3.css?v=20260925-workflow-editor" />
     <link rel="stylesheet" href="./workflow-policy.css" />
     <link rel="stylesheet" href="./deployment.css" />
+    <link rel="stylesheet" href="./prototype-lock.css" />
   </head>
   <body data-theme="light">
-    <main class="desktop" id="desktop">
+    <section class="prototype-lock" id="prototypeLock" role="dialog" aria-modal="true" aria-labelledby="prototypeLockTitle" aria-describedby="prototypeLockDescription">
+      <div class="prototype-lock-card">
+        <form id="prototypeLockForm" novalidate>
+          <h1 class="sr-only" id="prototypeLockTitle">Password protected prototype</h1>
+          <p class="sr-only" id="prototypeLockDescription">Enter the password and press Enter to continue.</p>
+          <label class="prototype-lock-label" for="prototypePassword">Enter password to access</label>
+          <input id="prototypePassword" name="password" type="password" autocomplete="current-password" required aria-label="Password" aria-describedby="prototypeLockError" />
+          <button class="prototype-lock-submit" type="submit">Submit</button>
+          <p class="prototype-lock-error" id="prototypeLockError" role="alert" hidden>That password is not correct. Try again.</p>
+        </form>
+      </div>
+    </section>
+    <main class="desktop" id="desktop" inert aria-hidden="true">
       <button class="desktop-launcher" id="packitLauncher" type="button" aria-label="Restore PacKit" hidden>
         <span class="launcher-icon"><img src="./assets/figma/packit-app-icon.svg" alt="" /></span>
         <span class="launcher-copy"><strong>PacKit</strong><small id="launcherState">Minimized</small></span>
@@ -1361,6 +1374,7 @@
         <button type="button" id="closeToast" aria-label="Dismiss notification" title="Dismiss"><span class="fluent icon-dismiss"></span></button>
       </div>
     </main>
+    <script src="./prototype-lock.js"></script>
     <script src="./workflow-policy.js"></script>
     <script src="./deployment.js"></script>
     <script src="./script.js?v=20260925-workflow-editor"></script>
@@ -1376,5 +1390,6 @@
     <script src="./assets/vendor/reactflow.umd.js"></script>
     <script src="./workflow-editor.js?v=20260925-workflow-editor"></script>
     <script src="./workflow-policy-ui.js"></script>
+    <script src="./prototype-routes.js"></script>
   </body>
 </html>
