@@ -113,6 +113,7 @@
           const scope = version ? dialog.querySelector("[name='exceptionScope']:checked").value : "application";
           const changed = policy.setOverride(id(), version, key, value, scope, dialog.querySelector("#policyExceptionReason").value);
           dialog.close();
+          if (changed) window.dispatchEvent(new CustomEvent("packit:version-exception-saved", { detail: { version, kind: key === "returnCodes.defaults" ? "deployment" : "version" } }));
           refresh();
           showToast(changed ? "Setting exception saved. Other settings remain inherited." : "No value changed. Ownership is unchanged.");
         });
@@ -132,7 +133,7 @@
     const changes = policy.compare(id(), scopeVersion, next.version);
     const rows = changes.map(row => `<tr><th scope="row">${esc(policy.schema()[row.key]?.label || row.key)}</th><td>${esc(display(row.before))}</td><td>${esc(display(row.after))}</td><td>${row.overridden ? `${esc(display(row.exception))}<small>${row.incompatible ? "Incompatible: step removed" : "Keep exception"}</small>${row.incompatible ? `<label><input type="checkbox" data-clear-exception="${esc(row.key)}" /> Remove exception</label>` : ""}` : "Use new default"}</td></tr>`).join("");
     const hasChangedExceptions = changes.some(row => row.changed && row.overridden);
-    showDialog(`Review revision v${next.version}`, `${info(scopeVersion ? `Updates the editable configuration of version ${scopeVersion}, not an existing deployment or saved preview.` : "Updates the application policy for future versions. Existing versions and previews keep their recorded revision.")}<div class="policy-table-scroll"><table class="policy-compare"><thead><tr><th>Setting</th><th>Current default</th><th>New default</th><th>Effective result</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No configuration differences.</td></tr>'}</tbody></table></div>${hasChangedExceptions ? '<label class="policy-ack"><input type="checkbox" id="policyRevisionAck" required /> I reviewed the changed defaults and the exceptions that will be kept.</label>' : ""}`, "Adopt revision", () => {
+    showDialog(`Review revision v${next.version}`, `${info(scopeVersion ? `Updates the editable configuration of version ${scopeVersion}, not an existing deployment or saved preview.` : "Updates the application policy for future versions. Existing versions and previews keep their recorded revision.")}<div class="policy-table-scroll"><table class="policy-compare wui-data-table"><thead><tr><th scope="col">Setting</th><th scope="col">Current default</th><th scope="col">New default</th><th scope="col">Effective result</th></tr></thead><tbody>${rows || '<tr><td colspan="4">No configuration differences.</td></tr>'}</tbody></table></div>${hasChangedExceptions ? '<label class="policy-ack"><input type="checkbox" id="policyRevisionAck" required /> I reviewed the changed defaults and the exceptions that will be kept.</label>' : ""}`, "Adopt revision", () => {
       const cleared = [...dialog.querySelectorAll("[data-clear-exception]:checked")].map(input => input.dataset.clearException);
       policy.adopt(id(), scopeVersion, next.version, Boolean(dialog.querySelector("#policyRevisionAck")?.checked), cleared);
       dialog.close(); refresh(); showToast("Revision adopted for the selected scope");
@@ -154,7 +155,7 @@
         if (!groups.has(field.group)) groups.set(field.group, []);
         groups.get(field.group).push([key, field, resolved.values[key]]);
       }
-      panel.innerHTML = `${heading}<section class="policy-surface"><div class="policy-heading"><span><strong>${esc(workflow.name)}</strong><small>Pinned v${esc(resolved.binding.revision)} · ${count} exception${count === 1 ? "" : "s"}</small></span><div class="policy-actions"><button type="button" id="policyManage">${icon("workflow")} Open workflow</button>${!scopeVersion ? '<button type="button" id="policyDetach">Remove workflow</button>' : '<button type="button" id="policyPreview">Capture preview</button>'}</div></div>${latest.version !== resolved.binding.revision ? `<div class="policy-update"><span>Revision v${esc(latest.version)} is available. Your configuration has not changed.</span><button type="button" id="policyReview">Review update</button></div>` : ""}</section>${info(scopeVersion ? "Version exceptions stay on this version. Application exceptions are the ones recorded when this version was prepared." : "Application exceptions carry forward to new versions. Existing versions retain their recorded policy.")}<div class="policy-groups">${[...groups].map(([name, fields], index) => `<details class="policy-surface policy-group" ${index === 0 || fields.some(([, , value]) => value.source !== "workflow") ? "open" : ""}><summary><strong>${esc(name)}</strong><span class="policy-meta">${fields.length} settings</span>${icon("chevron-down")}</summary><div>${fields.map(([key, field, value]) => `<div class="policy-row"><span><strong>${esc(field.label)}</strong><small>${esc(display(value.value))}</small>${value.reason ? `<small>${esc(value.reason)} · ${esc(value.author)} · ${esc(new Date(value.at).toLocaleDateString())}</small>` : ""}</span><span class="policy-source ${value.source}">${icon(value.source === "workflow" ? "lock" : "edit")} ${esc(sourceNames[value.source])}</span><div class="policy-actions"><button type="button" data-policy-edit="${esc(key)}" aria-label="Edit ${esc(field.label)}">${icon("edit")} Edit</button>${value.source !== "workflow" ? `<button type="button" data-policy-restore="${esc(key)}" aria-label="Restore inheritance for ${esc(field.label)}">${icon("refresh")} Restore</button>` : ""}</div></div>`).join("")}</div></details>`).join("")}</div><section class="policy-input-summary"><h3>Application inputs and resolved values</h3><p>Application identity, group targets, scope tags and selected files remain application or version inputs. Installer identity and generated wrapper commands are resolved per version; they are not fixed workflow values.</p></section>`;
+      panel.innerHTML = `${heading}<section class="policy-surface"><div class="policy-heading"><span><strong>${esc(workflow.name)}</strong><small>Pinned v${esc(resolved.binding.revision)} · ${count} exception${count === 1 ? "" : "s"}</small></span><div class="policy-actions"><button type="button" id="policyManage">${icon("workflow")} Open workflow</button>${!scopeVersion ? '<button type="button" id="policyDetach">Remove workflow</button>' : '<button type="button" id="policyPreview">View resolved configuration</button>'}</div></div>${latest.version !== resolved.binding.revision ? `<div class="policy-update"><span>Revision v${esc(latest.version)} is available. Your configuration has not changed.</span><button type="button" id="policyReview">Review update</button></div>` : ""}</section>${info(scopeVersion ? "Version exceptions stay on this version. Application exceptions are the ones recorded when this version was prepared." : "Application exceptions carry forward to new versions. Existing versions retain their recorded policy.")}<div class="policy-groups">${[...groups].map(([name, fields], index) => `<details class="policy-surface policy-group" ${index === 0 || fields.some(([, , value]) => value.source !== "workflow") ? "open" : ""}><summary><strong>${esc(name)}</strong><span class="policy-meta">${fields.length} settings</span>${icon("chevron-down")}</summary><div>${fields.map(([key, field, value]) => `<div class="policy-row"><span><strong>${esc(field.label)}</strong><small>${esc(display(value.value))}</small>${value.reason ? `<small>${esc(value.reason)} · ${esc(value.author)} · ${esc(new Date(value.at).toLocaleDateString())}</small>` : ""}</span><span class="policy-source ${value.source}">${icon(value.source === "workflow" ? "lock" : "edit")} ${esc(sourceNames[value.source])}</span><div class="policy-actions"><button type="button" data-policy-edit="${esc(key)}" aria-label="Edit ${esc(field.label)}">${icon("edit")} Edit</button>${value.source !== "workflow" ? `<button type="button" data-policy-restore="${esc(key)}" aria-label="Restore inheritance for ${esc(field.label)}">${icon("refresh")} Restore</button>` : ""}</div></div>`).join("")}</div></details>`).join("")}</div><section class="policy-input-summary"><h3>Application inputs and resolved values</h3><p>Application identity, group targets, scope tags and selected files remain application or version inputs. Installer identity and generated wrapper commands are resolved per version; they are not fixed workflow values.</p></section>`;
     }
     panel.querySelector("#policyViewScope").onchange = event => { scopeVersion = event.target.value || null; render(); };
     panel.querySelector("#policyAssign")?.addEventListener("click", () => assignWorkflow());
@@ -167,39 +168,67 @@
     panel.querySelector("#policyDetach")?.addEventListener("click", () => confirmDetach([id()]));
     panel.querySelector("#policyReview")?.addEventListener("click", reviewRevision);
     panel.querySelector("#policyPreview")?.addEventListener("click", () => {
-      if (versionConfigurationDirty) { showToast("Save or cancel changes before capturing a preview"); return; }
-      if (scopeVersion === selectedVersion) policy.saveInputs(id(), selectedVersion, { ...policy.ensureVersion(id(), selectedVersion).inputs, configuration: captureVersionConfiguration() });
-      showSnapshot(policy.preview(id(), scopeVersion));
+      if (versionConfigurationDirty) { showToast("Save or cancel changes before viewing the resolved configuration"); return; }
+      const resolved = policy.effective(id(), scopeVersion);
+      showSnapshot({ application: id(), version: scopeVersion, binding: resolved.binding, values: resolved.values, inputs: policy.ensureVersion(id(), scopeVersion).inputs });
     });
     panel.querySelectorAll("[data-policy-edit]").forEach(button => button.onclick = () => editSetting(button.dataset.policyEdit));
     panel.querySelectorAll("[data-policy-restore]").forEach(button => button.onclick = () => restoreSetting(button.dataset.policyRestore));
   }
   const controlMappings = [
-    [".advanced-installation-options select:first-of-type", "program.context"],
-    [".advanced-installation-options input[type=number]", "program.timeout"],
-    [".advanced-installation-options label:last-of-type select", "program.restart"],
-    ["#detectionPanel .form-grid.two select", "requirements.architecture"],
-    ["#detectionPanel .form-grid.two input", "requirements.os"],
-    ["#detectionPanel .form-grid.single select", "detection.method"]
+    ["#packageVersionInput", ["versionValue.value", "information.version"]],
+    ["#payloadInstallCommand", ["wrapPsadt.installCommand", "uploadIntune.installCommand", "program.installCommand"]],
+    ["#payloadUninstallCommand", ["wrapPsadt.uninstallCommand", "uploadIntune.uninstallCommand", "program.uninstallCommand"]],
+    ["#requirementsArchitecture", ["requirements.architecture"]],
+    ["#requirementsMinimumOs", ["requirements.os"]],
+    ["#detectionPanel .form-grid.single select", ["detection.method"]]
   ];
+  function matchingControlKey(selector, candidateKeys, resolved) {
+    let candidates = candidateKeys;
+    if ((selector === "#payloadInstallCommand" || selector === "#payloadUninstallCommand") && resolved.values["wrapPsadt.templateFolder"]) {
+      // The upload command enters the generated wrapper; it is not the payload action inside it.
+      candidates = candidateKeys.filter(candidate => !candidate.startsWith("uploadIntune."));
+    }
+    return candidates.find(candidate => resolved.values[candidate]);
+  }
   function applyControls() {
     const resolved = policy.effective(id(), selectedVersion);
-    for (const [selector, key] of controlMappings) {
+    for (const [selector, candidateKeys] of controlMappings) {
       const control = document.querySelector(selector);
       if (!control) continue;
-      const field = policy.schema()[key];
-      const value = resolved.values[key];
+      const key = matchingControlKey(selector, candidateKeys, resolved);
+      const field = key ? policy.schema()[key] : null;
+      const value = key ? resolved.values[key] : null;
       control.parentElement.querySelector(".policy-field-source")?.remove();
+      if (!field || !value) {
+        control.disabled = false;
+        delete control.dataset.policyKey;
+        ensureFieldOwnership(control, field?.label || "Configuration")?.replaceChildren();
+        continue;
+      }
       const owner = ensureFieldOwnership(control, field.label);
-      control.disabled = Boolean(value);
+      control.disabled = true;
       control.dataset.policyKey = key;
-      if (value) {
-        if (control.tagName === "SELECT") control.innerHTML = field.options.map(option => `<option${option === value.value ? " selected" : ""}>${esc(option)}</option>`).join("");
-        else control.value = key === "program.timeout" ? parseInt(value.value, 10) : value.value;
-        owner.innerHTML = ownershipMarkup(field.label, value, resolved);
-        owner.querySelector("[data-policy-inline-edit]").onclick = event => { event.preventDefault(); editSetting(key, selectedVersion); };
-      } else owner?.replaceChildren();
+      if (control.tagName === "SELECT" && field.options) control.innerHTML = field.options.map(option => `<option${option === value.value ? " selected" : ""}>${esc(option)}</option>`).join("");
+      else control.value = value.value;
+      owner.innerHTML = ownershipMarkup(field.label, value, resolved);
+      owner.querySelector("[data-policy-inline-edit]").onclick = event => { event.preventDefault(); editSetting(key, selectedVersion); };
     }
+    const workflow = policy.state().workflows[resolved.binding?.workflowId];
+    const managedAssignments = Object.entries(resolved.values).flatMap(([key, value]) => {
+      const match = key.match(/^(assign[^.]+)\.intent$/);
+      if (!match || !["available", "required", "uninstall"].includes(value.value)) return [];
+      const groupKey = `${match[1]}.groupIds`;
+      const groups = resolved.values[groupKey];
+      if (!groups) return [];
+      return [{
+        intent: value.value,
+        groups: groups.value,
+        key: groupKey,
+        tooltip: `${value.value[0].toUpperCase() + value.value.slice(1)} groups are managed by ${workflow?.name || "the assigned workflow"} v${resolved.binding?.revision || ""}. Edit creates an exception for this version.`
+      }];
+    });
+    window.packitDeployment?.setManagedAssignments(managedAssignments);
     const method = resolved.values["detection.method"]?.value;
     detectionTarget.hidden = !["File version", "Registry value"].includes(method);
     detectionInput.disabled = detectionTarget.hidden;
@@ -219,6 +248,7 @@
     document.querySelector("#informationTemplateName").textContent = appliedStrategyTemplateName;
     document.querySelector("#informationTemplateMeta").textContent = workflow ? `Pinned v${resolved.binding.revision} · Version ${selectedVersion}` : "Locally configured version";
     document.querySelector("#informationTemplateState").textContent = workflow ? `${count} exceptions · Other rules inherited` : "Version inputs";
+    document.querySelector("#automationTemplateSummary").hidden = !workflow;
     const commandName = document.querySelector(".applied-template-command strong");
     if (commandName) commandName.textContent = workflow ? workflow.name : "Not assigned";
     document.querySelector("#changeAutomationTemplate").innerHTML = `${icon("settings")} Configuration sources`;
@@ -229,12 +259,23 @@
     const inheritedMessage = document.querySelector("#automationTemplateSummary .wui-info-bar-content");
     inheritedMessage.querySelector("strong").textContent = workflow ? "Explicit configuration ownership" : "No workflow recorded";
     inheritedMessage.querySelector("small").textContent = workflow ? "Managed rules are read-only. Edit a rule to create a scoped exception." : "Assign a workflow at application level to manage future versions.";
-    const wrapper = resolved.values["wrapper.wrapper"];
+    const wrapperTemplate = resolved.values["wrapPsadt.templateFolder"];
+    const wrapper = resolved.values["wrapper.wrapper"] || wrapperTemplate;
     const wrapperOwnership = document.querySelector("#policyWrapperOwnership");
-    if (wrapperOwnership) wrapperOwnership.innerHTML = wrapper ? ownershipMarkup("Installation method", wrapper, resolved, { editable: false, pending: Boolean(pendingWrapper?.changed) }) : "";
+    if (wrapperOwnership) wrapperOwnership.innerHTML = wrapper ? ownershipMarkup(wrapperTemplate ? "PSADT template" : "Installation method", wrapper, resolved, { editable: Boolean(wrapperTemplate), pending: Boolean(pendingWrapper?.changed) }) : "";
+    wrapperOwnership?.querySelector("[data-policy-inline-edit]")?.addEventListener("click", event => {
+      event.preventDefault();
+      editSetting(wrapperTemplate ? "wrapPsadt.templateFolder" : "wrapper.wrapper", selectedVersion);
+    });
+    const workflowRequiresWrapper = Boolean(wrapperTemplate) || Boolean(wrapper && wrapper.value !== "Direct installer");
+    createPsadtWrapper.disabled = workflowRequiresWrapper;
+    unwrapPsadtWrapper.disabled = workflowRequiresWrapper;
+    createPsadtWrapper.title = workflowRequiresWrapper ? "The assigned workflow manages the PSADT wrapper" : "";
+    unwrapPsadtWrapper.title = workflowRequiresWrapper ? "The assigned workflow manages the PSADT wrapper" : "";
+    if (wrapperTemplate && activePsadtTemplateName) activePsadtTemplateName.textContent = wrapperTemplate.value;
     document.querySelector("#provenanceTemplate").textContent = workflow ? `${workflow.name} v${resolved.binding.revision}` : "Local configuration";
     document.querySelector("#provenanceConfigurationState").textContent = count ? `${count} recorded exceptions` : workflow ? "Inherited rules" : "Version inputs";
-    const wrapperMismatch = wrapper && (wrapper.value === "Direct installer") !== wrapperConfiguredState.hidden;
+    const wrapperMismatch = wrapper && workflowRequiresWrapper === wrapperConfiguredState.hidden;
     const readiness = document.querySelector(".review-readiness-heading p");
     readiness.textContent = wrapperMismatch ? "Installation method differs from the effective wrapper rule. Create or unwrap the package before validation." : !detectionTarget.hidden && !detectionInput.value.trim() ? "The selected detection method requires a version-specific target in Install." : "Review version inputs and recorded exceptions before publication. Validation has not been run.";
     const methodStatus = document.querySelector('[data-summary-target="install"] .status');
@@ -253,6 +294,17 @@
       restoreVersionConfiguration(version.inputs.configuration || prototypeVersionBaseline);
       if (!version.inputs.configuration) window.packitDeployment.select(id(), selectedVersion);
       const resolved = policy.effective(id(), selectedVersion);
+      const workflow = policy.state().workflows[resolved.binding?.workflowId];
+      if (workflow?.recipeId) {
+        const wrapperTemplate = resolved.values["wrapPsadt.templateFolder"];
+        wrapperConfiguredState.hidden = !wrapperTemplate;
+        activePsadtTemplate = wrapperTemplate ? {
+          id: `workflow-${workflow.id}`,
+          name: wrapperTemplate.value,
+          source: `${workflow.name} v${resolved.binding.revision}`
+        } : null;
+        syncInstallationMethod();
+      }
       if (resolved.values["returnCodes.defaults"]?.value) {
         const deployment = window.packitDeployment.capture();
         deployment.codes = window.packitDeployment.standardCodes();
@@ -288,11 +340,31 @@
       showToast("Workflow assigned for future versions");
     });
   }
+  function changeWorkflow(version = selectedVersion) {
+    if (versionConfigurationDirty) { showToast("Save or cancel version changes before changing the workflow"); return; }
+    const current = policy.effective(id(), version).binding;
+    const workflows = Object.values(policy.state().workflows)
+      .filter(item => item.id !== "guided" && item.revisions.length)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const options = workflows.map(item => {
+      const revision = item.revisions[0];
+      return `<option value="${esc(item.id)}" ${item.id === current?.workflowId ? "selected" : ""}>${esc(item.name)} · v${esc(revision.version)}</option>`;
+    }).join("");
+    showDialog("Change automation workflow", `<label class="policy-field">Published workflow<select id="policyWorkflowChoice">${options}</select></label><label class="policy-ack"><input type="checkbox" id="policyReplaceCurrentVersion" checked /> Also replace the workflow recorded for version ${esc(version)}</label>${info("The application will use the selected workflow for future versions. Replacing this version clears its workflow exceptions but keeps its package inputs.")}`, "Apply workflow", () => {
+      const workflowId = dialog.querySelector("#policyWorkflowChoice").value;
+      const includeVersion = dialog.querySelector("#policyReplaceCurrentVersion").checked;
+      policy.replaceBinding(id(), workflowId, version, includeVersion);
+      dialog.close();
+      refresh();
+      showToast(includeVersion ? "Workflow applied to the application and current version" : "Workflow assigned for future versions");
+    });
+    dialog.querySelector("#policyWorkflowChoice").focus();
+  }
   function confirmDetach(ids) {
     showDialog("Remove workflow from applications?", `<p>${ids.map(esc).join(", ")}</p>${info("Future versions will no longer inherit this workflow. Application exceptions are removed. Existing versions, their inputs, exceptions and previews are retained. No installed application is uninstalled.")}`, "Remove workflow", () => { ids.forEach(appId => policy.detach(appId)); dialog.close(); refresh(); showToast("Workflow removed for future versions"); });
   }
   function showSnapshot(snapshot) {
-    showDialog("Configuration preview", `${info("Immutable local preview. No build, upload or deployment was executed.")}<p>${esc(snapshot.application)} · Version ${esc(snapshot.version)} · Revision v${esc(snapshot.binding?.revision || "local")}</p><div class="policy-table-scroll"><table class="policy-compare"><thead><tr><th>Setting</th><th>Effective value</th><th>Source</th></tr></thead><tbody>${Object.entries(snapshot.values).map(([key, value]) => `<tr><th scope="row">${esc(policy.schema()[key]?.label || key)}</th><td>${esc(display(value.value))}</td><td>${esc(sourceNames[value.source])}</td></tr>`).join("")}</tbody></table></div><details><summary>Recorded version inputs</summary><pre class="policy-snapshot-code">${esc(JSON.stringify(snapshot.inputs, null, 2))}</pre></details>`, "Close", () => dialog.close(), { wide: true });
+    showDialog("Resolved configuration", `${info("Read-only configuration view. No build, upload, deployment, or reconciliation is pending or executed.")}<p>${esc(snapshot.application)} · Version ${esc(snapshot.version)} · Revision v${esc(snapshot.binding?.revision || "local")}</p><div class="policy-table-scroll"><table class="policy-compare wui-data-table"><thead><tr><th scope="col">Setting</th><th scope="col">Effective value</th><th scope="col">Source</th></tr></thead><tbody>${Object.entries(snapshot.values).map(([key, value]) => `<tr><th scope="row">${esc(policy.schema()[key]?.label || key)}</th><td>${esc(display(value.value))}</td><td>${esc(sourceNames[value.source])}</td></tr>`).join("")}</tbody></table></div><details><summary>Recorded version inputs</summary><pre class="policy-snapshot-code">${esc(JSON.stringify(snapshot.inputs, null, 2))}</pre></details>`, "Close", () => dialog.close(), { wide: true });
   }
   function saveVersionInputs() {
     if (!window.packitDeployment.validate()) return;
@@ -317,6 +389,7 @@
     if (!detectionTarget.hidden) detection[method] = detectionInput.value.trim();
     policy.saveInputs(id(), selectedVersion, { configuration: lastSavedVersionConfiguration, detection });
     versionConfigurationDirty = false;
+    window.dispatchEvent(new CustomEvent("packit:version-inputs-saved", { detail: { version: selectedVersion } }));
     modifiedVersionRecords.add(selectedVersion);
     syncAppliedTemplateUI();
     refreshDeploymentLocks();
@@ -331,15 +404,19 @@
       showToast("Add the target required by this detection method", "warning");
       return false;
     }
-    const wrapper = policy.effective(id(), selectedVersion).values["wrapper.wrapper"];
-    if (wrapper && (wrapper.value === "Direct installer") !== wrapperConfiguredState.hidden && !(allowPendingWrapper && pendingWrapper?.changed)) {
+    const resolved = policy.effective(id(), selectedVersion);
+    const wrapperTemplate = resolved.values["wrapPsadt.templateFolder"];
+    const wrapper = resolved.values["wrapper.wrapper"] || wrapperTemplate;
+    const workflowRequiresWrapper = Boolean(wrapperTemplate) || Boolean(wrapper && wrapper.value !== "Direct installer");
+    if (wrapper && workflowRequiresWrapper === wrapperConfiguredState.hidden && !(allowPendingWrapper && pendingWrapper?.changed)) {
       setTab("install");
       showToast("Create or unwrap the package to match its effective wrapper rule", "warning");
       return false;
     }
     return true;
   }
-  window.packitPolicyUI = { selectVersion, syncLabels, openConfiguration, manageWorkflow, assignWorkflow, confirmDetach, showSnapshot, saveVersionInputs, validateVersionInputs,
+  window.packitPolicyUI = { selectVersion, syncLabels, openConfiguration, manageWorkflow, assignWorkflow, changeWorkflow, confirmDetach, showSnapshot, saveVersionInputs, validateVersionInputs,
+    editManagedAssignment(key) { if (key) editSetting(key, selectedVersion); },
     cancelPending() { pendingWrapper = null; pendingCodes = null; requestAnimationFrame(refreshDeploymentLocks); },
     wrapperChanged() { if (pendingWrapper) pendingWrapper.changed = true; },
     refreshDeploymentLocks,

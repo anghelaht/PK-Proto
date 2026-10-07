@@ -93,6 +93,7 @@
   --wui-space-xxl: 24px;
   --wui-page-container-inset: var(--wui-space-md);
   --wui-card-stack-gap: var(--wui-space-md);
+  --wui-select-chevron-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%235f5f5f' d='M3.15 5.65c.2-.2.5-.2.7 0L8 9.79l4.15-4.14a.5.5 0 0 1 .7.7l-4.5 4.5a.5.5 0 0 1-.7 0l-4.5-4.5a.5.5 0 0 1 0-.7'/%3E%3C/svg%3E");
 
   /* Compatibility aliases for the original prototype stylesheet. */
   --win-accent-default: var(--wui-accent);
@@ -154,6 +155,7 @@ body[data-theme="dark"] {
   --wui-danger: #ff99a4;
   --wui-danger-bg: rgba(196, 43, 28, 0.2);
   --wui-info-bg: rgba(0, 95, 184, 0.2);
+  --wui-select-chevron-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23d6d6d6' d='M3.15 5.65c.2-.2.5-.2.7 0L8 9.79l4.15-4.14a.5.5 0 0 1 .7.7l-4.5 4.5a.5.5 0 0 1-.7 0l-4.5-4.5a.5.5 0 0 1 0-.7'/%3E%3C/svg%3E");
   --wui-bg-flyout: rgba(44, 44, 44, 0.96);
   --wui-code-bg: #1e1e1e;
   --wui-code-gutter: #252526;
@@ -224,8 +226,12 @@ body[data-theme="dark"] .app-nav-item {
   color: var(--wui-text);
 }
 
-body[data-theme="dark"] .version :where(.status.success, span) {
+body[data-theme="dark"] .version .status.success {
   color: var(--wui-success);
+}
+
+body[data-theme="dark"] .version .version-number {
+  color: var(--wui-text);
 }
 
 body[data-theme="dark"] .future-update-flow > span > small {
@@ -393,6 +399,19 @@ select:focus,
 textarea:focus {
   border-bottom: 2px solid var(--wui-accent);
   outline: none;
+}
+
+select:not([multiple]) {
+  appearance: none;
+  padding-right: 36px !important;
+  background-image: var(--wui-select-chevron-image);
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 12px;
+}
+
+.workflow-select-control select {
+  background-image: none;
 }
 
 input[type="checkbox"],
@@ -2836,29 +2855,12 @@ button.wui-help-tip:focus-visible {
   outline-offset: 1px;
 }
 
-button.wui-help-tip::before,
-button.wui-help-tip::after {
-  position: absolute;
-  z-index: 260;
-  left: 0;
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0ms linear 500ms, visibility 0ms linear 500ms;
-}
-
-button.wui-help-tip::before {
-  top: calc(100% + 1px);
-  border: 5px solid transparent;
-  border-bottom-color: var(--wui-tooltip-bg);
-  content: "";
-  transform: translateX(5px);
-}
-
-button.wui-help-tip::after {
-  top: calc(100% + 10px);
+.wui-tooltip-layer {
+  position: fixed;
+  z-index: 1200;
+  box-sizing: border-box;
   width: max-content;
-  max-width: 300px;
+  max-width: min(300px, calc(100vw - 24px));
   padding: 7px 9px;
   border: 1px solid color-mix(in srgb, var(--wui-tooltip-text) 12%, transparent);
   border-radius: var(--wui-radius-control);
@@ -2871,23 +2873,12 @@ button.wui-help-tip::after {
   font-weight: 400;
   line-height: 16px;
   text-align: left;
-  transform: none;
   white-space: normal;
+  pointer-events: none;
 }
 
-button.wui-help-tip:hover::before,
-button.wui-help-tip:hover::after,
-button.wui-help-tip:focus-visible::before,
-button.wui-help-tip:focus-visible::after {
-  visibility: visible;
-  opacity: 1;
-}
-
-button.wui-help-tip:active::before,
-button.wui-help-tip:active::after {
-  visibility: hidden;
-  opacity: 0;
-  transition-delay: 0ms;
+.wui-tooltip-layer[hidden] {
+  display: none;
 }
 
 .history-switch {
@@ -3207,6 +3198,7 @@ pre {
 
 .workflow-command-actions button:not(.primary-btn),
 .workflow-bulk-actions button:not(.primary-btn),
+.workflow-selection-command button,
 .workflow-list-table td:last-child button,
 .workflow-simple-table.revisions button,
 .workflow-discard-dialog button:not(.danger-btn),
@@ -3222,6 +3214,7 @@ pre {
 
 .workflow-command-actions button:not(.primary-btn):hover:not(:disabled),
 .workflow-bulk-actions button:not(.primary-btn):hover:not(:disabled),
+.workflow-selection-command button:hover:not(:disabled),
 .workflow-list-table td:last-child button:hover:not(:disabled),
 .workflow-simple-table.revisions button:hover:not(:disabled),
 .workflow-discard-dialog button:not(.danger-btn):hover:not(:disabled),
@@ -3232,6 +3225,7 @@ pre {
 
 .workflow-command-actions button:not(.primary-btn):active:not(:disabled),
 .workflow-bulk-actions button:not(.primary-btn):active:not(:disabled),
+.workflow-selection-command button:active:not(:disabled),
 .workflow-list-table td:last-child button:active:not(:disabled),
 .workflow-simple-table.revisions button:active:not(:disabled),
 .workflow-discard-dialog button:not(.danger-btn):active:not(:disabled),
@@ -3243,7 +3237,9 @@ pre {
 }
 
 .workflow-workspace .workflow-remove-step,
-.workflow-workspace .workflow-remove-step:active:not(:disabled) {
+.workflow-workspace .workflow-remove-step:active:not(:disabled),
+.workflow-workspace .workflow-selection-command .workflow-remove-app,
+.workflow-workspace .workflow-selection-command .workflow-remove-app:active:not(:disabled) {
   color: var(--wui-danger);
 }
 
@@ -3621,21 +3617,13 @@ pre {
   gap: var(--wui-space-md);
 }
 
-.signature-section-heading h2,
-.signature-section-heading p {
+.signature-section-heading h2 {
   margin: 0;
 }
 
 .signature-section-heading h2 {
   font-size: 16px;
   line-height: 22px;
-}
-
-.signature-section-heading p {
-  margin-top: 2px;
-  color: var(--wui-text-secondary);
-  font-size: 12px;
-  line-height: 18px;
 }
 
 .signature-method-list {
@@ -4027,7 +4015,7 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   gap: var(--wui-space-md);
 }
 
-.signature-form-grid label {
+.signature-form-grid > label {
   min-width: 0;
   display: grid;
   gap: 6px;
@@ -4035,14 +4023,26 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   font-size: 12px;
 }
 
-.signature-form-grid label.wide {
+.signature-form-grid > label.wide {
   grid-column: 1 / -1;
 }
 
-.signature-form-grid label > small {
+.signature-form-grid > label > small {
   display: inline;
   margin-left: 4px;
   color: var(--wui-text-secondary);
+}
+
+.signature-optional-toggle {
+  grid-column: 1 / -1;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wui-space-md);
+  color: var(--wui-text);
+  font-size: 13px;
+  line-height: 18px;
 }
 
 .signature-form-grid input,
@@ -4319,6 +4319,12 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   flex-direction: column;
 }
 
+.sidebar.workflow-context-mode {
+  min-height: 0;
+  overflow: hidden;
+  padding-right: 0;
+}
+
 .workflow-context-sidebar {
   height: 100%;
   min-height: 0;
@@ -4416,18 +4422,43 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   white-space: nowrap;
 }
 
-.workflow-context-sidebar > .workflow-palette {
+.workflow-context-sidebar > .workflow-palette-frame {
   flex: 1 1 auto;
   min-height: 0;
-  padding: 8px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.workflow-context-sidebar > .workflow-palette-frame > .workflow-palette {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-padding-block: 8px;
+  scrollbar-gutter: stable;
+  touch-action: pan-y;
+  padding: 8px 0 16px;
   background: transparent;
 }
 
-.workflow-context-sidebar > .workflow-palette > header {
+.workflow-context-sidebar > .workflow-palette-frame > .workflow-palette::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workflow-context-sidebar > .workflow-palette-frame > .workflow-palette::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: var(--wui-text-tertiary);
+  background-clip: padding-box;
+}
+
+.workflow-context-sidebar > .workflow-palette-frame > .workflow-palette > header {
   padding: 0 8px 10px;
 }
 
-.workflow-context-sidebar > .workflow-palette > section {
+.workflow-context-sidebar > .workflow-palette-frame > .workflow-palette > section {
   padding: 8px 0;
 }
 
@@ -4477,8 +4508,7 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   outline-offset: 2px;
 }
 
-/* Version information architecture: application identity, four task facets, and progressive disclosure. */
-.version-identity-summary,
+/* Version information architecture: four task facets and progressive disclosure. */
 .installation-method-card,
 .review-readiness {
   display: flex;
@@ -4491,7 +4521,6 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   box-shadow: var(--wui-shadow-card);
 }
 
-.version-identity-summary > span:nth-child(2),
 .installation-method-heading > span:first-child,
 .review-readiness-heading > span:last-child {
   display: grid;
@@ -4499,22 +4528,16 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   min-width: 0;
 }
 
-.version-identity-summary small,
 .installation-method-heading small,
 .review-readiness-heading small {
   color: var(--wui-text-secondary);
   font-size: 12px;
 }
 
-.version-identity-summary > span:nth-child(2) > span,
 .review-readiness-heading p,
 .section-intro p {
   margin: 0;
   color: var(--wui-text-secondary);
-}
-
-.version-identity-summary > button {
-  margin-left: auto;
 }
 
 .provenance-label,
@@ -4542,7 +4565,40 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  padding: 0 16px 16px;
+  padding: 0;
+}
+
+.review-configuration-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.review-section-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.review-section-heading > span:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.review-section-heading small {
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+}
+
+.review-section-heading h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 24px;
+}
+
+.review-section-heading p {
+  margin: 0;
+  color: var(--wui-text-secondary);
 }
 
 .configuration-summary-grid > button {
@@ -4580,6 +4636,11 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   border-radius: var(--wui-radius-control);
   background: var(--wui-control-selected);
   color: var(--wui-accent-text);
+}
+
+.review-pending-icon {
+  background: var(--wui-warning-bg);
+  color: var(--wui-warning);
 }
 
 .installation-method-card {
@@ -4702,6 +4763,10 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   grid-template-columns: minmax(280px, .85fr) minmax(440px, 1.15fr);
 }
 
+.review-change-status {
+  margin: 0;
+}
+
 .review-readiness-heading {
   display: flex;
   align-items: center;
@@ -4726,6 +4791,10 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
 
 .readiness-checklist dt .fluent {
   color: var(--wui-success);
+}
+
+.readiness-checklist .readiness-pending dt .fluent {
+  color: var(--wui-warning);
 }
 
 .readiness-checklist dd {
@@ -4795,6 +4864,11 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
   .execution-chain-list > div > .icon-arrow-right {
     display: none;
   }
+
+  .review-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 760px) {
@@ -4806,13 +4880,276 @@ body[data-theme="dark"] .command-bar button.primary-btn:disabled {
     justify-content: flex-start;
   }
 
-  .version-identity-summary {
-    align-items: flex-start;
-    flex-wrap: wrap;
+}
+
+/* Shared WinUI data-collection contract. Tables use one header, density,
+   divider, focus and selection model while retaining task-specific columns. */
+.wui-data-table,
+.wui-data-matrix {
+  --wui-table-header-height: 40px;
+  --wui-table-row-height: 48px;
+  color: var(--wui-text);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+table.wui-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+table.wui-data-table th,
+table.wui-data-table td {
+  height: var(--wui-table-row-height);
+  padding: 8px 12px;
+  border-right: 0;
+  border-bottom: 1px solid var(--wui-divider);
+  background: transparent;
+  color: var(--wui-text);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+table.wui-data-table thead th {
+  height: var(--wui-table-header-height);
+  padding-top: 0;
+  padding-bottom: 0;
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+table.wui-data-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+table.wui-data-table tbody tr {
+  transition: background-color 100ms ease;
+}
+
+table.wui-data-table tbody tr:has(button, input, select):hover {
+  background: var(--wui-list-item-hover);
+}
+
+table.wui-data-table tbody tr:has(button, input, select):active {
+  background: var(--wui-list-item-pressed);
+}
+
+table.wui-data-table tbody tr:focus-within {
+  outline: 2px solid var(--wui-focus);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 1px var(--wui-focus-inner);
+}
+
+table.wui-data-table th:first-child,
+table.wui-data-table td:first-child {
+  padding-left: 12px;
+}
+
+table.wui-data-table th:last-child,
+table.wui-data-table td:last-child {
+  padding-right: 12px;
+}
+
+table.wui-data-table td:last-child:has(button) {
+  text-align: right;
+}
+
+.wui-data-table[role="table"] > [role="row"] {
+  min-height: var(--wui-table-row-height);
+  border-bottom: 1px solid var(--wui-divider);
+  background: transparent;
+}
+
+.wui-data-table[role="table"] > [role="row"]:last-child {
+  border-bottom: 0;
+}
+
+.wui-data-table[role="table"] > .heading {
+  min-height: var(--wui-table-header-height);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wui-data-table[role="table"] > [role="row"] > [role="columnheader"],
+.wui-data-table[role="table"] > [role="row"] > [role="cell"] {
+  min-width: 0;
+}
+
+.app-list-header {
+  min-height: var(--wui-table-header-height);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+}
+
+.app-row {
+  margin: 0;
+  border-bottom: 1px solid var(--wui-divider);
+  border-radius: 0;
+}
+
+.app-row:last-child {
+  border-bottom: 0;
+}
+
+.app-row[aria-selected="true"] {
+  background: var(--wui-list-item-selected);
+}
+
+.app-row[aria-selected="true"]:hover {
+  background: var(--wui-list-item-selected-hover);
+}
+
+.workflow-list-table.wui-data-table td {
+  height: 64px;
+}
+
+.workflow-app-row,
+.workflow-simple-table > div {
+  min-height: var(--wui-table-row-height);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--wui-divider);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.workflow-app-row.heading,
+.workflow-simple-table > .heading {
+  min-height: var(--wui-table-header-height);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+}
+
+.workflow-app-row:not(.heading):hover {
+  background: var(--wui-list-item-hover);
+}
+
+.workflow-app-row:not(.heading):active {
+  background: var(--wui-list-item-pressed);
+}
+
+.workflow-app-row.selected,
+.deploy-picker-table tbody tr.is-selected {
+  background: var(--wui-list-item-selected);
+}
+
+.workflow-app-row.selected:hover,
+.deploy-picker-table tbody tr.is-selected:hover {
+  background: var(--wui-list-item-selected-hover);
+}
+
+.run-history-table,
+.history-table {
+  overflow: hidden;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+}
+
+.run-row,
+.history-row {
+  min-height: var(--wui-table-row-height);
+  border-bottom: 1px solid var(--wui-divider);
+  background: transparent;
+}
+
+.run-row:last-child,
+.history-row:last-child {
+  border-bottom: 0;
+}
+
+.run-row > *,
+.history-row > span {
+  min-height: var(--wui-table-row-height);
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 0;
+}
+
+.run-row.heading,
+.history-row.heading {
+  min-height: var(--wui-table-header-height);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+}
+
+.run-row.heading > *,
+.history-row.heading > span {
+  min-height: var(--wui-table-header-height);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.history-row:nth-child(even),
+.run-row:nth-child(even) {
+  background: transparent;
+}
+
+.policy-table-scroll {
+  overflow: auto;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+}
+
+.policy-compare.wui-data-table th[scope="row"] {
+  font-weight: 600;
+}
+
+.deploy-table.wui-data-table th:first-child,
+.deploy-table.wui-data-table td:first-child {
+  padding-left: 12px;
+}
+
+.deploy-table.wui-data-table th:last-child,
+.deploy-table.wui-data-table td:last-child {
+  padding-right: 12px;
+}
+
+.deploy-picker-table.wui-data-table thead th {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+}
+
+.wui-data-matrix {
+  overflow: hidden;
+  border: 1px solid var(--wui-stroke);
+  border-radius: var(--wui-radius-card);
+  background: var(--wui-bg-card);
+}
+
+.ring-impact-table.wui-data-matrix {
+  border-top: 1px solid var(--wui-stroke);
+  border-left: 1px solid var(--wui-stroke);
+}
+
+.ring-impact-table.wui-data-matrix > :nth-child(-n + 5) {
+  min-height: var(--wui-table-header-height);
+  background: var(--wui-bg-layer-alt);
+  color: var(--wui-text-secondary);
+}
+
+@media (max-width: 900px) {
+  .wui-data-table,
+  .wui-data-matrix {
+    font-size: 12px;
   }
 
-  .version-identity-summary > button {
-    margin-left: 50px;
+  .history-table,
+  .run-history-table,
+  .workflow-list-card,
+  .workflow-bulk-card,
+  .workflow-simple-view,
+  .policy-table-scroll {
+    overflow-x: auto;
   }
 }
 

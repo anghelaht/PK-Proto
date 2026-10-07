@@ -2,61 +2,78 @@ const appCatalog = [
   { name: "Contoso Finance Tools", publisher: "Contoso", update: "New", status: "", versions: "3 versions", source: "-", arch: "x86", version: "12.3.10", state: "all" },
   { name: "Fabrikam Helpdesk Agent", publisher: "Fabrikam", update: "", status: "Not configured", versions: "No versions", source: "-", arch: "-", version: "-", state: "all", empty: true },
   { name: "Tailspin Inventory Client", publisher: "Tailspin Toys", update: "", status: "⚠ Configuration issues", versions: "13 versions", source: "WinGet", arch: "x64", version: "12.3.10", state: "issue" },
-  { name: "Northwind VPN Client", publisher: "Northwind Traders", update: "", status: "× Upload to SCCM failed", versions: "13 versions", source: "Local", arch: "x64", version: "12.3.10", state: "failed" },
-  { name: "Skype for Business", publisher: "Microsoft", update: "⇩ Update available", status: "✓ Uploaded to Intune", versions: "3 versions", source: "WinGet", arch: "x86", version: "12.3.10", state: "success" },
-  { name: "Microsoft Project", publisher: "Microsoft", update: "⇩ Update available", status: "✓ Uploads successful", versions: "3 version", source: "WinGet", arch: "x86", version: "12.3.10", state: "success" },
-  { name: "Microsoft Visio", publisher: "Microsoft", update: "", status: "✓ Uploaded to Intune", versions: "3 versions", source: "Local", arch: "x86", version: "12.3.10", state: "success" },
-  { name: "Microsoft PowerToys", publisher: "Microsoft", update: "", status: "✓ Uploaded to Intune", versions: "3 versions", source: "Local", arch: "x86", version: "12.3.10", state: "success" },
-  { name: "Microsoft Loop", publisher: "Microsoft", update: "", status: "✓ Uploaded to Intune", versions: "3 versions", source: "Local", arch: "x86", version: "12.3.10", state: "success" },
-  { name: "Microsoft Whiteboard", publisher: "Microsoft", update: "", status: "✓ Uploaded to Intune", versions: "3 versions", source: "WinGet", arch: "x86", version: "12.3.10", state: "success" },
+  { name: "Northwind VPN Client", publisher: "Northwind Traders", update: "", status: "× Upload to MECM failed", versions: "13 versions", source: "Local", arch: "x64", version: "12.3.10", state: "failed" },
+  { name: "Skype for Business", publisher: "Microsoft", update: "⇩ Update available", status: "✓ Published to Intune", versions: "3 versions", source: "WinGet", arch: "x86", version: "12.3.10", state: "success" },
+  { name: "Microsoft Project", publisher: "Microsoft", update: "⇩ Update available", status: "✓ Published to Intune and MECM", versions: "3 version", source: "WinGet", arch: "x86", version: "12.3.10", state: "success" },
+  { name: "Microsoft Visio", publisher: "Microsoft", update: "", status: "✓ Published to Intune", versions: "3 versions", source: "Local", arch: "x86", version: "12.3.10", state: "success" },
+  { name: "Microsoft PowerToys", publisher: "Microsoft", update: "", status: "✓ Published to Intune", versions: "3 versions", source: "Local", arch: "x86", version: "12.3.10", state: "success" },
+  { name: "Microsoft Loop", publisher: "Microsoft", update: "", status: "✓ Published to Intune", versions: "3 versions", source: "Local", arch: "x86", version: "12.3.10", state: "success" },
+  { name: "Microsoft Whiteboard", publisher: "Microsoft", update: "", status: "✓ Published to Intune", versions: "3 versions", source: "WinGet", arch: "x86", version: "12.3.10", state: "success" },
   { name: "Microsoft To Do", publisher: "Microsoft", update: "", status: "", versions: "3 versions", source: "WinGet", arch: "x86", version: "12.3.10", state: "all" },
   { name: "Microsoft Planner", publisher: "Microsoft", update: "", status: "", versions: "3 versions", source: "WinGet", arch: "x86", version: "12.3.10", state: "all" }
 ];
 
 const generatedApps = [
-  { name: "Microsoft Edge", publisher: "Microsoft", update: "Update available", status: "✓ Uploaded to Intune", versions: "9 versions", source: "WinGet", arch: "x64", version: "124.0.2478", state: "success" },
+  { name: "Microsoft Edge", publisher: "Microsoft", update: "Update available", status: "✓ Published to Intune", versions: "9 versions", source: "WinGet", arch: "x64", version: "124.0.2478", state: "success" },
   { name: "Microsoft Teams", publisher: "Microsoft", update: "Update available", status: "⚠ Configuration issues", versions: "14 versions", source: "WinGet", arch: "x64", version: "24102.2223", state: "issue" },
-  { name: "OneDrive", publisher: "Microsoft", update: "", status: "✓ Uploaded to Intune", versions: "7 versions", source: "WinGet", arch: "x64", version: "24.076.0414", state: "success" },
-  { name: "Power BI Desktop", publisher: "Microsoft", update: "Update available", status: "× Upload to SCCM failed", versions: "18 versions", source: "Local", arch: "x64", version: "2.128.952", state: "failed" },
-  { name: "Visual Studio Code", publisher: "Microsoft", update: "Update available", status: "✓ Uploaded to Intune", versions: "21 versions", source: "WinGet", arch: "x64", version: "1.89.0", state: "success" },
-  { name: "Azure Data Studio", publisher: "Microsoft", update: "", status: "⚠ Configuration issues", versions: "6 versions", source: "Local", arch: "x64", version: "1.49.1", state: "issue" },
-  { name: "Remote Desktop", publisher: "Microsoft", update: "", status: "✓ Uploaded to Intune", versions: "5 versions", source: "WinGet", arch: "x64", version: "1.2.5405", state: "success" },
-  { name: "Windows Admin Center", publisher: "Microsoft", update: "Update available", status: "× Upload to SCCM failed", versions: "4 versions", source: "Local", arch: "x64", version: "2311.0", state: "failed" },
-  { name: "7-Zip", publisher: "Igor Pavlov", update: "Update available", status: "✓ Uploaded to Intune", versions: "11 versions", source: "WinGet", arch: "x64", version: "24.05", state: "success" },
+  { name: "OneDrive", publisher: "Microsoft", update: "", status: "✓ Published to MECM", versions: "7 versions", source: "WinGet", arch: "x64", version: "24.076.0414", state: "success" },
+  { name: "Power BI Desktop", publisher: "Microsoft", update: "Update available", status: "× Upload to MECM failed", versions: "18 versions", source: "Local", arch: "x64", version: "2.128.952", state: "failed" },
+  { name: "Visual Studio Code", publisher: "Microsoft", update: "Update available", status: "✓ Published to Intune and MECM", versions: "21 versions", source: "WinGet", arch: "x64", version: "1.89.0", state: "success" },
+  { name: "Azure Data Studio", publisher: "Microsoft", update: "", status: "× Upload to Intune failed", versions: "6 versions", source: "Local", arch: "x64", version: "1.49.1", state: "failed" },
+  { name: "Remote Desktop", publisher: "Microsoft", update: "", status: "✓ Published to Intune", versions: "5 versions", source: "WinGet", arch: "x64", version: "1.2.5405", state: "success" },
+  { name: "Windows Admin Center", publisher: "Microsoft", update: "Update available", status: "× Upload to MECM failed", versions: "4 versions", source: "Local", arch: "x64", version: "2311.0", state: "failed" },
+  { name: "7-Zip", publisher: "Igor Pavlov", update: "Update available", status: "✓ Published to Intune", versions: "11 versions", source: "WinGet", arch: "x64", version: "24.05", state: "success" },
   { name: "Adobe Acrobat Reader", publisher: "Adobe", update: "Update available", status: "⚠ Configuration issues", versions: "19 versions", source: "WinGet", arch: "x64", version: "24.002", state: "issue" },
-  { name: "Google Chrome", publisher: "Google", update: "Update available", status: "✓ Uploaded to Intune", versions: "23 versions", source: "WinGet", arch: "x64", version: "124.0.6367", state: "success" },
-  { name: "Mozilla Firefox", publisher: "Mozilla", update: "", status: "✓ Uploaded to Intune", versions: "17 versions", source: "WinGet", arch: "x64", version: "126.0", state: "success" },
-  { name: "Notepad++", publisher: "Notepad++ Team", update: "Update available", status: "✓ Uploads successful", versions: "15 versions", source: "WinGet", arch: "x64", version: "8.6.7", state: "success" },
+  { name: "Google Chrome", publisher: "Google", update: "Update available", status: "✓ Published to Intune", versions: "23 versions", source: "WinGet", arch: "x64", version: "124.0.6367", state: "success" },
+  { name: "Mozilla Firefox", publisher: "Mozilla", update: "", status: "✓ Published to Intune", versions: "17 versions", source: "WinGet", arch: "x64", version: "126.0", state: "success" },
+  { name: "Notepad++", publisher: "Notepad++ Team", update: "Update available", status: "✓ Published to Intune and MECM", versions: "15 versions", source: "WinGet", arch: "x64", version: "8.6.7", state: "success" },
   { name: "VLC Media Player", publisher: "VideoLAN", update: "", status: "⚠ Configuration issues", versions: "10 versions", source: "Local", arch: "x64", version: "3.0.20", state: "issue" },
-  { name: "Git", publisher: "Git Project", update: "Update available", status: "✓ Uploaded to Intune", versions: "12 versions", source: "WinGet", arch: "x64", version: "2.45.1", state: "success" },
-  { name: "GitHub Desktop", publisher: "GitHub", update: "", status: "× Upload to SCCM failed", versions: "8 versions", source: "WinGet", arch: "x64", version: "3.3.18", state: "failed" },
+  { name: "Git", publisher: "Git Project", update: "Update available", status: "✓ Published to Intune", versions: "12 versions", source: "WinGet", arch: "x64", version: "2.45.1", state: "success" },
+  { name: "GitHub Desktop", publisher: "GitHub", update: "", status: "× Upload to MECM failed", versions: "8 versions", source: "WinGet", arch: "x64", version: "3.3.18", state: "failed" },
   { name: "Docker Desktop", publisher: "Docker", update: "Update available", status: "⚠ Configuration issues", versions: "13 versions", source: "Local", arch: "x64", version: "4.30.0", state: "issue" },
-  { name: "Postman", publisher: "Postman", update: "", status: "✓ Uploaded to Intune", versions: "16 versions", source: "WinGet", arch: "x64", version: "11.1.13", state: "success" },
-  { name: "Slack", publisher: "Salesforce", update: "Update available", status: "✓ Uploaded to Intune", versions: "20 versions", source: "WinGet", arch: "x64", version: "4.38.127", state: "success" },
-  { name: "Zoom Workplace", publisher: "Zoom", update: "Update available", status: "× Upload to SCCM failed", versions: "22 versions", source: "Local", arch: "x64", version: "6.0.10", state: "failed" },
-  { name: "Cisco Webex", publisher: "Cisco", update: "", status: "✓ Uploaded to Intune", versions: "9 versions", source: "WinGet", arch: "x64", version: "44.5.0", state: "success" },
+  { name: "Postman", publisher: "Postman", update: "", status: "✓ Published to Intune", versions: "16 versions", source: "WinGet", arch: "x64", version: "11.1.13", state: "success" },
+  { name: "Slack", publisher: "Salesforce", update: "Update available", status: "✓ Published to Intune", versions: "20 versions", source: "WinGet", arch: "x64", version: "4.38.127", state: "success" },
+  { name: "Zoom Workplace", publisher: "Zoom", update: "Update available", status: "× Upload to MECM failed", versions: "22 versions", source: "Local", arch: "x64", version: "6.0.10", state: "failed" },
+  { name: "Cisco Webex", publisher: "Cisco", update: "", status: "✓ Published to Intune", versions: "9 versions", source: "WinGet", arch: "x64", version: "44.5.0", state: "success" },
   { name: "Citrix Workspace", publisher: "Cloud Software Group", update: "Update available", status: "⚠ Configuration issues", versions: "12 versions", source: "Local", arch: "x64", version: "2403.1", state: "issue" },
-  { name: "FortiClient VPN", publisher: "Fortinet", update: "", status: "× Upload to SCCM failed", versions: "6 versions", source: "Local", arch: "x64", version: "7.2.4", state: "failed" },
-  { name: "GlobalProtect", publisher: "Palo Alto Networks", update: "Update available", status: "✓ Uploaded to Intune", versions: "7 versions", source: "Local", arch: "x64", version: "6.2.3", state: "success" },
-  { name: "PuTTY", publisher: "Simon Tatham", update: "", status: "✓ Uploaded to Intune", versions: "5 versions", source: "WinGet", arch: "x64", version: "0.81", state: "success" },
-  { name: "WinSCP", publisher: "Martin Prikryl", update: "Update available", status: "✓ Uploaded to Intune", versions: "13 versions", source: "WinGet", arch: "x64", version: "6.3.3", state: "success" },
+  { name: "FortiClient VPN", publisher: "Fortinet", update: "", status: "× Upload to MECM failed", versions: "6 versions", source: "Local", arch: "x64", version: "7.2.4", state: "failed" },
+  { name: "GlobalProtect", publisher: "Palo Alto Networks", update: "Update available", status: "✓ Published to Intune", versions: "7 versions", source: "Local", arch: "x64", version: "6.2.3", state: "success" },
+  { name: "PuTTY", publisher: "Simon Tatham", update: "", status: "✓ Published to Intune", versions: "5 versions", source: "WinGet", arch: "x64", version: "0.81", state: "success" },
+  { name: "WinSCP", publisher: "Martin Prikryl", update: "Update available", status: "✓ Published to Intune", versions: "13 versions", source: "WinGet", arch: "x64", version: "6.3.3", state: "success" },
   { name: "FileZilla Client", publisher: "FileZilla Project", update: "", status: "⚠ Configuration issues", versions: "9 versions", source: "WinGet", arch: "x64", version: "3.67.0", state: "issue" },
-  { name: "KeePass", publisher: "Dominik Reichl", update: "Update available", status: "✓ Uploads successful", versions: "6 versions", source: "Local", arch: "x64", version: "2.57", state: "success" },
-  { name: "1Password", publisher: "AgileBits", update: "", status: "✓ Uploaded to Intune", versions: "11 versions", source: "WinGet", arch: "x64", version: "8.10.32", state: "success" },
-  { name: "Figma Desktop", publisher: "Figma", update: "Update available", status: "✓ Uploaded to Intune", versions: "14 versions", source: "WinGet", arch: "x64", version: "124.6.5", state: "success" },
+  { name: "KeePass", publisher: "Dominik Reichl", update: "Update available", status: "✓ Published to Intune and MECM", versions: "6 versions", source: "Local", arch: "x64", version: "2.57", state: "success" },
+  { name: "1Password", publisher: "AgileBits", update: "", status: "✓ Published to Intune", versions: "11 versions", source: "WinGet", arch: "x64", version: "8.10.32", state: "success" },
+  { name: "Figma Desktop", publisher: "Figma", update: "Update available", status: "✓ Published to Intune", versions: "14 versions", source: "WinGet", arch: "x64", version: "124.6.5", state: "success" },
   { name: "Miro", publisher: "Miro", update: "", status: "⚠ Configuration issues", versions: "8 versions", source: "Local", arch: "x64", version: "0.9.93", state: "issue" },
   { name: "Jira Cloud", publisher: "Atlassian", update: "", status: "", versions: "2 versions", source: "Local", arch: "x64", version: "2.1.4", state: "all" },
-  { name: "Tableau Desktop", publisher: "Salesforce", update: "Update available", status: "× Upload to SCCM failed", versions: "10 versions", source: "Local", arch: "x64", version: "2024.1", state: "failed" },
-  { name: "SAP GUI", publisher: "SAP", update: "", status: "✓ Uploaded to Intune", versions: "5 versions", source: "Local", arch: "x64", version: "8.00", state: "success" },
+  { name: "Tableau Desktop", publisher: "Salesforce", update: "Update available", status: "× Upload to MECM failed", versions: "10 versions", source: "Local", arch: "x64", version: "2024.1", state: "failed" },
+  { name: "SAP GUI", publisher: "SAP", update: "", status: "✓ Published to Intune", versions: "5 versions", source: "Local", arch: "x64", version: "8.00", state: "success" },
   { name: "ServiceNow Agent", publisher: "ServiceNow", update: "Update available", status: "⚠ Configuration issues", versions: "4 versions", source: "Local", arch: "x64", version: "3.5.2", state: "issue" },
-  { name: "Box Drive", publisher: "Box", update: "", status: "✓ Uploaded to Intune", versions: "8 versions", source: "WinGet", arch: "x64", version: "2.38.146", state: "success" },
-  { name: "Dropbox", publisher: "Dropbox", update: "Update available", status: "✓ Uploaded to Intune", versions: "16 versions", source: "WinGet", arch: "x64", version: "199.4.6287", state: "success" },
-  { name: "RingCentral", publisher: "RingCentral", update: "", status: "× Upload to SCCM failed", versions: "7 versions", source: "Local", arch: "x64", version: "24.2.10", state: "failed" },
+  { name: "Box Drive", publisher: "Box", update: "", status: "✓ Published to Intune", versions: "8 versions", source: "WinGet", arch: "x64", version: "2.38.146", state: "success" },
+  { name: "Dropbox", publisher: "Dropbox", update: "Update available", status: "✓ Published to Intune", versions: "16 versions", source: "WinGet", arch: "x64", version: "199.4.6287", state: "success" },
+  { name: "RingCentral", publisher: "RingCentral", update: "", status: "× Upload to MECM failed", versions: "7 versions", source: "Local", arch: "x64", version: "24.2.10", state: "failed" },
   { name: "Bluebeam Revu", publisher: "Bluebeam", update: "Update available", status: "⚠ Configuration issues", versions: "9 versions", source: "Local", arch: "x64", version: "21.1.0", state: "issue" },
-  { name: "Oracle Java Runtime", publisher: "Oracle", update: "Update available", status: "✓ Uploaded to Intune", versions: "18 versions", source: "Local", arch: "x64", version: "8u411", state: "success" }
+  { name: "Oracle Java Runtime", publisher: "Oracle", update: "Update available", status: "✓ Published to Intune", versions: "18 versions", source: "Local", arch: "x64", version: "8u411", state: "success" }
 ];
 
 const apps = [...appCatalog, ...generatedApps];
+const defaultWorkflowAssignments = {
+  "Contoso Finance Tools": "local-publish",
+  "Google Chrome": "psadt-update",
+  "Microsoft Project": "assignment-defaults",
+  "Skype for Business": "starter",
+  "Microsoft Whiteboard": "starter",
+  "Microsoft Edge": "starter",
+  "Visual Studio Code": "starter",
+  "Remote Desktop": "starter",
+  "7-Zip": "starter",
+  "Mozilla Firefox": "starter",
+  "Notepad++": "starter",
+  "Git": "starter",
+  "GlobalProtect": "starter",
+  "Cisco Webex": "starter"
+};
+apps.forEach((app) => { app.workflow = defaultWorkflowAssignments[app.name] || null; });
 
 let statusFilter = "all";
 let updatesOnly = false;
@@ -74,9 +91,20 @@ const trustedSigningToolsStatus = document.querySelector("#trustedSigningToolsSt
 const installTrustedSigningTools = document.querySelector("#installTrustedSigningTools");
 const downloadTrustedSigningTools = document.querySelector("#downloadTrustedSigningTools");
 const refreshCertificates = document.querySelector("#refreshCertificates");
+const trustedSigningCorrelationToggle = document.querySelector("#trustedSigningCorrelationToggle");
+const trustedSigningCorrelationField = document.querySelector("#trustedSigningCorrelationField");
 const automationView = document.querySelector("#automationView");
 const toolsView = document.querySelector("#toolsView");
 const settingsView = document.querySelector("#settingsView");
+
+const helpTooltipId = "wui-help-tooltip";
+const helpTooltipLayer = document.createElement("div");
+helpTooltipLayer.id = helpTooltipId;
+helpTooltipLayer.className = "wui-tooltip-layer";
+helpTooltipLayer.setAttribute("role", "tooltip");
+helpTooltipLayer.hidden = true;
+document.body.append(helpTooltipLayer);
+let activeHelpTooltipButton = null;
 const settingsRootPage = document.querySelector("#settingsRootPage");
 const psadtTemplatesPage = document.querySelector("#psadtTemplatesPage");
 const psadtTemplateList = document.querySelector("#psadtTemplateList");
@@ -138,6 +166,10 @@ const versionAutomationRecord = document.querySelector("#versionAutomationRecord
 const viewAppliedSnapshot = document.querySelector("#viewAppliedSnapshot");
 const appliedSnapshot = document.querySelector("#appliedSnapshot");
 const versionAutomationRecordTitle = document.querySelector("#versionAutomationRecordTitle");
+const reviewPendingChange = document.querySelector("#reviewPendingChange");
+const reviewPendingChangeTitle = document.querySelector("#reviewPendingChangeTitle");
+const reviewPendingChangeDescription = document.querySelector("#reviewPendingChangeDescription");
+const reviewTab = document.querySelector("#reviewTab");
 const provenanceSourceVersion = document.querySelector("#provenanceSourceVersion");
 const provenanceTemplate = document.querySelector("#provenanceTemplate");
 const provenanceCreatedOn = document.querySelector("#provenanceCreatedOn");
@@ -199,8 +231,6 @@ const launcherState = document.querySelector("#launcherState");
 const detailAppIcon = document.querySelector("#detailAppIcon");
 const detailAppName = document.querySelector("#detailAppName");
 const detailAppPublisher = document.querySelector("#detailAppPublisher");
-const commandAppIcon = document.querySelector("#commandAppIcon");
-const commandAppName = document.querySelector("#commandAppName");
 const versionList = document.querySelector("#versionList");
 const versionEmptyNote = document.querySelector("#versionEmptyNote");
 const appLevelNav = document.querySelector("#appLevelNav");
@@ -209,7 +239,6 @@ const configurationEmptyState = document.querySelector("#configurationEmptyState
 const applicationNameInput = document.querySelector("#applicationNameInput");
 const applicationVendorInput = document.querySelector("#applicationVendorInput");
 const applicationDescriptionInput = document.querySelector("#applicationDescriptionInput");
-const applicationIconPreview = document.querySelector("#applicationIconPreview");
 const automationTemplateDialogTitle = document.querySelector("#automationTemplateDialogTitle");
 const automationTemplateDialogDescription = document.querySelector("#automationTemplateDialogDescription");
 
@@ -260,14 +289,7 @@ function restoreStrategyConfiguration(snapshot) {
   });
 }
 
-const commandSets = {
-  version: [
-    { label: "Upload to Intune", image: "./assets/figma/icon-intune.png", endIcon: "icon-chevron-down" },
-    { label: "Upload to MECM", image: "./assets/figma/icon-sccm.png" },
-    { label: "Manual Update", icon: "icon-download", secondary: true },
-    { label: "Update from WinGet", icon: "icon-download", meta: "v 12.3.124", secondary: true }
-  ]
-};
+const commandSets = {};
 
 function renderCommandIcon(command) {
   if (command.image) return `<img class="service-icon" src="${command.image}" alt="" />`;
@@ -290,31 +312,228 @@ const automationTemplates = {
   winget: { name: "WinGet standard update", version: "3.1", applications: 24 }
 };
 
-const versionAutomationRecords = {
-  "12.3.123": { source: "12.3.122", template: "Guided Intune Update", templateVersion: "1.4", createdOn: "24 Sep 2026, 13:42", intune: "applied", mecm: "planned" },
-  "12.3.122": { source: "12.3.121", template: "Guided Intune Update", templateVersion: "1.3", createdOn: "12 Sep 2026, 09:18", intune: "applied", mecm: "applied" },
-  "12.3.121": { source: "12.3.120", template: "Guided Intune Update", templateVersion: "1.3", createdOn: "28 Aug 2026, 15:06", intune: "applied", mecm: "applied" },
-  "12.3.120": { source: "12.3.119", template: "Guided Intune Update", templateVersion: "1.2", createdOn: "10 Aug 2026, 11:27", intune: "applied", mecm: "applied" },
-  "12.3.119": { source: "12.3.118", template: "Guided Intune Update", templateVersion: "1.2", createdOn: "22 Jul 2026, 08:54", intune: "applied", mecm: "applied" }
+const contosoVersionAutomationRecords = {
+  "12.3.123": { source: "12.3.122", template: "Local installer publication", templateVersion: "1.0", createdOn: "24 Sep 2026, 13:42", intune: "applied", mecm: "planned" },
+  "12.3.122": { source: "12.3.121", template: "Local installer publication", templateVersion: "1.0", createdOn: "12 Sep 2026, 09:18", intune: "applied", mecm: "applied" },
+  "12.3.121": { source: "12.3.120", template: "Local installer publication", templateVersion: "1.0", createdOn: "28 Aug 2026, 15:06", intune: "applied", mecm: "applied" },
+  "12.3.120": { source: "12.3.119", template: "Local installer publication", templateVersion: "1.0", createdOn: "10 Aug 2026, 11:27", intune: "applied", mecm: "applied" },
+  "12.3.119": { source: "12.3.118", template: "Local installer publication", templateVersion: "1.0", createdOn: "22 Jul 2026, 08:54", intune: "applied", mecm: "applied" }
 };
+let versionAutomationRecords = Object.fromEntries(Object.entries(contosoVersionAutomationRecords).map(([version, record]) => [version, { ...record }]));
 let selectedVersion = "12.3.123";
 const modifiedVersionRecords = new Set();
+const versionChangeKinds = new Set();
+const versionChangeProposals = new Map();
+const applicationDetailStates = new Map();
+
+function decrementVersion(version, amount) {
+  const parts = String(version).split(".");
+  for (let index = parts.length - 1; index >= 0; index -= 1) {
+    const value = Number(parts[index]);
+    if (!Number.isInteger(value) || value < amount) continue;
+    parts[index] = String(value - amount);
+    for (let trailing = index + 1; trailing < parts.length; trailing += 1) parts[trailing] = "0";
+    return parts.join(".");
+  }
+  return `${version}.${amount}`;
+}
+
+function publicationTargetsFor(app) {
+  const status = getApplicationStatus(app);
+  if (status.includes("Configuration") || status === "Not configured") return { intune: "configuration", mecm: "configuration" };
+  if (status.includes("Upload to Intune failed")) return { intune: "failed", mecm: "planned" };
+  if (status.includes("Upload to MECM failed")) return { intune: "applied", mecm: "failed" };
+  if (status.includes("Intune and MECM")) return { intune: "applied", mecm: "applied" };
+  if (status.includes("Published to MECM")) return { intune: "planned", mecm: "applied" };
+  if (status.includes("Published to Intune")) return { intune: "applied", mecm: "planned" };
+  return { intune: "planned", mecm: "planned" };
+}
+
+function detailStateFor(app) {
+  if (app.name === "Contoso Finance Tools") return { records: contosoVersionAutomationRecords, selectedVersion: "12.3.123" };
+  if (applicationDetailStates.has(app.name)) return applicationDetailStates.get(app.name);
+
+  const latest = app.version === "-" ? "1.0.0" : app.version;
+  const currentTargets = publicationTargetsFor(app);
+  const workflow = {
+    starter: { name: "Standard application update", version: "2.0" },
+    "psadt-update": { name: "PSADT managed update", version: "1.0" },
+    "local-publish": { name: "Local installer publication", version: "1.0" },
+    "assignment-defaults": { name: "Intune assignment defaults", version: "1.0" }
+  }[app.workflow] || null;
+  const versions = [latest, decrementVersion(latest, 1), decrementVersion(latest, 2)];
+  const records = Object.fromEntries(versions.map((version, index) => [version, {
+    source: index === versions.length - 1 ? "Original package" : versions[index + 1],
+    template: workflow?.name || "Local configuration",
+    templateVersion: workflow?.version || "",
+    createdOn: index ? "12 Sep 2026, 09:18" : "24 Sep 2026, 13:42",
+    intune: index ? "applied" : currentTargets.intune,
+    mecm: index ? "applied" : currentTargets.mecm
+  }]));
+  const state = { records, selectedVersion: versions[0] };
+  applicationDetailStates.set(app.name, state);
+  return state;
+}
+
+function versionPublicationLabel(record) {
+  if (record.intune === "configuration" || record.mecm === "configuration") return "Configuration issues";
+  if (record.intune === "failed") return "Upload to Intune failed";
+  if (record.mecm === "failed") return "Upload to MECM failed";
+  if (record.intune === "applied" && record.mecm === "applied") return "Published to Intune and MECM";
+  if (record.intune === "applied") return "Published to Intune";
+  if (record.mecm === "applied") return "Published to MECM";
+  return "Ready to publish";
+}
+
+function compactVersionPublicationLabel(record) {
+  if (record.intune === "configuration" || record.mecm === "configuration") return "Issues";
+  if (record.intune === "failed") return "Intune failed";
+  if (record.mecm === "failed") return "MECM failed";
+  if (record.intune === "applied" && record.mecm === "applied") return "Intune + MECM";
+  if (record.intune === "applied") return "Intune";
+  if (record.mecm === "applied") return "MECM";
+  return "Ready";
+}
+
+function versionPublicationClass(record) {
+  if (record.intune === "failed" || record.mecm === "failed") return "failed";
+  if (record.intune === "configuration" || record.mecm === "configuration") return "issue";
+  if (record.intune === "applied" || record.mecm === "applied") return "success";
+  return "";
+}
+
+function versionStatusPresentation(version, record = getVersionRecord(version)) {
+  if (version === selectedVersion && versionConfigurationDirty) {
+    return { key: "unsaved", full: "Unsaved configuration changes", compact: "Unsaved", tone: "issue", icon: "icon-edit" };
+  }
+  const proposal = versionChangeProposals.get(version);
+  if (proposal?.kind === "deployment") {
+    return { key: "deployment-change", full: "Deployment change", compact: "Changed", tone: "issue", icon: "icon-edit" };
+  }
+  if (proposal) {
+    return { key: "version-draft", full: "New version draft", compact: "Draft", tone: "issue", icon: "icon-edit" };
+  }
+  const full = versionPublicationLabel(record);
+  return {
+    key: record.intune === "configuration" || record.mecm === "configuration" ? "configuration-issues"
+      : record.intune === "failed" ? "intune-failed"
+      : record.mecm === "failed" ? "mecm-failed"
+      : record.intune === "applied" && record.mecm === "applied" ? "published-intune-mecm"
+      : record.intune === "applied" ? "published-intune"
+      : record.mecm === "applied" ? "published-mecm"
+      : "ready",
+    full,
+    compact: compactVersionPublicationLabel(record),
+    tone: versionPublicationClass(record),
+    icon: full.includes("failed") ? "icon-dismiss" : full === "Configuration issues" ? "icon-warning" : full === "Ready to publish" ? "icon-arrow-up" : "icon-check"
+  };
+}
+
+function renderVersionList(records, activeVersion) {
+  versionList.innerHTML = Object.entries(records).map(([version, record]) => {
+    const active = version === activeVersion;
+    const status = versionStatusPresentation(version, record);
+    return `<button class="version ${active ? "active" : ""}" type="button" ${active ? 'aria-current="page"' : ""} data-version="${version}" aria-label="Version ${version}, ${status.full}"><span class="version-number">${version}</span><span class="status ${status.tone}" data-status-key="${status.key}" title="${status.full}"><span class="fluent ${status.icon}"></span> ${status.compact}</span></button>`;
+  }).join("");
+}
+
+function selectDetailApplicationState(app) {
+  const state = detailStateFor(app);
+  versionAutomationRecords = state.records;
+  selectedVersion = state.selectedVersion;
+  modifiedVersionRecords.clear();
+  versionChangeKinds.clear();
+  versionChangeProposals.clear();
+  renderVersionList(versionAutomationRecords, selectedVersion);
+  bindVersionButtons();
+}
+
+function getVersionRecord(version = selectedVersion) {
+  return versionAutomationRecords[version] || Object.values(versionAutomationRecords)[0];
+}
+
+function syncReviewPendingChange(version = selectedVersion) {
+  const proposal = versionChangeProposals.get(version);
+  reviewPendingChange.hidden = !proposal;
+  if (!proposal) return;
+  const deploymentOnly = proposal.kind === "deployment";
+  reviewPendingChangeTitle.textContent = deploymentOnly ? "Deployment change ready for review" : "New version draft ready for review";
+  reviewPendingChangeDescription.textContent = deploymentOnly
+    ? "Assignments, scope tags, or return codes changed. Review the target change before it is sent to a published platform object."
+    : "Package configuration changed. The published version remains unchanged; prepare and publish a new version after review.";
+}
+
+function syncReviewTabLabel(record = getVersionRecord(), proposal = versionChangeProposals.get(selectedVersion)) {
+  let label = "Publish";
+  if (proposal) label = "Review change";
+  else if (selectedVersion !== "draft" && (record.intune === "applied" || record.mecm === "applied")) label = "Publication record";
+  reviewTab.innerHTML = `<span class="fluent ${label === "Publication record" ? "icon-history" : "icon-check"}"></span> ${label}`;
+}
+
+function syncVersionPublicationUI({ rerenderCommands = true } = {}) {
+  const record = getVersionRecord();
+  const proposal = versionChangeProposals.get(selectedVersion);
+  const versionButton = document.querySelector(`.version[data-version="${selectedVersion}"]`);
+  const versionStatus = versionButton?.querySelector(":scope > span:last-child");
+  const status = versionStatusPresentation(selectedVersion, record);
+
+  if (versionStatus) {
+    versionStatus.className = `status ${status.tone}`;
+    versionStatus.dataset.statusKey = status.key;
+    versionStatus.title = status.full;
+    versionStatus.innerHTML = `<span class="fluent ${status.icon}"></span> ${status.compact}`;
+    versionButton.setAttribute("aria-label", `Version ${selectedVersion}, ${status.full}`);
+  }
+
+  commandStatus.hidden = false;
+  commandStatus.className = `new-label status ${status.tone}`;
+  commandStatus.dataset.statusKey = status.key;
+  commandStatus.title = status.full;
+  commandStatus.innerHTML = `<span class="fluent ${status.icon}"></span> ${status.full}`;
+  syncReviewPendingChange();
+  syncReviewTabLabel(record, proposal);
+  if (rerenderCommands && contextCommandBar.dataset.commandContext === "version" && !versionConfigurationDirty) renderContextCommands("version");
+}
+
+function recordVersionChangeProposal(version = selectedVersion, kinds = versionChangeKinds) {
+  if (!version || !kinds.size) return;
+  const kind = [...kinds].every((item) => item === "deployment") ? "deployment" : "version";
+  versionChangeProposals.set(version, { kind });
+  versionChangeKinds.clear();
+  syncVersionPublicationUI();
+}
+
+window.addEventListener("packit:version-inputs-saved", (event) => {
+  recordVersionChangeProposal(event.detail?.version);
+});
+
+window.addEventListener("packit:version-exception-saved", (event) => {
+  const { version, kind } = event.detail || {};
+  if (!version) return;
+  recordVersionChangeProposal(version, new Set([kind || "version"]));
+});
 
 function renderDeploymentTargetStatus(article, status) {
   const state = article.querySelector("header > .status");
-  const applied = status === "applied";
-  state.className = `status ${applied ? "success" : "issue"}`;
-  state.innerHTML = `<span class="fluent ${applied ? "icon-check" : "icon-history"}"></span> ${applied ? "Applied" : "Planned"}`;
+  const statusMap = {
+    applied: { label: "Published", tone: "success", icon: "icon-check" },
+    failed: { label: "Upload failed", tone: "failed", icon: "icon-dismiss" },
+    configuration: { label: "Configuration issues", tone: "issue", icon: "icon-warning" },
+    planned: { label: "Not published", tone: "", icon: "icon-history" }
+  };
+  const presentation = statusMap[status] || statusMap.planned;
+  state.className = `status ${presentation.tone}`;
+  state.innerHTML = `<span class="fluent ${presentation.icon}"></span> ${presentation.label}`;
   const execution = article.querySelector("dl > div:last-child dd");
-  if (article.querySelector("header strong")?.textContent === "MECM") {
-    execution.textContent = applied ? "Completed" : "Waiting for MECM upload";
-  }
+  const target = article.querySelector("header strong")?.textContent;
+  if (target === "MECM") execution.textContent = status === "applied" ? "Completed" : status === "failed" ? "Upload failed" : status === "configuration" ? "Blocked by configuration" : "Waiting for MECM publication";
+  if (target === "Intune") execution.textContent = status === "applied" ? "Completed" : status === "failed" ? "Upload failed" : status === "configuration" ? "Blocked by configuration" : "Waiting for Intune publication";
 }
 
 function syncVersionAutomationRecord(version = selectedVersion) {
   selectedVersion = version;
   window.packitDeployment.select(selectedApplication.name, version);
-  const record = versionAutomationRecords[version] || versionAutomationRecords["12.3.123"];
+  const record = getVersionRecord(version);
   versionAutomationRecordTitle.textContent = `Automation record for version ${version}`;
   provenanceSourceVersion.textContent = record.source;
   provenanceTemplate.textContent = `${record.template} v${record.templateVersion}`;
@@ -331,6 +550,8 @@ function syncVersionAutomationRecord(version = selectedVersion) {
     : `<span class="status success"><span class="fluent icon-check"></span> Unchanged since creation</span>`;
   if (!versionConfigurationDirty) lastSavedVersionConfiguration = captureVersionConfiguration();
   window.packitPolicyUI?.selectVersion();
+  syncAppliedTemplateUI({ rerenderCommands: false });
+  syncVersionPublicationUI();
 }
 
 function selectAutomationTemplate(templateId = appliedStrategyTemplateId, { focus = false } = {}) {
@@ -369,7 +590,7 @@ function manageCurrentAutomationTemplate() {
 
 function getVersionManagedControls() {
   return [...document.querySelectorAll(".tab-panel input, .tab-panel select, .tab-panel textarea")]
-    .filter(control => !control.closest('#deploymentPanel'));
+    .filter(control => !control.closest('#deploymentPanel') && control !== packageVersionInput);
 }
 
 function captureVersionConfiguration() {
@@ -415,6 +636,10 @@ function incrementTemplateVersion(version) {
 }
 
 function renderAppliedTemplateControl() {
+  if (!appliedStrategyTemplateId) {
+    commandInlineControls.replaceChildren();
+    return;
+  }
   commandInlineControls.innerHTML = `
     <button class="applied-template-command" type="button" aria-haspopup="dialog" title="${versionConfigurationDirty ? "Save or cancel changes before changing the workflow" : "Change automation workflow"}" ${versionConfigurationDirty ? "disabled" : ""}>
       <span class="fluent icon-workflow" aria-hidden="true"></span>
@@ -429,15 +654,35 @@ function renderAppliedTemplateControl() {
 }
 
 function syncAppliedTemplateUI({ rerenderCommands = true } = {}) {
+  window.packitPolicyUI?.syncLabels();
+  const hasWorkflow = Boolean(appliedStrategyTemplateId);
   informationTemplateName.textContent = appliedStrategyTemplateName;
-  informationTemplateMeta.textContent = `Version ${appliedStrategyTemplateVersion} • Used by ${appliedStrategyTemplateApplications} application${appliedStrategyTemplateApplications === 1 ? "" : "s"}`;
+  informationTemplateMeta.textContent = hasWorkflow
+    ? `Version ${appliedStrategyTemplateVersion} • Used by ${appliedStrategyTemplateApplications} application${appliedStrategyTemplateApplications === 1 ? "" : "s"}`
+    : "Locally configured version";
+  automationTemplateSummary.hidden = !hasWorkflow;
+  const reviewConfigurationSource = document.querySelector("#reviewConfigurationSource");
 
   if (versionConfigurationDirty) {
     informationTemplateState.innerHTML = `<span class="fluent icon-warning"></span> Unsaved configuration changes`;
+  } else if (!hasWorkflow) {
+    informationTemplateState.innerHTML = `<span class="fluent icon-settings"></span> Local configuration`;
   } else if (strategyHasApplicationOverride) {
     informationTemplateState.innerHTML = `<span class="fluent icon-copy"></span> Application override`;
   } else {
     informationTemplateState.innerHTML = `<span class="fluent icon-lock"></span> Inherited from workflow`;
+  }
+
+  if (reviewConfigurationSource) {
+    if (versionConfigurationDirty) {
+      reviewConfigurationSource.innerHTML = `<span class="fluent icon-warning"></span> Local changes pending`;
+    } else if (strategyHasApplicationOverride) {
+      reviewConfigurationSource.innerHTML = `<span class="fluent icon-copy"></span> Application override`;
+    } else if (!hasWorkflow) {
+      reviewConfigurationSource.innerHTML = `<span class="fluent icon-settings"></span> Local configuration`;
+    } else {
+      reviewConfigurationSource.innerHTML = `<span class="fluent icon-lock"></span> ${appliedStrategyTemplateName} v${appliedStrategyTemplateVersion}`;
+    }
   }
 
   provenanceConfigurationState.innerHTML = modifiedVersionRecords.has(selectedVersion)
@@ -446,14 +691,14 @@ function syncAppliedTemplateUI({ rerenderCommands = true } = {}) {
 
   changeAutomationTemplate.disabled = versionConfigurationDirty;
   if (contextCommandBar.dataset.commandContext === "version") {
-    commandStatus.hidden = versionConfigurationDirty;
     renderAppliedTemplateControl();
+    syncVersionPublicationUI({ rerenderCommands: false });
     if (rerenderCommands) renderContextCommands("version");
   }
-  window.packitPolicyUI?.syncLabels();
 }
 
-function markVersionConfigurationDirty() {
+function markVersionConfigurationDirty(kind = "version") {
+  versionChangeKinds.add(kind);
   if (versionConfigurationDirty) return;
   versionConfigurationDirty = true;
   syncAppliedTemplateUI();
@@ -463,6 +708,7 @@ function cancelVersionConfigurationEdits() {
   window.packitPolicyUI?.cancelPending();
   restoreVersionConfiguration(lastSavedVersionConfiguration);
   versionConfigurationDirty = false;
+  versionChangeKinds.clear();
   syncAppliedTemplateUI();
   showToast("Configuration changes canceled");
 }
@@ -533,6 +779,7 @@ function saveVersionConfiguration() {
 
   window.packitDeployment.commit();
   versionConfigurationDirty = false;
+  recordVersionChangeProposal();
   modifiedVersionRecords.add(selectedVersion);
   saveConfigurationDialog.close();
   syncAppliedTemplateUI();
@@ -570,7 +817,7 @@ function setInfoBarCopy(infoBar, title, message) {
 }
 
 function openAutomationTemplateDialog() {
-  if (window.packitPolicyUI) return window.packitPolicyUI.openConfiguration(selectedVersion);
+  if (window.packitPolicyUI) return window.packitPolicyUI.changeWorkflow(selectedVersion);
   initializingEmptyApplication = false;
   automationTemplateDialogTitle.textContent = "Change automation workflow";
   automationTemplateDialogDescription.textContent = "Replacing the workflow resets its managed configuration for this application.";
@@ -730,6 +977,61 @@ function renderAutomationToggle() {
   });
 }
 
+function getVersionCommands() {
+  const record = getVersionRecord();
+  const proposal = versionChangeProposals.get(selectedVersion);
+  if (proposal) {
+    return [
+      { label: proposal.kind === "deployment" ? "Review deployment change" : "Review new version draft", icon: "icon-eye", action: "review-pending-change", primary: true },
+      { label: "View publication record", icon: "icon-history", action: "view-publication", secondary: true }
+    ];
+  }
+
+  if (record.intune === "configuration" || record.mecm === "configuration") {
+    return [{ label: "Review configuration", icon: "icon-warning", action: "review-configuration", primary: true }];
+  }
+
+  const commands = [];
+  if (record.intune !== "applied") commands.push({ label: record.intune === "failed" ? "Retry Intune upload" : "Upload to Intune", image: "./assets/figma/icon-intune.png", action: "upload-intune", primary: true });
+  if (record.mecm !== "applied") commands.push({ label: record.mecm === "failed" ? "Retry MECM upload" : "Upload to MECM", image: "./assets/figma/icon-sccm.png", action: "upload-mecm", primary: true });
+  if (record.intune === "applied" || record.mecm === "applied") commands.unshift({ label: "View publication record", icon: "icon-history", action: "view-publication" });
+  if (record.intune === "applied") commands.push({ label: "Reconcile with Intune", icon: "icon-refresh", action: "reconcile-intune", secondary: true });
+  if (record.mecm === "applied") commands.push({ label: "Reconcile with MECM", icon: "icon-refresh", action: "reconcile-mecm", secondary: true });
+  return commands;
+}
+
+function handleVersionCommand(command) {
+  const record = getVersionRecord();
+  if (command.action === "review-configuration") {
+    setTab("overview");
+    showToast("Resolve the package configuration before publishing this version.", "warning");
+    return;
+  }
+  if (command.action === "view-publication") {
+    setTab("review");
+    requestAnimationFrame(() => versionAutomationRecord.focus({ preventScroll: false }));
+    return;
+  }
+  if (command.action === "review-pending-change") {
+    setTab("review");
+    requestAnimationFrame(() => reviewPendingChange.focus({ preventScroll: false }));
+    return;
+  }
+  if (command.action === "upload-intune" || command.action === "upload-mecm") {
+    if (window.packitPolicyUI && !window.packitPolicyUI.validateVersionInputs()) return;
+    const target = command.action.endsWith("intune") ? "intune" : "mecm";
+    record[target] = "applied";
+    syncVersionAutomationRecord(selectedVersion);
+    syncVersionPublicationUI();
+    showToast(`Version ${selectedVersion} published to ${target === "intune" ? "Intune" : "MECM"}`);
+    return;
+  }
+  if (command.action?.startsWith("reconcile-")) {
+    const target = command.action.endsWith("intune") ? "Intune" : "MECM";
+    showToast(`${target} was reconciled. No target drift was found.`);
+  }
+}
+
 function renderContextCommands(context = "version") {
   if (context === "updateStrategy") {
     const strategySaveLabels = {
@@ -775,7 +1077,7 @@ function renderContextCommands(context = "version") {
     return;
   }
 
-  const commands = commandSets[context] || [];
+  const commands = context === "version" ? getVersionCommands() : commandSets[context] || [];
   const primaryCommands = commands.filter((command) => !command.secondary);
   const secondaryCommands = commands.filter((command) => command.secondary);
   contextCommandBar.dataset.commandContext = context;
@@ -810,10 +1112,7 @@ function renderContextCommands(context = "version") {
 
   contextCommandBar.querySelectorAll("[data-primary-command]").forEach((button) => {
     const command = primaryCommands[Number(button.dataset.primaryCommand)];
-    button.addEventListener("click", () => {
-      if (window.packitPolicyUI && !window.packitPolicyUI.validateVersionInputs()) return;
-      showToast(command.label);
-    });
+    button.addEventListener("click", () => context === "version" ? handleVersionCommand(command) : showToast(command.label));
   });
 
   const overflow = contextCommandBar.querySelector(".command-overflow");
@@ -832,7 +1131,8 @@ function renderContextCommands(context = "version") {
     button.addEventListener("click", () => {
       const command = secondaryCommands[Number(button.dataset.secondaryCommand)];
       closeCommandOverflow();
-      showToast(command.label);
+      if (context === "version") handleVersionCommand(command);
+      else showToast(command.label);
     });
   });
 
@@ -896,11 +1196,9 @@ function setCommandContext(context = "version") {
   }
 
   commandContextMeta.hidden = false;
-  commandContextMeta.textContent = "Version 12.3.123";
-  commandStatus.hidden = false;
-  commandStatus.className = "new-label status success";
-  commandStatus.innerHTML = `<span class="fluent icon-check"></span> Upload success`;
+  commandContextMeta.textContent = `Version ${selectedVersion}`;
   renderAppliedTemplateControl();
+  syncVersionPublicationUI({ rerenderCommands: false });
   renderContextCommands("version");
 }
 
@@ -1012,10 +1310,15 @@ function renderAppIcon(app, size = "") {
   return `<span class="app-icon-tile ${size}" style="--tile-bg: ${icon.color}; --tile-fg: ${foreground};">${icon.label}</span>`;
 }
 
+function getApplicationStatus(app) {
+  if (app.status) return app.status;
+  return app.empty ? "Not configured" : "Ready to publish";
+}
+
 function statusClass(status) {
   if (status.includes("failed")) return "failed";
   if (status.includes("issues")) return "issue";
-  if (status.includes("Uploaded") || status.includes("Uploads")) return "success";
+  if (status.includes("Published")) return "success";
   return "";
 }
 
@@ -1028,7 +1331,8 @@ function renderStatus(status) {
   if (!status) return "";
   if (status.includes("Configuration")) return `<span class="fluent icon-warning"></span>${status.replace("⚠ ", "")}`;
   if (status.includes("failed")) return `<span class="fluent icon-dismiss"></span>${status.replace("× ", "")}`;
-  if (status.includes("Uploaded") || status.includes("Uploads")) return `<span class="fluent icon-check"></span>${status.replace("✓ ", "")}`;
+  if (status.includes("Published")) return `<span class="fluent icon-check"></span>${status.replace("✓ ", "")}`;
+  if (status === "Ready to publish") return `<span class="fluent icon-arrow-up"></span>${status}`;
   return status;
 }
 
@@ -1043,7 +1347,7 @@ function renderApps() {
       app.source,
       app.version,
       app.arch,
-      app.status
+      getApplicationStatus(app)
     ].some((value) => String(value).toLowerCase().includes(normalizedQuery));
     return statusMatches && updatesMatch && queryMatches;
   });
@@ -1065,7 +1369,7 @@ function renderApps() {
         <span><strong>${app.name}</strong><small>Published by ${app.publisher}</small></span>
       </span>
       <span class="linkish icon-text">${renderUpdate(app.update)}</span>
-      <span class="status icon-text ${statusClass(app.status)}">${renderStatus(app.status)}</span>
+      <span class="status icon-text ${statusClass(getApplicationStatus(app))}">${renderStatus(getApplicationStatus(app))}</span>
       <span>${app.versions}</span>
       <span>${app.source}</span>
       <span><small>Arch</small><br><span class="linkish">${app.arch}</span></span>
@@ -1115,23 +1419,25 @@ function initCollapsibleSections() {
 function syncDetailApplicationIdentity(app) {
   const icon = getAppIcon(app);
   const foreground = getTileTextColor(icon.color);
-  [detailAppIcon, commandAppIcon, applicationIconPreview].forEach((tile) => {
+  [detailAppIcon].forEach((tile) => {
     tile.textContent = icon.label;
     tile.style.setProperty("--tile-bg", icon.color);
     tile.style.setProperty("--tile-fg", foreground);
   });
   detailAppName.textContent = app.name;
   detailAppPublisher.textContent = `Published by ${app.publisher}`;
-  commandAppName.textContent = app.name;
   applicationNameInput.value = app.name;
   applicationVendorInput.value = app.publisher;
   applicationDescriptionInput.value = app.name === "Contoso Finance Tools"
     ? "Finance workstation utilities packaged for Intune deployment"
     : "";
-  const versionIdentityTitle = document.querySelector("#versionIdentityTitle");
-  const versionIdentityMeta = versionIdentityTitle?.nextElementSibling;
-  if (versionIdentityTitle) versionIdentityTitle.textContent = app.name;
-  if (versionIdentityMeta) versionIdentityMeta.textContent = `${app.publisher} · ${applicationDescriptionInput.value || "No description"}`;
+  if (app.name !== "Contoso Finance Tools") {
+    document.querySelector("#productCode").textContent = "Not detected";
+    document.querySelector("#packageArchitecture").textContent = app.arch === "-" ? "Not set" : app.arch;
+    document.querySelector("#sourceFolderValue").textContent = app.source === "WinGet"
+      ? `WinGet catalog source · ${app.name}`
+      : `Local package source · ${app.name}`;
+  }
 }
 
 function bindVersionButtons() {
@@ -1278,9 +1584,7 @@ function openDetail(tabName, app = apps[0]) {
     restoreVersionConfiguration(automationTemplateSnapshots.guided);
     restoreDefaultPackagePresentation();
     syncDetailApplicationIdentity(app);
-    versionList.innerHTML = defaultVersionListMarkup;
-    selectedVersion = "12.3.123";
-    bindVersionButtons();
+    selectDetailApplicationState(app);
     automationTemplateSummary.hidden = false;
     versionAutomationRecord.hidden = false;
   }
@@ -1597,6 +1901,103 @@ function syncSignatureEnabled() {
   signatureDisabledState.hidden = enabled;
 }
 
+function syncTrustedSigningCorrelationField() {
+  const enabled = trustedSigningCorrelationToggle.checked;
+  trustedSigningCorrelationField.hidden = !enabled;
+  trustedSigningCorrelationToggle.setAttribute("aria-expanded", String(enabled));
+}
+
+function positionHelpTooltip(button) {
+  const text = button.dataset.tooltip;
+  if (!text) return;
+
+  const tooltipRoot = button.closest("dialog[open]") ?? document.body;
+  if (helpTooltipLayer.parentElement !== tooltipRoot) tooltipRoot.append(helpTooltipLayer);
+
+  helpTooltipLayer.textContent = text;
+  helpTooltipLayer.hidden = false;
+  helpTooltipLayer.style.maxWidth = `${Math.max(1, window.innerWidth - 24)}px`;
+  helpTooltipLayer.style.left = "-9999px";
+  helpTooltipLayer.style.top = "-9999px";
+
+  const rect = button.getBoundingClientRect();
+  const viewportMargin = 12;
+  const tooltipGap = 10;
+  const naturalWidth = helpTooltipLayer.getBoundingClientRect().width;
+  const startX = Math.max(viewportMargin, rect.left);
+  const endX = Math.min(window.innerWidth - viewportMargin, rect.right);
+
+  const placements = [
+    { alignEnd: false, above: false, horizontal: window.innerWidth - startX - viewportMargin, vertical: window.innerHeight - rect.bottom - tooltipGap - viewportMargin },
+    { alignEnd: true, above: false, horizontal: endX - viewportMargin, vertical: window.innerHeight - rect.bottom - tooltipGap - viewportMargin },
+    { alignEnd: false, above: true, horizontal: window.innerWidth - startX - viewportMargin, vertical: rect.top - tooltipGap - viewportMargin },
+    { alignEnd: true, above: true, horizontal: endX - viewportMargin, vertical: rect.top - tooltipGap - viewportMargin },
+  ].map((placement) => {
+    const width = Math.max(1, Math.min(naturalWidth, placement.horizontal));
+    helpTooltipLayer.style.maxWidth = `${Math.floor(width)}px`;
+    const height = helpTooltipLayer.getBoundingClientRect().height;
+    return {
+      ...placement,
+      width,
+      height,
+      fits: placement.horizontal >= naturalWidth && placement.vertical >= height,
+      score: Math.min(placement.horizontal, naturalWidth) * Math.min(placement.vertical, height),
+    };
+  });
+
+  // Prefer the familiar lower-right placement, then choose the most usable quadrant.
+  const placement = placements.find((candidate) => candidate.fits)
+    ?? placements.reduce((best, candidate) => (candidate.score > best.score ? candidate : best));
+
+  helpTooltipLayer.style.maxWidth = `${Math.floor(placement.width)}px`;
+  const preferredLeft = placement.alignEnd ? rect.right - placement.width : rect.left;
+  const left = Math.min(
+    window.innerWidth - viewportMargin - placement.width,
+    Math.max(viewportMargin, preferredLeft),
+  );
+  helpTooltipLayer.style.left = `${Math.round(left)}px`;
+  helpTooltipLayer.style.top = `${Math.round(placement.above ? rect.top - tooltipGap - placement.height : rect.bottom + tooltipGap)}px`;
+  button.setAttribute("aria-describedby", helpTooltipId);
+  activeHelpTooltipButton = button;
+}
+
+function hideHelpTooltip(button) {
+  if (activeHelpTooltipButton !== button || button.matches(":hover") || document.activeElement === button) return;
+  button.removeAttribute("aria-describedby");
+  helpTooltipLayer.hidden = true;
+  activeHelpTooltipButton = null;
+}
+
+document.addEventListener("pointerover", (event) => {
+  const button = event.target.closest?.("button.wui-help-tip");
+  if (!button || button.contains(event.relatedTarget)) return;
+  positionHelpTooltip(button);
+});
+
+document.addEventListener("pointerout", (event) => {
+  const button = event.target.closest?.("button.wui-help-tip");
+  if (!button || button.contains(event.relatedTarget)) return;
+  hideHelpTooltip(button);
+});
+
+document.addEventListener("focusin", (event) => {
+  const button = event.target.closest?.("button.wui-help-tip");
+  if (button) positionHelpTooltip(button);
+});
+
+document.addEventListener("focusout", (event) => {
+  const button = event.target.closest?.("button.wui-help-tip");
+  if (button) hideHelpTooltip(button);
+});
+
+window.addEventListener("resize", () => {
+  if (activeHelpTooltipButton) positionHelpTooltip(activeHelpTooltipButton);
+});
+
+document.addEventListener("scroll", () => {
+  if (activeHelpTooltipButton) positionHelpTooltip(activeHelpTooltipButton);
+}, true);
+
 function installTrustedSigningDependencies() {
   trustedSigningToolsInstalled = true;
   trustedSigningToolsStatus.classList.remove("warning");
@@ -1617,6 +2018,8 @@ signatureMethodInputs.forEach((input) => {
 signatureEnabled.addEventListener("change", () => {
   syncSignatureEnabled();
 });
+
+trustedSigningCorrelationToggle.addEventListener("change", syncTrustedSigningCorrelationField);
 
 installTrustedSigningTools.addEventListener("click", installTrustedSigningDependencies);
 downloadTrustedSigningTools.addEventListener("click", () => showToast("Trusted Signing Client Tools download opened"));
@@ -1727,8 +2130,6 @@ function renderWrapperTemplateChoices() {
 document.querySelectorAll("[data-summary-target]").forEach((button) => {
   button.addEventListener("click", () => setTab(button.dataset.summaryTarget));
 });
-
-document.querySelector("#openApplicationDetails")?.addEventListener("click", () => setAppSection("applicationDetails"));
 
 createPsadtWrapper.addEventListener("click", () => {
   const proceed = () => { renderWrapperTemplateChoices(); createPsadtWrapperDialog.showModal(); };
@@ -2385,15 +2786,6 @@ document.querySelector("#checkForUpdates").addEventListener("click", (event) => 
   }, 650);
 });
 
-[applicationNameInput, applicationVendorInput, applicationDescriptionInput].forEach((input) => {
-  input.addEventListener("input", () => {
-    const title = document.querySelector("#versionIdentityTitle");
-    const meta = title?.nextElementSibling;
-    if (title) title.textContent = applicationNameInput.value || "Unnamed application";
-    if (meta) meta.textContent = `${applicationVendorInput.value || "Unknown vendor"} · ${applicationDescriptionInput.value || "No description"}`;
-  });
-});
-
 initTabKeyboardNavigation(".tabs, .strategy-tabs, .history-switch");
 
 updateLifecyclePanel.append(automationTemplateSummary);
@@ -2408,4 +2800,5 @@ syncSearchControls();
 syncInstallationMethod();
 syncSignatureMethod();
 syncSignatureEnabled();
+syncTrustedSigningCorrelationField();
 initCollapsibleSections();

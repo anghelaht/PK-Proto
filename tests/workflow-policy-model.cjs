@@ -7,7 +7,7 @@ const definitions = {
   wrapper: [{ key: 'wrapper', label: 'Wrapper', type: 'select', options: ['PSAppDeployToolkit v4', 'Direct installer'] }]
 };
 const nodes = [{ id: 'program', label: 'Program', required: true }, { id: 'wrapper', label: 'Wrapper', required: false }];
-const catalog = [{ name: 'Contoso Finance Tools', version: '1', publisher: 'Contoso' }];
+const catalog = [{ name: 'Contoso Finance Tools', version: '1', publisher: 'Contoso', workflow: 'guided' }];
 const app = catalog[0].name;
 const store = createPolicyStore(storage);
 const values = store.register(definitions, nodes, catalog);

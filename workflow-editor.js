@@ -14,6 +14,7 @@
     Handle,
     Position,
     MarkerType,
+    addEdge,
     useNodesState,
     useEdgesState
   } = window.ReactFlow;
@@ -21,7 +22,7 @@
   const starterWorkflow = {
     id: "starter",
     name: "Standard application update",
-    description: "Detect, prepare, assign and retire application versions with one reusable update policy.",
+    description: "Detect, package and publish newer WinGet versions to Microsoft Intune.",
     revision: "1.3",
     revisions: 4,
     applications: 0,
@@ -39,107 +40,385 @@
     { id: "vlc", name: "VLC media player", publisher: "VideoLAN", version: "3.0.21", readiness: "Ready", tone: "success" }
   ];
 
-  const nodeDefinitions = [
-    { id: "trigger", label: "Update trigger", icon: "icon-history", summary: "New catalog version detected", required: true },
-    { id: "source", label: "Resolve installer source", icon: "icon-folder", summary: "Acquire the matching installer", required: true },
-    { id: "inspect", label: "Inspect package", icon: "icon-search", summary: "Verify identity, version and content", required: true },
-    { id: "information", label: "App & package information", icon: "icon-info", summary: "Resolve metadata for the next version", required: true },
-    { id: "program", label: "Install & uninstall behavior", icon: "icon-tools", summary: "Commands, context, timeout and restart", required: true },
-    { id: "requirements", label: "Requirements", icon: "icon-list", summary: "Architecture and minimum OS", required: true },
-    { id: "detection", label: "Detection", icon: "icon-detection", summary: "Prove the installed application state", required: true },
-    { id: "returnCodes", label: "Return codes & restart", icon: "icon-refresh", summary: "Interpret process outcomes consistently", required: true },
-    { id: "transition", label: "Future version handling", icon: "icon-copy", summary: "Create and configure the next package version", required: true },
-    { id: "build", label: "Build package", icon: "icon-folder", summary: "Create the selected deployment artifact", required: true },
-    { id: "validate", label: "Build & verify", icon: "icon-check", summary: "Validate installation, upgrade and detection", required: true },
-    { id: "approval", label: "Review & approval", icon: "icon-people", summary: "Review resolved changes before execution", required: true },
-    { id: "publish", label: "Publish output", icon: "icon-download", summary: "Build only, Intune, MECM or both", required: true },
-    { id: "assignments", label: "Future assignments", icon: "icon-people", summary: "Move or preserve Required, Available and Uninstall", required: true },
-    { id: "cleanup", label: "Previous version handling", icon: "icon-history", summary: "Retain, unassign or retire after deployment", required: true },
-    { id: "wrapper", label: "Wrapper", icon: "icon-tools", summary: "PSAppDeployToolkit or custom wrapper", required: false },
-    { id: "customScripts", label: "Custom scripts", icon: "icon-signature", summary: "Pre-install and post-install actions", required: false },
-    { id: "repair", label: "Repair behavior", icon: "icon-tools", summary: "Define an optional repair path", required: false },
-    { id: "dependencies", label: "Dependencies", icon: "icon-workflow", summary: "Resolve prerequisite applications", required: false },
-    { id: "scopeTags", label: "Scope tags", icon: "icon-tag", summary: "No tags selected", required: false },
-    { id: "signing", label: "Digital signing", icon: "icon-signature", summary: "Apply the configured signing profile", required: false },
-    { id: "notifications", label: "Notifications", icon: "icon-feedback", summary: "Notify owners about approvals and failures", required: false },
-    { id: "monitoring", label: "Post-publish monitoring", icon: "icon-eye", summary: "Observe deployment and device results", required: false }
+  const actionScopes = [
+    { id: "values", label: "Reusable values", description: "Typed values connected to matching inputs." },
+    { id: "flow", label: "Flow control", description: "Start, branch, wait, merge and report." },
+    { id: "context", label: "PacKit context", description: "Choose the workspace and application." },
+    { id: "discovery", label: "Update discovery", description: "Resolve and compare the tracked package." },
+    { id: "content", label: "Content preparation", description: "Acquire, wrap and build package content." },
+    { id: "delivery", label: "Intune delivery", description: "Create the app and optionally target groups." },
+    { id: "records", label: "Run records", description: "Persist the result for future updates." }
   ];
 
+  const actionCatalog = [
+    { id: "text", label: "Text", description: "A fixed text value connected to any matching input.", category: "primitive", scope: "values", icon: "icon-copy", inputs: [{ key: "value", label: "Value", dataType: "Text", type: "text", required: true, value: "" }], outputs: [{ key: "value", label: "Value", dataType: "Text" }] },
+    { id: "number", label: "Number", description: "A fixed numeric value connected to any matching input.", category: "primitive", scope: "values", icon: "icon-list", inputs: [{ key: "value", label: "Value", dataType: "Number", type: "number", required: true, value: "0" }], outputs: [{ key: "value", label: "Value", dataType: "Number" }] },
+    { id: "flag", label: "Yes / no", description: "A reusable true or false value.", category: "primitive", scope: "values", icon: "icon-check", inputs: [{ key: "value", label: "Value", dataType: "Flag", type: "checkbox", checked: false }], outputs: [{ key: "value", label: "Value", dataType: "Flag" }] },
+    { id: "filePath", label: "File", description: "A file path connected to a compatible input.", category: "primitive", scope: "values", icon: "icon-copy", inputs: [{ key: "value", label: "File", dataType: "Path", type: "text", required: true, value: "" }], outputs: [{ key: "value", label: "File", dataType: "Path" }] },
+    { id: "folderPath", label: "Folder", description: "A folder path connected to a compatible input.", category: "primitive", scope: "values", icon: "icon-folder", inputs: [{ key: "value", label: "Folder", dataType: "Folder", type: "text", required: true, value: "" }], outputs: [{ key: "value", label: "Folder", dataType: "Folder" }] },
+    { id: "url", label: "URL", description: "A URL connected to a compatible input.", category: "primitive", scope: "values", icon: "icon-download", inputs: [{ key: "value", label: "URL", dataType: "Url", type: "text", required: true, value: "" }], outputs: [{ key: "value", label: "URL", dataType: "Url" }] },
+    { id: "version", label: "Version", description: "A version value used for comparisons and publication.", category: "primitive", scope: "values", icon: "icon-history", inputs: [{ key: "value", label: "Version", dataType: "Version", type: "text", required: true, value: "" }], outputs: [{ key: "value", label: "Version", dataType: "Version" }] },
+    { id: "start", label: "Start", description: "Where the workflow begins.", category: "control", scope: "flow", icon: "icon-play", required: true, controlOutputs: ["out"], inputs: [], outputs: [] },
+    { id: "notify", label: "Notify", description: "Writes a message to the run log.", category: "control", scope: "flow", icon: "icon-feedback", included: true, controlOutputs: ["out"], inline: ["message"], inputs: [{ key: "message", label: "Message", dataType: "Text", type: "textarea", required: true, value: "No newer version was found." }], outputs: [] },
+    { id: "delay", label: "Delay", description: "Waits before continuing, up to seven days.", category: "control", scope: "flow", icon: "icon-history", controlOutputs: ["out"], inline: ["milliseconds"], inputs: [{ key: "milliseconds", label: "Milliseconds", dataType: "Number", type: "number", required: true, value: "1000", help: "Clamped to 7 days." }], outputs: [] },
+    { id: "condition", label: "Condition", description: "Sends control down one of two branches.", category: "control", scope: "flow", icon: "icon-workflow", required: true, controlOutputs: ["then", "else"], inline: ["value"], inputs: [{ key: "value", label: "Value", dataType: "Flag", type: "text", required: true, value: "Compare versions · Is newer", connected: true }], outputs: [] },
+    { id: "merge", label: "Merge", description: "Continues once any incoming branch arrives.", category: "control", scope: "flow", icon: "icon-workflow", allowsFanIn: true, controlOutputs: ["out"], inputs: [], outputs: [] },
+    { id: "selectWorkspace", label: "Select workspace", description: "Opens a PacKit workspace for the rest of the workflow.", category: "domain", scope: "context", icon: "icon-folder-open", required: true, controlOutputs: ["out"], inputs: [{ key: "workspacePath", label: "Workspace", dataType: "Path", type: "select", required: true, value: "Current workspace", options: ["Current workspace", "Packaging lab · C:\\PacKit\\Workspaces\\LOB.pkproj", "Validation workspace · C:\\PacKit\\Workspaces\\Validation.pkproj", "Choose when the run starts"] }], outputs: [{ key: "workspace", label: "Workspace", dataType: "Workspace" }] },
+    { id: "selectApp", label: "Select application", description: "Picks one application inside the workspace.", category: "domain", scope: "context", icon: "icon-list", required: true, controlOutputs: ["out"], inputs: [{ key: "workspace", label: "Workspace", dataType: "Workspace", type: "text", required: true, value: "Select workspace · Workspace", connected: true }, { key: "appId", label: "Application", dataType: "Text", type: "select", required: true, value: "Assigned application", options: ["Assigned application", "Choose when the run starts", "Use a fixed application"] }], outputs: [{ key: "app", label: "Application", dataType: "App" }] },
+    { id: "resolveTrackedPackage", label: "Resolve tracked package", description: "Finds the WinGet package and current shipped version.", category: "domain", scope: "discovery", icon: "icon-search", required: true, controlOutputs: ["out"], inputs: [{ key: "workspace", label: "Workspace", dataType: "Workspace", type: "text", required: true, value: "Select workspace · Workspace", connected: true }, { key: "app", label: "Application", dataType: "App", type: "text", required: true, value: "Select application · Application", connected: true }, { key: "catalogPackageId", label: "Catalog package id override", dataType: "Text", type: "text", required: false, value: "", help: "Only needed when the application tracks more than one package." }], outputs: [{ key: "catalogPackageId", label: "Catalog package id", dataType: "Text" }, { key: "currentVersion", label: "Current version", dataType: "Version" }] },
+    { id: "queryWingetCatalog", label: "Query WinGet catalog", description: "Looks up the latest published package version.", category: "domain", scope: "discovery", icon: "icon-search", required: true, controlOutputs: ["out"], inputs: [{ key: "catalogPackageId", label: "Catalog package id", dataType: "Text", type: "text", required: true, value: "Resolve tracked package · Catalog package id", connected: true }], outputs: [{ key: "latestVersion", label: "Latest version", dataType: "Version" }, { key: "downloadUrl", label: "Download URL", dataType: "Url" }] },
+    { id: "compareVersions", label: "Compare versions", description: "Reports whether the catalog version is newer.", category: "domain", scope: "discovery", icon: "icon-refresh", required: true, controlOutputs: ["out"], inputs: [{ key: "currentVersion", label: "Current version", dataType: "Version", type: "text", required: true, value: "Resolve tracked package · Current version", connected: true }, { key: "latestVersion", label: "Latest version", dataType: "Version", type: "text", required: true, value: "Query WinGet catalog · Latest version", connected: true }], outputs: [{ key: "isNewer", label: "Is newer", dataType: "Flag" }] },
+    { id: "download", label: "Download", description: "Fetches the installer into a staging folder.", category: "domain", scope: "content", icon: "icon-download", required: true, controlOutputs: ["out"], inputs: [{ key: "url", label: "URL", dataType: "Url", type: "text", required: true, value: "Query WinGet catalog · Download URL", connected: true }, { key: "destinationFolder", label: "Destination folder", dataType: "Folder", type: "select", required: true, value: "Workspace staging folder", options: ["Workspace staging folder", "Application source folder", "Choose a folder"] }], outputs: [{ key: "file", label: "Downloaded file", dataType: "Path" }] },
+    { id: "wrapPsadt", label: "Wrap with PSADT", description: "Creates a PSAppDeployToolkit package around the installer.", category: "domain", scope: "content", icon: "icon-tools", controlOutputs: ["out"], inline: ["templateFolder"], inputs: [{ key: "installer", label: "Installer", dataType: "Path", type: "text", required: true, value: "Download · Downloaded file", connected: true }, { key: "templateFolder", label: "PSADT template", dataType: "Folder", type: "select", required: true, value: "Workspace default", options: ["Workspace default", "PSADT v4.1.8", "Choose a template"] }, { key: "outputFolder", label: "Output folder", dataType: "Folder", type: "select", required: true, value: "Workspace build folder", options: ["Workspace build folder", "Choose a folder"] }, { key: "appName", label: "Application name", dataType: "Text", type: "text", required: true, value: "Selected application · Name", connected: true }, { key: "appVendor", label: "Vendor", dataType: "Text", type: "text", required: true, value: "Selected application · Vendor", connected: true }, { key: "appVersion", label: "Version", dataType: "Version", type: "text", required: true, value: "Query WinGet catalog · Latest version", connected: true }, { key: "installCommand", label: "Install command", dataType: "Text", type: "text", required: false, value: "" }, { key: "uninstallCommand", label: "Uninstall command", dataType: "Text", type: "text", required: false, value: "" }], outputs: [{ key: "packageFolder", label: "Package folder", dataType: "Folder" }, { key: "deployScript", label: "Deploy script", dataType: "Path" }] },
+    { id: "unwrapPsadt", label: "Unwrap PSADT", description: "Returns a wrapped package to its installer content.", category: "domain", scope: "content", icon: "icon-tools", controlOutputs: ["out"], inputs: [{ key: "packageFolder", label: "Package folder", dataType: "Folder", type: "text", required: true, value: "" }, { key: "installerFileName", label: "Installer file name", dataType: "Text", type: "text", required: false, value: "", help: "Leave empty to discover it from the deploy script." }], outputs: [{ key: "installer", label: "Installer", dataType: "Path" }, { key: "packageFolder", label: "Package folder", dataType: "Folder" }] },
+    { id: "buildIntuneWin", label: "Build .intunewin", description: "Creates the Intune Win32 content artifact.", category: "domain", scope: "content", icon: "icon-copy", required: true, controlOutputs: ["out"], inputs: [{ key: "sourceFolder", label: "Source folder", dataType: "Folder", type: "select", required: true, value: "Downloaded installer folder", options: ["Downloaded installer folder", "PSADT package folder", "Choose a folder"] }, { key: "setupFile", label: "Setup file", dataType: "Path", type: "text", required: true, value: "Download · Downloaded file", connected: true }, { key: "outputFolder", label: "Output folder", dataType: "Folder", type: "select", required: true, value: "Workspace output folder", options: ["Workspace output folder", "Choose a folder"] }], outputs: [{ key: "package", label: "Package", dataType: "Path" }] },
+    { id: "uploadIntune", label: "Upload to Intune", description: "Creates the next Intune application version.", category: "domain", scope: "delivery", icon: "icon-arrow-up", required: true, controlOutputs: ["out"], inputs: [{ key: "package", label: "Package", dataType: "Path", type: "text", required: true, value: "Build .intunewin · Package", connected: true }, { key: "workspace", label: "Workspace", dataType: "Workspace", type: "text", required: true, value: "Select workspace · Workspace", connected: true }, { key: "app", label: "Application", dataType: "App", type: "text", required: true, value: "Select application · Application", connected: true }, { key: "catalogPackageId", label: "Catalog package id", dataType: "Text", type: "text", required: false, value: "Resolve tracked package · Catalog package id", connected: true }, { key: "version", label: "New version", dataType: "Version", type: "text", required: true, value: "Query WinGet catalog · Latest version", connected: true }, { key: "setupFile", label: "Package setup filename", dataType: "Text", type: "text", required: true, value: "Downloaded file name", connected: true }, { key: "displayName", label: "Display name override", dataType: "Text", type: "text", required: false, value: "" }, { key: "publisher", label: "Publisher override", dataType: "Text", type: "text", required: false, value: "" }, { key: "installCommand", label: "Install command", dataType: "Text", type: "text", required: false, value: "" }, { key: "uninstallCommand", label: "Uninstall command", dataType: "Text", type: "text", required: false, value: "" }], outputs: [{ key: "intuneAppId", label: "Intune app id", dataType: "IntuneAppId" }] },
+    { id: "assignGroups", label: "Assign groups", description: "Adds Available, Required or Uninstall assignments.", category: "domain", scope: "delivery", icon: "icon-people", controlOutputs: ["out"], inline: ["intent"], inputs: [{ key: "intuneAppId", label: "Intune app id", dataType: "IntuneAppId", type: "text", required: true, value: "Upload to Intune · Intune app id", connected: true }, { key: "groupIds", label: "Groups", dataType: "Text", type: "textarea", required: true, value: "" }, { key: "intent", label: "Intent", dataType: "Text", type: "select", required: true, value: "available", options: ["available", "required", "uninstall"] }], outputs: [{ key: "intuneAppId", label: "Intune app id", dataType: "IntuneAppId" }] },
+    { id: "recordDeployment", label: "Record deployment", description: "Stores the published version and target result in PacKit.", category: "domain", scope: "records", icon: "icon-history", required: true, controlOutputs: ["out"], inputs: [{ key: "workspace", label: "Workspace", dataType: "Workspace", type: "text", required: true, value: "Select workspace · Workspace", connected: true }, { key: "app", label: "Application", dataType: "App", type: "text", required: true, value: "Select application · Application", connected: true }, { key: "catalogPackageId", label: "Catalog package id", dataType: "Text", type: "text", required: true, value: "Resolve tracked package · Catalog package id", connected: true }, { key: "version", label: "Version", dataType: "Version", type: "text", required: true, value: "Query WinGet catalog · Latest version", connected: true }, { key: "intuneAppId", label: "Intune app id", dataType: "IntuneAppId", type: "text", required: false, value: "Upload to Intune · Intune app id", connected: true }], outputs: [{ key: "recorded", label: "Recorded", dataType: "Flag" }] }
+  ];
+
+  const nodeDefinitions = actionCatalog.map((action) => ({
+    ...action,
+    summary: action.description,
+    enabled: Boolean(action.required || action.included)
+  }));
   const requiredIds = nodeDefinitions.filter((node) => node.required).map((node) => node.id);
   const workflowViews = new Set(["design", "applications", "runs", "revisions"]);
 
-  function createInitialNodes() {
-    const requiredNodes = nodeDefinitions.filter((node) => node.required).map((node, index) => ({
-      id: node.id,
-      type: "packitNode",
-      position: { x: 84, y: 36 + index * 116 },
-      data: { ...node, enabled: true, status: "configured" }
-    }));
-    const optionalPositions = {
-      wrapper: { x: 360, y: 418 },
-      customScripts: { x: 360, y: 534 },
-      repair: { x: 360, y: 650 },
-      dependencies: { x: 360, y: 766 },
-      signing: { x: 360, y: 1114 },
-      scopeTags: { x: 360, y: 1230 },
-      notifications: { x: 360, y: 1346 },
-      monitoring: { x: 360, y: 1462 }
-    };
-    const optionalNodes = nodeDefinitions.filter((node) => !node.required).map((node) => ({
-      id: node.id,
-      type: "packitNode",
-      position: optionalPositions[node.id],
-      data: { ...node, enabled: Boolean(node.enabled), status: node.enabled ? "configured" : "available" }
-    }));
-    return [...requiredNodes, ...optionalNodes];
+  const standardChain = ["start", "selectWorkspace", "selectApp", "resolveTrackedPackage", "queryWingetCatalog", "compareVersions", "condition", "download", "buildIntuneWin", "uploadIntune", "recordDeployment"];
+  const recipeNode = (id, actionType = id, options = {}) => ({ id, actionType, required: options.required !== false, label: options.label, position: options.position });
+  const chainEdges = (ids) => ids.slice(0, -1).map((source, index) => ({ source, target: ids[index + 1] }));
+  const updateBranchEdges = (contentChain, afterUpload = ["recordDeployment"]) => [
+    ...chainEdges(["start", "selectWorkspace", "selectApp", "resolveTrackedPackage", "queryWingetCatalog", "compareVersions", "condition"]),
+    { source: "condition", target: contentChain[0], sourceHandle: "then", label: "Newer version" },
+    { source: "condition", target: "notifyNoUpdate", sourceHandle: "else", label: "No update" },
+    ...chainEdges(contentChain),
+    ...chainEdges([contentChain.at(-1), ...afterUpload])
+  ];
+
+  const workflowRecipes = {
+    starter: {
+      name: "Standard application update",
+      description: "Detect, package and publish newer WinGet versions to Microsoft Intune.",
+      summary: "A direct-installer update path with a safe no-update branch.",
+      nodes: [
+        ...standardChain.map((id) => recipeNode(id)),
+        recipeNode("notifyNoUpdate", "notify", { label: "Log no update", required: false, position: { x: 432, y: 876 } })
+      ],
+      edges: updateBranchEdges(["download", "buildIntuneWin", "uploadIntune"]),
+      configuration: {
+        selectWorkspace: { workspacePath: "Current workspace" },
+        selectApp: { appId: "Assigned application" },
+        notifyNoUpdate: { message: "No newer WinGet version was found. The current deployment remains unchanged." },
+        download: { destinationFolder: "Workspace staging folder" },
+        buildIntuneWin: { sourceFolder: "Downloaded installer folder", setupFile: "Download · Downloaded file", outputFolder: "Workspace output folder" },
+        uploadIntune: { package: "Build .intunewin · Package", workspace: "Select workspace · Workspace", app: "Select application · Application", version: "Query WinGet catalog · Latest version", setupFile: "Downloaded file name" },
+        recordDeployment: { workspace: "Select workspace · Workspace", app: "Select application · Application", catalogPackageId: "Resolve tracked package · Catalog package id", version: "Query WinGet catalog · Latest version", intuneAppId: "Upload to Intune · Intune app id" }
+      }
+    },
+    "psadt-update": {
+      name: "PSADT managed update",
+      description: "Detect a WinGet update, create a PSADT wrapper and publish it to Microsoft Intune.",
+      summary: "A preconfigured PSADT v4 path for packages that need wrapper behavior.",
+      nodes: [
+        ...standardChain.filter((id) => id !== "buildIntuneWin").map((id) => recipeNode(id)),
+        recipeNode("notifyNoUpdate", "notify", { label: "Log no update", required: false, position: { x: 432, y: 876 } }),
+        recipeNode("wrapPsadt", "wrapPsadt"), recipeNode("buildIntuneWin", "buildIntuneWin")
+      ],
+      edges: updateBranchEdges(["download", "wrapPsadt", "buildIntuneWin", "uploadIntune"]),
+      configuration: {
+        selectWorkspace: { workspacePath: "Current workspace" },
+        selectApp: { appId: "Assigned application" },
+        notifyNoUpdate: { message: "No newer WinGet version was found. No wrapper was created." },
+        download: { destinationFolder: "Workspace staging folder" },
+        wrapPsadt: { installer: "Download · Downloaded file", templateFolder: "PSADT v4.1.8", outputFolder: "Workspace build folder", appName: "Selected application · Name", appVendor: "Selected application · Vendor", appVersion: "Query WinGet catalog · Latest version" },
+        buildIntuneWin: { sourceFolder: "PSADT package folder", setupFile: "Wrap with PSADT · Deploy script", outputFolder: "Workspace output folder" },
+        uploadIntune: { package: "Build .intunewin · Package", workspace: "Select workspace · Workspace", app: "Select application · Application", version: "Query WinGet catalog · Latest version", setupFile: "Deploy-Application.exe", installCommand: "Deploy-Application.exe -DeploymentType Install -DeployMode Silent", uninstallCommand: "Deploy-Application.exe -DeploymentType Uninstall -DeployMode Silent" },
+        recordDeployment: { workspace: "Select workspace · Workspace", app: "Select application · Application", catalogPackageId: "Resolve tracked package · Catalog package id", version: "Query WinGet catalog · Latest version", intuneAppId: "Upload to Intune · Intune app id" }
+      }
+    },
+    "local-publish": {
+      name: "Local installer publication",
+      description: "Build and publish a known local installer without catalog discovery.",
+      summary: "A filled example for line-of-business installers maintained on disk.",
+      nodes: [
+        recipeNode("start"), recipeNode("selectWorkspace"), recipeNode("selectApp"),
+        recipeNode("sourceFolderValue", "folderPath", { label: "Installer source folder", position: { x: -80, y: 396 } }),
+        recipeNode("setupFileValue", "filePath", { label: "Setup file", position: { x: -80, y: 536 } }),
+        recipeNode("versionValue", "version", { label: "Package version", position: { x: -80, y: 676 } }),
+        recipeNode("buildIntuneWin", "buildIntuneWin", { position: { x: 92, y: 476 } }),
+        recipeNode("uploadIntune", "uploadIntune", { position: { x: 92, y: 616 } }),
+        recipeNode("recordDeployment", "recordDeployment", { position: { x: 92, y: 756 } })
+      ],
+      edges: chainEdges(["start", "selectWorkspace", "selectApp", "buildIntuneWin", "uploadIntune", "recordDeployment"]),
+      configuration: {
+        selectWorkspace: { workspacePath: "Packaging lab · C:\\PacKit\\Workspaces\\LOB.pkproj" },
+        selectApp: { appId: "Assigned application" },
+        sourceFolderValue: { value: "C:\\Packages\\Contoso Finance Tools\\12.4.0" },
+        setupFileValue: { value: "C:\\Packages\\Contoso Finance Tools\\12.4.0\\ContosoFinance.msi" },
+        versionValue: { value: "12.4.0" },
+        buildIntuneWin: { sourceFolder: "Installer source folder · Folder", setupFile: "Setup file · File", outputFolder: "Workspace output folder" },
+        uploadIntune: { package: "Build .intunewin · Package", workspace: "Select workspace · Workspace", app: "Select application · Application", catalogPackageId: "", version: "Package version · Version", setupFile: "ContosoFinance.msi", displayName: "Contoso Finance Tools 12.4.0", publisher: "Contoso", installCommand: "msiexec /i ContosoFinance.msi /qn /norestart", uninstallCommand: "msiexec /x {0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1} /qn /norestart" },
+        recordDeployment: { workspace: "Select workspace · Workspace", app: "Select application · Application", catalogPackageId: "Local.ContosoFinance", version: "Package version · Version", intuneAppId: "Upload to Intune · Intune app id" }
+      }
+    },
+    "assignment-defaults": {
+      name: "Intune assignment defaults",
+      description: "Publish a detected update and apply explicit Available, Required and Uninstall groups.",
+      summary: "A publication recipe with three independently configured assignment instances.",
+      nodes: [
+        ...standardChain.map((id) => recipeNode(id, id, id === "recordDeployment" ? { position: { x: 92, y: 1996 } } : {})),
+        recipeNode("notifyNoUpdate", "notify", { label: "Log no update", required: false, position: { x: 432, y: 876 } }),
+        recipeNode("assignPilot", "assignGroups", { label: "Assign pilot availability", required: false, position: { x: 92, y: 1576 } }),
+        recipeNode("assignProduction", "assignGroups", { label: "Assign production requirement", required: false, position: { x: 92, y: 1716 } }),
+        recipeNode("assignRetired", "assignGroups", { label: "Assign legacy uninstall", required: false, position: { x: 92, y: 1856 } })
+      ],
+      edges: updateBranchEdges(["download", "buildIntuneWin", "uploadIntune"], ["assignPilot", "assignProduction", "assignRetired", "recordDeployment"]),
+      configuration: {
+        selectWorkspace: { workspacePath: "Current workspace" },
+        selectApp: { appId: "Assigned application" },
+        notifyNoUpdate: { message: "No newer version was found. Existing assignments remain in place." },
+        download: { destinationFolder: "Workspace staging folder" },
+        buildIntuneWin: { sourceFolder: "Downloaded installer folder", setupFile: "Download · Downloaded file", outputFolder: "Workspace output folder" },
+        uploadIntune: { package: "Build .intunewin · Package", workspace: "Select workspace · Workspace", app: "Select application · Application", version: "Query WinGet catalog · Latest version", setupFile: "Downloaded file name" },
+        assignPilot: { intuneAppId: "Upload to Intune · Intune app id", groupIds: "PacKit - Application Pilot Users", intent: "available" },
+        assignProduction: { intuneAppId: "Assign pilot availability · Intune app id", groupIds: "PacKit - Managed Windows Devices", intent: "required" },
+        assignRetired: { intuneAppId: "Assign production requirement · Intune app id", groupIds: "PacKit - Legacy Application Removal", intent: "uninstall" },
+        recordDeployment: { workspace: "Select workspace · Workspace", app: "Select application · Application", catalogPackageId: "Resolve tracked package · Catalog package id", version: "Query WinGet catalog · Latest version", intuneAppId: "Assign legacy uninstall · Intune app id" }
+      }
+    }
+  };
+
+  const defaultPositions = {
+    start: { x: 92, y: 36 }, selectWorkspace: { x: 92, y: 176 }, selectApp: { x: 92, y: 316 },
+    resolveTrackedPackage: { x: 92, y: 456 }, queryWingetCatalog: { x: 92, y: 596 }, compareVersions: { x: 92, y: 736 },
+    condition: { x: 92, y: 876 }, download: { x: 92, y: 1016 }, wrapPsadt: { x: 92, y: 1156 },
+    buildIntuneWin: { x: 92, y: 1296 }, uploadIntune: { x: 92, y: 1436 }, recordDeployment: { x: 92, y: 1856 },
+    notify: { x: 432, y: 876 }, delay: { x: 432, y: 176 }, merge: { x: 432, y: 316 }, unwrapPsadt: { x: 432, y: 1156 },
+    assignGroups: { x: 432, y: 1436 }, text: { x: -244, y: 176 }, number: { x: -244, y: 316 }, flag: { x: -244, y: 456 },
+    filePath: { x: -244, y: 596 }, folderPath: { x: -244, y: 736 }, url: { x: -244, y: 876 }, version: { x: -244, y: 1016 }
+  };
+
+  const workflowLayoutVersion = 5;
+  const workflowVerticalScale = 2;
+  const spreadCanvasPosition = (position) => ({
+    x: 120 + (position.x - 92) * 1.3,
+    y: 56 + (position.y - 36) * workflowVerticalScale
+  });
+  const upgradeCanvasPosition = (position, layoutVersion) => {
+    if (layoutVersion >= workflowLayoutVersion) return position;
+    if (layoutVersion === 4) {
+      return { x: position.x, y: 56 + (position.y - 56) * (workflowVerticalScale / 2.35) };
+    }
+    if (layoutVersion === 3) {
+      return { x: position.x, y: 56 + (position.y - 56) * (workflowVerticalScale / 2.75) };
+    }
+    if (layoutVersion === 2) {
+      const legacyY = 36 + (position.y - 56) / 1.65;
+      return { x: position.x, y: 56 + (legacyY - 36) * workflowVerticalScale };
+    }
+    return spreadCanvasPosition(position);
+  };
+
+  function createInitialNodes(recipeId = "starter") {
+    const recipe = workflowRecipes[recipeId] || workflowRecipes.starter;
+    const instances = new Map(recipe.nodes.map((instance) => [instance.id, instance]));
+    const availableCatalogNodes = nodeDefinitions.filter((definition) => !instances.has(definition.id)).map((definition) => ({ id: definition.id, actionType: definition.id, required: false }));
+    return [...recipe.nodes, ...availableCatalogNodes].map((instance) => {
+      const definition = actionCatalog.find((action) => action.id === instance.actionType);
+      const position = spreadCanvasPosition(instance.position || defaultPositions[instance.actionType] || { x: 92, y: 36 });
+      const enabled = instances.has(instance.id);
+      return {
+        id: instance.id,
+        type: "packitNode",
+        position,
+        data: {
+          ...definition,
+          id: instance.id,
+          actionType: instance.actionType,
+          label: instance.label || definition.label,
+          summary: definition.description,
+          required: Boolean(instance.required && enabled),
+          enabled,
+          status: enabled ? "configured" : "available"
+        }
+      };
+    });
   }
 
-  function createInitialEdges() {
-    const coreEdges = requiredIds.slice(0, -1).map((source, index) => ({
-      id: `${source}-${requiredIds[index + 1]}`,
-      source,
-      target: requiredIds[index + 1],
+  function createInitialEdges(recipeId = "starter") {
+    const recipe = workflowRecipes[recipeId] || workflowRecipes.starter;
+    return recipe.edges.map((edge, index) => ({
+      id: `${edge.source}-${edge.target}-${edge.sourceHandle || "out"}-${index}`,
+      source: edge.source,
+      target: edge.target,
+      sourceHandle: edge.sourceHandle,
+      label: edge.label,
       type: "smoothstep",
       markerEnd: { type: MarkerType.ArrowClosed },
       className: "workflow-core-edge"
     }));
-    return [
-      ...coreEdges,
-      { id: "program-wrapper", source: "program", target: "wrapper", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "program-customScripts", source: "program", target: "customScripts", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "program-repair", source: "program", target: "repair", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "requirements-dependencies", source: "requirements", target: "dependencies", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "build-signing", source: "build", target: "signing", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "publish-scopeTags", source: "publish", target: "scopeTags", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "approval-notifications", source: "approval", target: "notifications", type: "smoothstep", className: "workflow-optional-edge" },
-      { id: "publish-monitoring", source: "publish", target: "monitoring", type: "smoothstep", className: "workflow-optional-edge" }
-    ];
+  }
+
+  function defaultActionConfiguration(actionType) {
+    const definition = actionCatalog.find((action) => action.id === actionType);
+    return Object.fromEntries((definition?.inputs || []).map((field) => [
+      field.key,
+      field.defaultValue ?? field.checked ?? field.value ?? field.options?.[0] ?? ""
+    ]));
+  }
+
+  function serializeWorkflowGraph(nodes, edges) {
+    return {
+      layoutVersion: workflowLayoutVersion,
+      nodes: nodes.map((node) => ({
+        id: node.id,
+        actionType: node.data.actionType || node.id,
+        label: node.data.label,
+        required: Boolean(node.data.required),
+        enabled: Boolean(node.data.enabled),
+        position: node.position
+      })),
+      edges: edges.map(({ id, source, target, sourceHandle, targetHandle, label, className }) => ({ id, source, target, sourceHandle, targetHandle, label, className }))
+    };
+  }
+
+  function hydrateWorkflowNodes(items, layoutVersion = 1) {
+    return items.map((item) => {
+      const definition = actionCatalog.find((action) => action.id === item.actionType);
+      const savedPosition = item.position || defaultPositions[item.actionType] || { x: 92, y: 36 };
+      return {
+        id: item.id,
+        type: "packitNode",
+        position: upgradeCanvasPosition(savedPosition, layoutVersion),
+        data: {
+          ...definition,
+          id: item.id,
+          actionType: item.actionType,
+          label: item.label || definition.label,
+          summary: definition.description,
+          required: Boolean(item.required),
+          enabled: Boolean(item.enabled),
+          status: item.enabled ? "configured" : "available"
+        }
+      };
+    });
+  }
+
+  function hydrateWorkflowEdges(items) {
+    return items.map((edge, index) => ({
+      ...edge,
+      id: edge.id || `${edge.source}-${edge.target}-${edge.sourceHandle || "out"}-${index}`,
+      type: "smoothstep",
+      markerEnd: { type: MarkerType.ArrowClosed },
+      className: edge.className || "workflow-core-edge"
+    }));
   }
 
   function FluentIcon({ name }) {
     return h("span", { className: `fluent ${name}`, "aria-hidden": "true" });
   }
 
+  function HelpTip({ label }) {
+    return h("button", {
+      className: "wui-help-tip",
+      type: "button",
+      "aria-label": label,
+      "data-tooltip": label
+    }, h(FluentIcon, { name: "icon-help" }));
+  }
+
+  function WorkflowSelect({ children, ...selectProps }) {
+    return h("span", { className: "workflow-select-control" },
+      h("select", selectProps, children),
+      h(FluentIcon, { name: "icon-chevron-down" })
+    );
+  }
+
+  const inlineFieldMap = {
+    text: ["value"], number: ["value"], flag: ["value"], filePath: ["value"], folderPath: ["value"], url: ["value"], version: ["value"],
+    notify: ["message"], delay: ["milliseconds"], selectWorkspace: ["workspacePath"], selectApp: ["appId"],
+    resolveTrackedPackage: ["catalogPackageId"], download: ["destinationFolder"], wrapPsadt: ["templateFolder", "outputFolder"],
+    unwrapPsadt: ["installerFileName"], buildIntuneWin: ["sourceFolder", "outputFolder"], uploadIntune: ["displayName", "publisher"], assignGroups: ["intent"]
+  };
+
   function PackitNode({ data, selected }) {
-    const stateLabel = data.required ? "Required" : data.enabled ? "Optional · Added" : "Optional";
+    const inlineKeys = inlineFieldMap[data.actionType] || data.inline || [];
+    const inlineFields = (data.inputs || []).filter((field) => inlineKeys.includes(field.key) && !field.connected);
+    const changeInlineValue = (event, field) => {
+      event.stopPropagation();
+      const value = field.type === "checkbox" ? event.target.checked : event.target.value;
+      data.onConfigurationChange?.(data.id, field.key, value);
+    };
+    const removeNode = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      data.onRemove?.(data.id);
+    };
     return h("div", {
-      className: `packit-flow-node ${data.required ? "required" : "optional"} ${data.enabled ? "enabled" : "available"} ${selected ? "selected" : ""}`
+      className: `packit-flow-node ${data.required ? "required" : "optional"} ${data.enabled ? "enabled" : "available"} ${inlineFields.length ? "has-inline-fields" : ""} ${selected ? "selected" : ""}`
     },
       h(Handle, { type: "target", position: Position.Top, className: "workflow-handle" }),
       h("div", { className: "packit-flow-node-heading" },
         h("span", { className: "packit-flow-node-icon" }, h(FluentIcon, { name: data.icon })),
         h("span", null,
-          h("strong", null, data.label),
-          h("small", null, stateLabel)
+          h("strong", null, data.label)
         ),
-        h(FluentIcon, { name: data.required || data.enabled ? "icon-check" : "icon-add" })
+        data.required
+          ? h("button", {
+              className: "workflow-node-fixed wui-help-tip nodrag nowheel",
+              type: "button",
+              "aria-label": "Required by this workflow template",
+              "data-tooltip": "Required by this workflow template. This action cannot be removed."
+            }, h(FluentIcon, { name: "icon-lock" }))
+          : h("button", {
+              type: "button",
+              className: "workflow-node-remove nodrag nowheel",
+              title: `Remove ${data.label} from workflow`,
+              "aria-label": `Remove ${data.label} from workflow`,
+              onPointerDown: (event) => event.stopPropagation(),
+              onClick: removeNode
+            }, h(FluentIcon, { name: "icon-dismiss" }))
       ),
       h("p", null, data.summary),
-      h(Handle, { type: "source", position: Position.Bottom, className: "workflow-handle" })
+      inlineFields.length > 0 && h("div", { className: "workflow-node-fields nodrag nowheel", onPointerDown: (event) => event.stopPropagation(), onMouseDown: (event) => event.stopPropagation(), onClick: (event) => event.stopPropagation() }, inlineFields.map((field) =>
+        h("label", { key: field.key },
+          h("span", { className: "workflow-node-field-heading" }, h("span", null, field.label), h("small", null, field.dataType)),
+          field.type === "select"
+            ? h(WorkflowSelect, { value: data.configuration?.[field.key] ?? field.value ?? field.options?.[0], onChange: (event) => changeInlineValue(event, field) }, field.options.map((option) => h("option", { key: option }, option)))
+            : field.type === "checkbox"
+              ? h("input", { type: "checkbox", checked: data.configuration?.[field.key] ?? field.checked ?? false, onChange: (event) => changeInlineValue(event, field) })
+              : field.type === "textarea"
+                ? h("textarea", { rows: 2, value: data.configuration?.[field.key] ?? field.value ?? "", onChange: (event) => changeInlineValue(event, field) })
+                : h("input", { type: field.type === "number" ? "number" : "text", value: data.configuration?.[field.key] ?? field.value ?? "", onChange: (event) => changeInlineValue(event, field) })
+        )
+      )),
+      data.controlOutputs?.length > 1
+        ? data.controlOutputs.map((output, index) => h(Handle, { key: output, id: output, type: "source", position: Position.Bottom, className: `workflow-handle workflow-handle-${output}`, style: { left: `${35 + index * 30}%` } }))
+        : h(Handle, { type: "source", position: Position.Bottom, className: "workflow-handle" })
     );
   }
 
-  const fieldDefinitions = {
+  const fieldDefinitions = Object.fromEntries(actionCatalog.map((action) => [action.id, action.inputs || []]));
+  const recipeInstanceDefinitions = Object.values(workflowRecipes).flatMap((recipe) => recipe.nodes)
+    .filter((instance) => instance.id !== instance.actionType)
+    .filter((instance, index, items) => items.findIndex((candidate) => candidate.id === instance.id) === index)
+    .map((instance) => {
+      const definition = actionCatalog.find((action) => action.id === instance.actionType);
+      return { ...definition, id: instance.id, actionType: instance.actionType, label: instance.label || definition.label, required: true };
+    });
+
+  // Existing application/version ownership views still resolve these policy keys.
+  // They remain a compatibility schema; the workflow canvas exposes the action catalog above.
+  const legacyPolicyNodes = [
+    ["trigger", "Update trigger", true], ["source", "Resolve installer source", true], ["inspect", "Inspect package", true],
+    ["information", "App & package information", true], ["program", "Install & uninstall", true], ["requirements", "Requirements", true],
+    ["detection", "Detection", true], ["returnCodes", "Return codes & restart", true], ["transition", "Future version handling", true],
+    ["build", "Build package", true], ["validate", "Build & verify", true], ["approval", "Review & approval", true],
+    ["publish", "Publish output", true], ["assignments", "Future assignments", true], ["cleanup", "Previous version handling", true],
+    ["wrapper", "Wrapper", false]
+  ].map(([id, label, required]) => ({ id, label, required }));
+  const legacyPolicyFields = {
     trigger: [
       { key: "trigger", label: "Trigger", type: "select", options: ["New catalog version detected", "Scheduled check", "Manual run"] },
       { key: "channel", label: "Release channel", type: "select", options: ["Stable", "Preview", "Any"] }
@@ -172,26 +451,6 @@
       { key: "method", label: "Detection method", type: "select", options: ["Installer identity when available", "File version", "Registry value", "PowerShell script"] },
       { key: "versionCheck", label: "Require version comparison", type: "checkbox", checked: true }
     ],
-    build: [
-      { key: "artifact", label: "Package artifact", type: "select", options: ["IntuneWin", "MECM content", "Both targets"] },
-      { key: "clean", label: "Use clean build directory", type: "checkbox", checked: true }
-    ],
-    validate: [
-      { key: "installTest", label: "Clean install test", type: "checkbox", checked: true },
-      { key: "upgradeTest", label: "Upgrade test", type: "checkbox", checked: true },
-      { key: "uninstallTest", label: "Uninstall and detection test", type: "checkbox", checked: true }
-    ],
-    approval: [
-      { key: "approval", label: "Approval policy", type: "select", options: ["Required before publication", "Required after validation", "No approval"] }
-    ],
-    publish: [
-      { key: "target", label: "Workflow output", type: "select", options: ["Build only", "Microsoft Intune", "MECM", "Intune and MECM"] },
-      { key: "failure", label: "If publication fails", type: "select", options: ["Stop and keep the current deployment", "Pause for review", "Retry the failed target"] }
-    ],
-    wrapper: [
-      { key: "wrapper", label: "Wrapper", type: "select", options: ["PSAppDeployToolkit v4", "PSAppDeployToolkit v3 compatibility", "Custom PowerShell", "Direct installer"] },
-      { key: "interaction", label: "User interaction", type: "select", options: ["Silent", "Allow deferral", "Close blocking processes"] }
-    ],
     returnCodes: [
       { key: "defaults", label: "Start with platform defaults", type: "checkbox", checked: true },
       { key: "restartCodes", label: "Preserve reboot exit codes", type: "checkbox", checked: true },
@@ -203,20 +462,19 @@
       { key: "relationship", label: "Deployment relationship", type: "select", options: ["Supersede the previous version", "Replace and uninstall the previous version", "Create without a relationship"] },
       { key: "existingInstalls", label: "Devices with the previous version", type: "select", options: ["Update through the Required assignment policy", "Leave unchanged until assigned", "Pause for review"] }
     ],
-    customScripts: [
-      { key: "preInstall", label: "Pre-install action", type: "select", options: ["None", "Run configured PowerShell script", "Require application binding"] },
-      { key: "postInstall", label: "Post-install action", type: "select", options: ["None", "Run configured PowerShell script", "Require application binding"] }
+    build: [
+      { key: "artifact", label: "Package artifact", type: "select", options: ["IntuneWin", "MECM content", "Both targets"] },
+      { key: "clean", label: "Use clean build directory", type: "checkbox", checked: true }
     ],
-    repair: [
-      { key: "repair", label: "Repair command", type: "select", options: ["Resolve from installer", "Use wrapper repair phase", "Require application binding"] },
-      { key: "testRepair", label: "Validate repair during testing", type: "checkbox", checked: true }
+    validate: [
+      { key: "installTest", label: "Clean install test", type: "checkbox", checked: true },
+      { key: "upgradeTest", label: "Upgrade test", type: "checkbox", checked: true },
+      { key: "uninstallTest", label: "Uninstall and detection test", type: "checkbox", checked: true }
     ],
-    dependencies: [
-      { key: "source", label: "Dependency source", type: "select", options: ["Application binding", "Existing deployment relationships", "Shared dependency set"] },
-      { key: "install", label: "Install dependencies automatically", type: "checkbox", checked: true }
-    ],
-    scopeTags: [
-      { key: "source", label: "Scope tag source", type: "select", options: ["Application binding", "Workspace default", "Require selection before publication"] }
+    approval: [{ key: "approval", label: "Approval policy", type: "select", options: ["Required before publication", "Required after validation", "No approval"] }],
+    publish: [
+      { key: "target", label: "Workflow output", type: "select", options: ["Build only", "Microsoft Intune", "MECM", "Intune and MECM"] },
+      { key: "failure", label: "If publication fails", type: "select", options: ["Stop and keep the current deployment", "Pause for review", "Retry the failed target"] }
     ],
     assignments: [
       { key: "source", label: "Start from", type: "select", options: ["Previous version assignments", "Workflow assignment defaults", "No existing assignments"] },
@@ -226,25 +484,20 @@
       { key: "silentUpdate", label: "Update devices that have the current version installed", type: "checkbox", checked: false },
       { key: "uninstall", label: "Uninstall assignments", type: "radio", defaultValue: "Copy Uninstall assignments to the next version", options: ["Keep Uninstall assignments on the current version only", "Copy Uninstall assignments to the next version", "Do not automate Uninstall assignments"] }
     ],
-    signing: [
-      { key: "profile", label: "Signing profile", type: "select", options: ["Workspace default", "Application binding", "Require selection before build"] },
-      { key: "scripts", label: "Sign generated PowerShell scripts", type: "checkbox", checked: true }
-    ],
-    notifications: [
-      { key: "events", label: "Notify on", type: "select", options: ["Approval and failure", "Failure only", "Every completed run"] },
-      { key: "recipients", label: "Recipients", type: "select", options: ["Application owners", "Workflow operators", "Application owners and operators"] }
-    ],
-    monitoring: [
-      { key: "source", label: "Monitor", type: "select", options: ["Deployment operations and device results", "Deployment operations only", "Device results only"] },
-      { key: "failureGate", label: "Pause rollout on failure threshold", type: "checkbox", checked: true }
-    ],
     cleanup: [
       { key: "when", label: "When the rollout is complete", type: "select", options: ["After the Production ring succeeds", "After explicit approval", "After a retention period"] },
       { key: "retention", label: "Retention period", type: "select", options: ["No delay", "3 days", "7 days", "14 days", "30 days"] },
       { key: "action", label: "Previous version action", type: "select", options: ["Keep the version and its assignments", "Remove assignments only", "Retire the deployment object", "Remove assignments and retire"] },
       { key: "failureGate", label: "Keep the previous version active while deployment failures remain", type: "checkbox", checked: true }
+    ],
+    wrapper: [
+      { key: "wrapper", label: "Wrapper", type: "select", options: ["PSAppDeployToolkit v4", "PSAppDeployToolkit v3 compatibility", "Custom PowerShell", "Direct installer"] },
+      { key: "interaction", label: "User interaction", type: "select", options: ["Silent", "Allow deferral", "Close blocking processes"] }
     ]
   };
+  const recipeFieldDefinitions = Object.fromEntries(recipeInstanceDefinitions.map((instance) => [instance.id, fieldDefinitions[instance.actionType] || []]));
+  const policyFieldDefinitions = { ...legacyPolicyFields, ...fieldDefinitions, ...recipeFieldDefinitions };
+  const policyNodeDefinitions = [...legacyPolicyNodes, ...nodeDefinitions, ...recipeInstanceDefinitions];
 
   const starterRevisionHistory = [
     {
@@ -254,8 +507,14 @@
       author: "Mara Ionescu",
       created: "28 Sep 2026",
       changes: "Simplified the required backbone and approval defaults",
-      optionalIds: [],
-      configuration: {}
+      optionalIds: ["notify"],
+      configuration: {
+        notify: { message: "No newer version was found." },
+        selectWorkspace: { workspacePath: "Current workspace" },
+        selectApp: { appId: "Assigned application" },
+        download: { destinationFolder: "Workspace staging folder" },
+        buildIntuneWin: { sourceFolder: "Downloaded installer folder", outputFolder: "Workspace output folder" }
+      }
     },
     {
       version: "1.2",
@@ -264,12 +523,12 @@
       author: "Andrei Pop",
       created: "19 Sep 2026",
       changes: "Added assignment rings and PSADT wrapper defaults",
-      optionalIds: ["wrapper"],
+      optionalIds: ["notify", "wrapPsadt", "assignGroups"],
       configuration: {
-        source: { acquisition: "Linked catalog", variant: "Prefer x64 stable release" },
-        wrapper: { wrapper: "PSAppDeployToolkit v4", interaction: "Allow deferral" },
-        assignments: { source: "Assignment workflow", rings: "Pilot → IT → Production" },
-        publish: { target: "Microsoft Intune", failure: "Pause for review" }
+        notify: { message: "No newer version was found." },
+        wrapPsadt: { templateFolder: "PSADT v4.1.8" },
+        assignGroups: { intent: "available", groupIds: "Pilot\nIT\nProduction" },
+        buildIntuneWin: { sourceFolder: "PSADT package folder" }
       }
     },
     {
@@ -279,12 +538,11 @@
       author: "Mara Ionescu",
       created: "6 Sep 2026",
       changes: "Enabled wrapper handling and stricter validation",
-      optionalIds: ["wrapper"],
+      optionalIds: ["notify", "wrapPsadt"],
       configuration: {
-        source: { acquisition: "Publisher URL", variant: "Require review when multiple variants match" },
-        wrapper: { wrapper: "PSAppDeployToolkit v4", interaction: "Silent" },
-        validate: { installTest: true, upgradeTest: true, uninstallTest: true },
-        approval: { approval: "Required after validation" }
+        notify: { message: "No newer version was found." },
+        wrapPsadt: { templateFolder: "Workspace default" },
+        buildIntuneWin: { sourceFolder: "PSADT package folder" }
       }
     },
     {
@@ -294,11 +552,11 @@
       author: "PacKit",
       created: "25 Aug 2026",
       changes: "Initial application-update workflow",
-      optionalIds: [],
+      optionalIds: ["notify"],
       configuration: {
-        source: { acquisition: "Monitored folder", variant: "Match application architecture and locale" },
-        detection: { method: "File version", versionCheck: true },
-        publish: { target: "Build only", failure: "Stop and keep the current deployment" }
+        notify: { message: "No newer version was found." },
+        selectWorkspace: { workspacePath: "Current workspace" },
+        selectApp: { appId: "Assigned application" }
       }
     }
   ];
@@ -306,7 +564,31 @@
   const policy = window.packitPolicy;
   const existingVersionIds = [...document.querySelectorAll("#versionList [data-version]")].map(button => button.dataset.version);
   const policyCatalog = apps.map(app => ({ ...app, existingVersions: app.empty ? [] : existingVersionIds }));
-  const policyValues = policy.register(fieldDefinitions, nodeDefinitions, policyCatalog, starterRevisionHistory);
+  const policyValues = policy.register(policyFieldDefinitions, policyNodeDefinitions, policyCatalog, starterRevisionHistory);
+  const builtInWorkflowSeeds = [
+    { id: "starter", ...workflowRecipes.starter, version: "2.0", changes: "Configured direct-installer publication recipe" },
+    { id: "psadt-update", ...workflowRecipes["psadt-update"], version: "1.0", changes: "Configured PSADT v4 update recipe" },
+    { id: "local-publish", ...workflowRecipes["local-publish"], version: "1.0", changes: "Configured local installer publication recipe" },
+    { id: "assignment-defaults", ...workflowRecipes["assignment-defaults"], version: "1.0", changes: "Configured Available, Required and Uninstall assignment defaults" }
+  ];
+  builtInWorkflowSeeds.forEach((item) => policy.seedBuiltIn({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    recipeId: item.id,
+    revision: {
+      version: item.version,
+      state: "Current",
+      tone: "success",
+      author: "PacKit",
+      created: "Included with prototype",
+      changes: item.changes,
+      recipeId: item.id,
+      optionalIds: item.nodes.map((node) => node.id),
+      configuration: item.configuration,
+      values: policyValues(item.nodes.map((node) => node.id), item.configuration)
+    }
+  }));
   const assignableApplications = apps.map(app => ({ ...app, id: app.name, readiness: app.empty ? "Not configured" : "Ready", tone: "neutral" }));
   const workflowRows = () => Object.values(policy.state().workflows).map(item => ({
     ...item, revision: item.revisions[0]?.version || "0.1", revisions: item.revisions.length,
@@ -324,24 +606,29 @@
         h("p", null, "Its effective configuration and validation status will appear here.")
       );
     }
-    const fields = fieldDefinitions[node.id] || [];
+    const fields = fieldDefinitions[node.data.actionType || node.id] || [];
     return h("aside", { className: "workflow-inspector", "aria-label": `${node.data.label} properties` },
       h("header", null,
         h("span", { className: "workflow-inspector-icon" }, h(FluentIcon, { name: node.data.icon })),
         h("div", null,
-          !node.data.required && h("small", null, "Optional workflow step"),
-          h("h2", null, node.data.label),
-          h("p", null, node.data.summary)
+          h("div", { className: "label-with-help" },
+            h("h2", null, node.data.label),
+            h(HelpTip, { label: `${node.data.summary} Assigned applications inherit this configuration; publishing creates a revision for review.` }),
+            node.data.required && h("button", {
+              className: "workflow-inspector-lock wui-help-tip",
+              type: "button",
+              "aria-label": "Required by this workflow template",
+              "data-tooltip": "Required by this workflow template. This action cannot be removed."
+            }, h(FluentIcon, { name: "icon-lock" }))
+          )
         )
       ),
       !node.data.required && !node.data.enabled
         ? h("div", { className: "workflow-optional-prompt" },
             h("strong", null, "Not included in this workflow"),
-            h("p", null, "Add this step to configure it and include it during execution."),
             h("button", { className: "primary-btn", type: "button", onClick: () => onActivate(node.id) }, h(FluentIcon, { name: "icon-add" }), " Add to workflow")
           )
         : h("div", { className: "workflow-inspector-form" },
-            h("p", { className: "policy-meta" }, "Inherited by assigned applications. Local exceptions must be explicitly confirmed; publishing creates a revision for review."),
             fields.map((field) => field.type === "radio"
               ? h("fieldset", { key: field.key, className: "workflow-radio-field" },
                   h("legend", null, field.label),
@@ -356,7 +643,7 @@
                     h("span", null, option)
                   ))
                 )
-              : h("label", { key: field.key, className: field.type === "checkbox" ? "workflow-check-field" : "" },
+              : h("label", { key: field.key, className: `${field.type === "checkbox" ? "workflow-check-field" : ""} ${field.connected ? "workflow-connected-field" : ""}`.trim() },
               field.type === "checkbox"
                 ? [
                     h("input", {
@@ -368,96 +655,168 @@
                     h("span", { key: `${field.key}-label` }, field.label)
                   ]
                 : [
-                    h("span", { key: `${field.key}-label` }, field.label),
+                    h("span", { key: `${field.key}-label`, className: "workflow-field-label" }, field.label, field.required && h("span", { "aria-hidden": "true" }, " *")),
                     field.type === "select"
-                      ? h("select", {
+                      ? h(WorkflowSelect, {
                           key: `${field.key}-input`,
-                          value: configuration[field.key] ?? field.options[0],
+                          value: configuration[field.key] ?? field.value ?? field.options[0],
                           onChange: (event) => onConfigurationChange(node.id, field.key, event.target.value)
                         }, field.options.map((option) => h("option", { key: option }, option)))
-                      : h("input", {
-                          key: `${field.key}-input`,
-                          type: "text",
-                          value: configuration[field.key] ?? field.value ?? "",
-                          onChange: (event) => onConfigurationChange(node.id, field.key, event.target.value)
-                        })
+                      : field.type === "textarea"
+                        ? h("textarea", { key: `${field.key}-input`, rows: 3, value: configuration[field.key] ?? field.value ?? "", onChange: (event) => onConfigurationChange(node.id, field.key, event.target.value) })
+                        : h("input", {
+                            key: `${field.key}-input`,
+                            type: field.type === "number" ? "number" : "text",
+                            value: configuration[field.key] ?? field.value ?? "",
+                            onChange: (event) => onConfigurationChange(node.id, field.key, event.target.value)
+                          }),
+                    field.connected && h("small", { key: `${field.key}-connection`, className: "workflow-field-connection" }, h(FluentIcon, { name: "icon-workflow" }), ` Connected: ${configuration[field.key] ?? field.value}`),
+                    field.help && h("small", { key: `${field.key}-help`, className: "workflow-field-help" }, field.help)
                   ]
             )),
             !node.data.required && h("button", { className: "workflow-remove-step", type: "button", onClick: () => onActivate(node.id, false) }, h(FluentIcon, { name: "icon-dismiss" }), " Remove from workflow")
-          ),
-      h("footer", null,
-        h("span", { className: `status ${node.data.enabled ? "success" : "neutral"}` }, h(FluentIcon, { name: node.data.enabled ? "icon-check" : "icon-add" }), node.data.enabled ? "Configured" : "Available"),
-        h("small", null, "Changes are saved with the workflow draft.")
-      )
+          )
     );
   }
 
-  function WorkflowPalette({ nodes, selectedId, onSelect, onActivate }) {
-    const [requiredExpanded, setRequiredExpanded] = React.useState(true);
-    const [optionalExpanded, setOptionalExpanded] = React.useState(true);
-    const requiredNodes = nodes.filter((node) => node.data.required);
-    const optionalNodes = nodes.filter((node) => !node.data.required);
-    const enabledOptionalCount = optionalNodes.filter((node) => node.data.enabled).length;
-    return h("aside", { className: "workflow-palette", "aria-label": "Workflow steps" },
-      h("header", null, h("h2", null, "Workflow steps"), h("p", null, "Required steps are protected. Add optional behavior where needed.")),
-      h("section", { className: "workflow-palette-group" },
-        h("button", {
-          className: "workflow-palette-section-toggle",
-          type: "button",
-          "aria-expanded": requiredExpanded,
-          "aria-controls": "requiredWorkflowSteps",
-          onClick: () => setRequiredExpanded((expanded) => !expanded)
-        },
-          h("span", null, h("strong", null, "Required backbone"), h("small", null, `${requiredNodes.length} protected steps`)),
-          h(FluentIcon, { name: requiredExpanded ? "icon-chevron-up" : "icon-chevron-down" })
-        ),
-        h("div", { className: "workflow-palette-list required-list", id: "requiredWorkflowSteps", role: "list", "aria-label": "Required workflow steps", hidden: !requiredExpanded }, requiredNodes.map((node) =>
-          h("div", { className: `workflow-palette-item required-item ${node.id === selectedId ? "selected" : ""}`, role: "listitem", key: node.id },
-            h("button", { className: "workflow-palette-select", type: "button", "aria-current": node.id === selectedId ? "step" : undefined, onClick: () => onSelect(node.id) },
-              h(FluentIcon, { name: node.data.icon }),
-              h("span", null, h("strong", null, node.data.label), h("small", null, "Required"))
-            ),
-            h("span", { className: "workflow-palette-fixed", title: "Required step", "aria-label": "Required step" }, h(FluentIcon, { name: "icon-lock" }))
-          )
-        ))
+  function WorkflowPalette({ nodes, selectedId, onSelect, onActivate, onDragStart }) {
+    const [expandedScopes, setExpandedScopes] = React.useState(() => Object.fromEntries(actionScopes.map((scope) => [scope.id, true])));
+    const [query, setQuery] = React.useState("");
+    const [scrollState, setScrollState] = React.useState({ up: false, down: false });
+    const paletteRef = React.useRef(null);
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    const matchingNodes = normalizedQuery
+      ? nodes.filter((node) => [node.data.label, node.data.description, node.data.scope].some((value) => String(value || "").toLocaleLowerCase().includes(normalizedQuery)))
+      : nodes;
+    const visibleScopes = actionScopes.filter((scope) => matchingNodes.some((node) => node.data.scope === scope.id));
+    const syncScrollState = React.useCallback(() => {
+      const palette = paletteRef.current;
+      if (!palette) return;
+      const next = {
+        up: palette.scrollTop > 2,
+        down: palette.scrollTop + palette.clientHeight < palette.scrollHeight - 2
+      };
+      setScrollState((current) => current.up === next.up && current.down === next.down ? current : next);
+    }, []);
+    React.useEffect(() => {
+      const palette = paletteRef.current;
+      if (!palette) return undefined;
+      const frame = requestAnimationFrame(syncScrollState);
+      const observer = new ResizeObserver(syncScrollState);
+      observer.observe(palette);
+      window.addEventListener("resize", syncScrollState);
+      return () => {
+        cancelAnimationFrame(frame);
+        observer.disconnect();
+        window.removeEventListener("resize", syncScrollState);
+      };
+    }, [expandedScopes, normalizedQuery, nodes.length, syncScrollState]);
+    return h("div", { className: "workflow-palette-frame" },
+      h("aside", {
+        ref: paletteRef,
+        className: `workflow-palette ${scrollState.up ? "is-scrolled" : ""}`,
+        "aria-label": "Workflow actions",
+        onScroll: syncScrollState
+      },
+      h("header", null,
+        h("div", { className: "label-with-help" },
+          h("h2", null, "Workflow actions"),
+          h(HelpTip, { label: "Drag actions to the canvas. Locked actions are required by the workflow template." })
+        )
       ),
-      h("section", { className: "workflow-palette-group" },
-        h("button", {
-          className: "workflow-palette-section-toggle",
-          type: "button",
-          "aria-expanded": optionalExpanded,
-          "aria-controls": "optionalWorkflowSteps",
-          onClick: () => setOptionalExpanded((expanded) => !expanded)
-        },
-          h("span", null, h("strong", null, "Optional steps"), h("small", null, `${enabledOptionalCount} of ${optionalNodes.length} added`)),
-          h(FluentIcon, { name: optionalExpanded ? "icon-chevron-up" : "icon-chevron-down" })
-        ),
-        h("div", { className: "workflow-palette-list", id: "optionalWorkflowSteps", role: "list", "aria-label": "Optional workflow steps", hidden: !optionalExpanded }, optionalNodes.map((node) =>
-          h("div", { className: `workflow-palette-item optional-item ${node.data.enabled ? "enabled" : "available"} ${node.id === selectedId ? "selected" : ""}`, role: "listitem", key: node.id },
-            h("button", { className: "workflow-palette-select", type: "button", "aria-current": node.id === selectedId ? "step" : undefined, onClick: () => onSelect(node.id) },
-              h(FluentIcon, { name: node.data.icon }),
-              h("span", null, h("strong", null, node.data.label), h("small", null, node.data.enabled ? "Added" : "Available"))
+      h("label", { className: "workflow-palette-search" },
+        h(FluentIcon, { name: "icon-search" }),
+        h("input", {
+          type: "search",
+          value: query,
+          placeholder: "Search primitives",
+          "aria-label": "Search workflow primitives",
+          onChange: (event) => setQuery(event.target.value)
+        })
+      ),
+      visibleScopes.map((scope) => {
+        const scopedNodes = matchingNodes.filter((node) => node.data.scope === scope.id);
+        const includedCount = scopedNodes.filter((node) => node.data.required || node.data.enabled).length;
+        const expanded = normalizedQuery ? true : expandedScopes[scope.id];
+        return h("section", { className: "workflow-palette-group", key: scope.id },
+          h("div", { className: "workflow-palette-scope-heading" },
+            h("div", { className: "workflow-palette-scope-copy" },
+              h("div", { className: "label-with-help" },
+                h("strong", null, scope.label),
+                h(HelpTip, { label: scope.description })
+              ),
+              h("small", null, `${includedCount} of ${scopedNodes.length}`)
             ),
             h("button", {
-              className: "workflow-palette-toggle icon-btn",
+              className: "workflow-palette-section-toggle",
               type: "button",
-              "aria-pressed": node.data.enabled,
-              "aria-label": node.data.enabled ? `Remove ${node.data.label}` : `Add ${node.data.label}`,
-              title: node.data.enabled ? "Remove from workflow" : "Add to workflow",
-              onClick: () => onActivate(node.id, !node.data.enabled)
-            }, h(FluentIcon, { name: node.data.enabled ? "icon-subtract" : "icon-add" }))
-          )
-        ))
+              "aria-expanded": expanded,
+              "aria-controls": `workflowScope-${scope.id}`,
+              "aria-label": `${expanded ? "Collapse" : "Expand"} ${scope.label}`,
+              onClick: () => setExpandedScopes((current) => ({ ...current, [scope.id]: !current[scope.id] }))
+            },
+              h(FluentIcon, { name: expanded ? "icon-chevron-up" : "icon-chevron-down" })
+            )
+          ),
+          h("div", { className: "workflow-palette-list workflow-scope-list", id: `workflowScope-${scope.id}`, role: "list", "aria-label": `${scope.label} actions`, hidden: !expanded }, scopedNodes.map((node) => {
+            return h("div", { className: `workflow-palette-item ${node.data.required ? "required-item" : "optional-item"} ${node.data.enabled ? "enabled" : "available"} ${node.id === selectedId ? "selected" : ""}`, role: "listitem", key: node.id },
+              h("button", {
+                className: "workflow-palette-select",
+                type: "button",
+                draggable: true,
+                "aria-current": node.id === selectedId ? "step" : undefined,
+                title: `Select ${node.data.label}; drag to add it to the canvas`,
+                onDragStart: (event) => onDragStart(event, node),
+                onDragEnd: (event) => event.currentTarget.closest(".workflow-palette-item")?.classList.remove("dragging"),
+                onClick: () => onSelect(node.id)
+              },
+                h(FluentIcon, { name: node.data.icon }),
+                h("span", null, h("strong", null, node.data.label))
+              ),
+              node.data.required
+                ? h("button", {
+                    className: "workflow-palette-fixed wui-help-tip",
+                    type: "button",
+                    "aria-label": "Required by this workflow template",
+                    "data-tooltip": "Required by this workflow template. This action cannot be removed."
+                  }, h(FluentIcon, { name: "icon-lock" }))
+                : h("button", {
+                    className: "workflow-palette-toggle icon-btn",
+                    type: "button",
+                    "aria-pressed": node.data.enabled,
+                    "aria-label": node.data.enabled ? `Remove ${node.data.label}` : `Add ${node.data.label}`,
+                    title: node.data.enabled ? "Remove from workflow" : "Add to workflow",
+                    onClick: () => onActivate(node.id, !node.data.enabled)
+                  }, h(FluentIcon, { name: node.data.enabled ? "icon-subtract" : "icon-add" })),
+              h("span", {
+                className: "workflow-drag-grip",
+                draggable: true,
+                "aria-hidden": "true",
+                title: "Drag to canvas",
+                onDragStart: (event) => onDragStart(event, node),
+                onDragEnd: (event) => event.currentTarget.closest(".workflow-palette-item")?.classList.remove("dragging")
+              }, Array.from({ length: 6 }, (_, index) => h("i", { key: index })))
+            );
+          }))
+        );
+      }),
+      visibleScopes.length === 0 && h("div", { className: "workflow-palette-empty", role: "status" },
+        h(FluentIcon, { name: "icon-search" }),
+        h("span", null, "No matching primitives")
+      )
       ),
-      h("section", { className: "workflow-legend" },
-        h("h3", null, "Legend"),
-        h("span", null, h("i", { className: "required" }), " Required"),
-        h("span", null, h("i", { className: "optional" }), " Optional")
+      scrollState.up && h("span", { className: "workflow-palette-scroll-cue up", "aria-hidden": "true" },
+        h(FluentIcon, { name: "icon-chevron-up" }),
+        h(FluentIcon, { name: "icon-chevron-up" })
+      ),
+      scrollState.down && h("span", { className: "workflow-palette-scroll-cue down", "aria-hidden": "true" },
+        h(FluentIcon, { name: "icon-chevron-down" }),
+        h(FluentIcon, { name: "icon-chevron-down" })
       )
     );
   }
 
-  function WorkflowContextSidebar({ workflow, nodes, selectedId, onSelect, onActivate, onBack, restoredRevision }) {
+  function WorkflowContextSidebar({ workflow, nodes, selectedId, onSelect, onActivate, onDragStart, onBack, restoredRevision }) {
     return h("div", { className: "workflow-context-sidebar" },
           h("button", { className: "workflow-sidebar-back context-back-button", type: "button", "data-workflow-back": "true", onClick: onBack },
         h(FluentIcon, { name: "icon-chevron-left" }),
@@ -470,18 +829,19 @@
           h("small", null, restoredRevision ? `Unsaved draft from revision v${restoredRevision}` : `Revision v${workflow.revision}`)
         )
       ),
-      h(WorkflowPalette, { nodes, selectedId, onSelect, onActivate })
+      h(WorkflowPalette, { nodes, selectedId, onSelect, onActivate, onDragStart })
     );
   }
 
   function WorkflowListView({ workflows, onOpen, onNew }) {
-    const [showGuidance, setShowGuidance] = React.useState(true);
     return h("div", { className: "workflow-list-view ia-page-frame" },
       h("header", { className: "workflow-list-header ia-page-header" },
         h("span", { className: "ia-page-icon", "aria-hidden": "true" }, h(FluentIcon, { name: "icon-workflow" })),
         h("div", { className: "ia-page-heading" },
-          h("h1", null, "Workflows"),
-          h("p", null, "Create reusable packaging and update automation, then assign it to applications when ready.")
+          h("div", { className: "label-with-help" },
+            h("h1", null, "Workflows"),
+            h(HelpTip, { label: "Create reusable packaging and update automation. Publishing a workflow does not assign it to applications." })
+          )
         ),
         h("div", { className: "ia-page-actions" },
           h("button", { className: "primary-btn", type: "button", "data-workflow-new": "true", onClick: onNew }, h(FluentIcon, { name: "icon-add" }), " New workflow")
@@ -489,7 +849,7 @@
       ),
       h("div", { className: "ia-page-body workflow-list-body" },
       h("section", { className: "workflow-list-card" },
-        h("table", { className: "workflow-list-table", "aria-label": "Available workflows" },
+        h("table", { className: "workflow-list-table wui-data-table", "aria-label": "Available workflows" },
           h("thead", null, h("tr", null,
             h("th", { scope: "col" }, "Workflow"),
             h("th", { scope: "col" }, "Status"),
@@ -501,23 +861,18 @@
           h("tbody", null, workflows.map((workflow) => h("tr", { key: workflow.id },
             h("td", { className: "workflow-list-name" }, h("div", { className: "workflow-list-name-content" },
               h("span", { className: "workflow-list-icon" }, h(FluentIcon, { name: "icon-workflow" })),
-              h("span", null, h("strong", null, workflow.name), h("small", null, workflow.description))
+              h("span", { className: "workflow-list-name-heading" },
+                h("strong", null, workflow.name),
+                h(HelpTip, { label: workflow.description })
+              )
             )),
             h("td", null, h("span", { className: "status neutral" }, workflow.status)),
-            h("td", null, h("strong", null, workflow.applications), h("small", null, workflow.applications === 1 ? "application" : "applications")),
-            h("td", null, h("strong", null, workflow.revisions), h("small", null, `Current v${workflow.revision}`)),
-            h("td", null, h("strong", null, "0 runs"), h("small", null, `${workflow.previews || 0} configuration previews`)),
+            h("td", null, h("strong", null, workflow.applications)),
+            h("td", null, h("strong", null, workflow.revisions), h("small", null, `v${workflow.revision}`)),
+            h("td", null, h("strong", null, workflow.runs || 0), workflow.previews > 0 && h("small", null, `${workflow.previews} previews`)),
             h("td", null, h("button", { type: "button", "data-workflow-open": workflow.id, onClick: () => onOpen(workflow.id) }, "Open workflow", h(FluentIcon, { name: "icon-arrow-right" })))
           )))
         )
-      ),
-      showGuidance && h("div", { className: "workflow-list-note wui-info-bar informational", role: "note" },
-        h(FluentIcon, { name: "icon-info" }),
-        h("span", { className: "wui-info-bar-content" },
-          h("strong", null, "Start with the PacKit workflow, then make it yours"),
-          h("small", null, "No applications are affected until you assign and publish the workflow.")
-        ),
-        h("button", { className: "wui-info-bar-close", type: "button", "aria-label": "Dismiss message", title: "Dismiss", onClick: () => setShowGuidance(false) }, h(FluentIcon, { name: "icon-dismiss" }))
       )
       )
     );
@@ -670,11 +1025,44 @@
   function ApplicationsView({ workflow, applications, availableApplications, onAssign, onRemove }) {
     const [selected, setSelected] = React.useState(new Set());
     const [showAssignDialog, setShowAssignDialog] = React.useState(false);
+    const selectAllRef = React.useRef(null);
+    const tableRef = React.useRef(null);
+    const selectionCommandRef = React.useRef(null);
     const canAssign = Boolean(policy.latest(workflow.id));
+    const allSelected = applications.length > 0 && selected.size === applications.length;
 
     React.useEffect(() => {
       setSelected((current) => new Set(Array.from(current).filter((id) => applications.some((app) => app.id === id))));
     }, [applications]);
+
+    React.useEffect(() => {
+      if (selectAllRef.current) selectAllRef.current.indeterminate = selected.size > 0 && !allSelected;
+    }, [selected, allSelected]);
+
+    React.useEffect(() => {
+      if (selected.size === 0 || !tableRef.current || !selectionCommandRef.current) return undefined;
+
+      const alignSelectionCommand = () => {
+        const tableBounds = tableRef.current?.getBoundingClientRect();
+        const command = selectionCommandRef.current;
+        if (!tableBounds || !command) return;
+        const visibleLeft = Math.max(0, tableBounds.left);
+        const visibleRight = Math.min(window.innerWidth, tableBounds.right);
+        command.style.left = `${visibleLeft + ((visibleRight - visibleLeft) / 2)}px`;
+      };
+
+      const scrollContainer = tableRef.current.closest('[role="tabpanel"]');
+      const resizeObserver = window.ResizeObserver ? new ResizeObserver(alignSelectionCommand) : null;
+      alignSelectionCommand();
+      resizeObserver?.observe(tableRef.current);
+      window.addEventListener("resize", alignSelectionCommand);
+      scrollContainer?.addEventListener("scroll", alignSelectionCommand, { passive: true });
+      return () => {
+        resizeObserver?.disconnect();
+        window.removeEventListener("resize", alignSelectionCommand);
+        scrollContainer?.removeEventListener("scroll", alignSelectionCommand);
+      };
+    }, [selected.size]);
 
     const toggle = (id) => setSelected((current) => {
       const next = new Set(current);
@@ -682,13 +1070,17 @@
       return next;
     });
 
+    const toggleAll = () => {
+      setSelected(allSelected ? new Set() : new Set(applications.map((app) => app.id)));
+    };
+
     const removeSelected = () => {
       if (selected.size === 0) return;
       onRemove(Array.from(selected));
       setSelected(new Set());
     };
 
-    return h("div", { className: "workflow-applications-view" },
+    return h("div", { className: `workflow-applications-view ${selected.size > 0 ? "has-selection" : ""}` },
       h("section", { className: "workflow-bulk-card" },
         h("header", null,
           h("div", null,
@@ -696,7 +1088,6 @@
             h("p", null, applications.length === 0 ? "Applications assigned to this workflow will appear here." : `${applications.length} ${applications.length === 1 ? "application uses" : "applications use"} this workflow.`)
           ),
           h("div", { className: "workflow-bulk-actions" },
-            applications.length > 0 && h("button", { className: "workflow-remove-app", type: "button", disabled: selected.size === 0, onClick: removeSelected }, h(FluentIcon, { name: "icon-dismiss" }), " Remove app from workflow"),
             h("button", { className: "primary-btn", type: "button", disabled: !canAssign, title: canAssign ? "Assign a published revision" : "Publish a revision before assigning applications", onClick: () => setShowAssignDialog(true) }, h(FluentIcon, { name: "icon-add" }), " Assign applications")
           )
         ),
@@ -707,19 +1098,39 @@
               h("p", null, canAssign ? "Assign applications to use this workflow for future package updates." : "Publish a revision before assigning applications."),
               h("button", { className: "primary-btn", type: "button", disabled: !canAssign, onClick: () => setShowAssignDialog(true) }, h(FluentIcon, { name: "icon-add" }), " Assign applications")
             )
-          : h("div", { className: "workflow-app-table", role: "table", "aria-label": "Applications assigned to this workflow" },
-              h("div", { className: "workflow-app-row heading", role: "row" }, h("span", null), h("span", null, "Application"), h("span", null, "Current version"), h("span", null, "Publisher"), h("span", null, "Workflow")),
-              applications.map((app) => h("label", { className: `workflow-app-row ${selected.has(app.id) ? "selected" : ""}`, role: "row", key: app.id },
-                h("span", null, h("input", { type: "checkbox", checked: selected.has(app.id), onChange: () => toggle(app.id), "aria-label": `Select ${app.name}` })),
-                h("strong", null, app.name),
-                h("span", null, app.version),
-                h("span", null, app.publisher),
-                h("span", null,
-                  h("span", { className: "policy-meta" }, `Pinned v${policy.state().applications[app.id]?.binding?.revision} · ${Object.keys(policy.state().applications[app.id]?.overrides || {}).length} application exceptions · ${Object.values(policy.state().applications[app.id]?.versions || {}).reduce((sum, version) => sum + Object.keys(version.overrides).length, 0)} version exceptions`),
-                  h("button", { type: "button", onClick: () => window.packitPolicyUI.openApplication(app.id) }, "View configuration")
-                )
-              ))
-            )
+          : h("div", { ref: tableRef, className: "workflow-app-table wui-data-table", role: "table", "aria-label": "Applications assigned to this workflow" },
+              h("div", { className: "workflow-app-row heading", role: "row" },
+                h("span", { className: "workflow-app-select", role: "columnheader" },
+                  h("input", { ref: selectAllRef, type: "checkbox", checked: allSelected, onChange: toggleAll, "aria-label": "Select all applications" })
+                ),
+                h("span", { role: "columnheader" }, "Application"),
+                h("span", { role: "columnheader" }, "Current version"),
+                h("span", { role: "columnheader" }, "Publisher"),
+                h("span", { role: "columnheader" }, "Exceptions"),
+                h("span", { role: "columnheader" }, "Configuration")
+              ),
+              applications.map((app) => {
+                const applicationExceptions = Object.keys(policy.state().applications[app.id]?.overrides || {}).length;
+                const versionExceptions = Object.values(policy.state().applications[app.id]?.versions || {}).reduce((sum, version) => sum + Object.keys(version.overrides).length, 0);
+                const exceptionSummary = applicationExceptions || versionExceptions
+                  ? `${applicationExceptions} application · ${versionExceptions} version`
+                  : "None";
+                return h("div", { className: `workflow-app-row ${selected.has(app.id) ? "selected" : ""}`, role: "row", key: app.id },
+                  h("span", { className: "workflow-app-select", role: "cell" }, h("input", { type: "checkbox", checked: selected.has(app.id), onChange: () => toggle(app.id), "aria-label": `Select ${app.name}` })),
+                  h("strong", { role: "cell" }, app.name),
+                  h("span", { role: "cell" }, app.version),
+                  h("span", { role: "cell" }, app.publisher),
+                  h("span", { className: "workflow-app-exceptions", role: "cell" }, exceptionSummary),
+                  h("span", { className: "workflow-app-action", role: "cell" },
+                    h("button", { type: "button", onClick: () => window.packitPolicyUI.openApplication(app.id) }, "View configurations")
+                  )
+                );
+              })
+            ),
+        selected.size > 0 && h("div", { ref: selectionCommandRef, className: "workflow-selection-command", role: "toolbar", "aria-label": "Selected application actions" },
+          h("span", { role: "status", "aria-live": "polite" }, `${selected.size} ${selected.size === 1 ? "application" : "applications"} selected`),
+          h("button", { className: "workflow-remove-app", type: "button", onClick: removeSelected }, h(FluentIcon, { name: "icon-dismiss" }), " Remove from workflow")
+        )
       ),
       showAssignDialog && h(AssignApplicationsDialog, { workflow, applications: availableApplications, onAssign, onClose: () => setShowAssignDialog(false) })
     );
@@ -728,10 +1139,10 @@
   function RunsView({ workflow }) {
     const previews = policy.state().previews.filter(item => item.binding?.workflowId === workflow.id);
     return h("section", { className: "workflow-simple-view" },
-      h("header", null, h("div", null, h("h2", null, "Runs and configuration previews"), h("p", null, "Previews capture configuration only. No deployment or external drift check is performed."))),
+      h("header", null, h("div", null, h("h2", null, "Runs and configuration snapshots"), h("p", null, "Snapshots record resolved configuration only. They are not deployment previews or external drift checks."))),
       previews.length ? h("div", { className: "policy-run-list" }, previews.map(item => h("div", { key: item.id, className: "policy-row" },
         h("span", null, h("strong", null, item.application), h("small", null, `${item.version} · v${item.binding.revision} · ${new Date(item.created).toLocaleString()}`)),
-        h("span", null, "Configuration preview"),
+        h("span", null, "Configuration snapshot"),
         h("button", { type: "button", onClick: () => window.packitPolicyUI.showSnapshot(item) }, "View snapshot")
       ))) :
       h("div", { className: "workflow-empty-state" },
@@ -746,17 +1157,17 @@
     const rows = policy.state().workflows[workflow.id].revisions.map((row, index) => ({ ...row, state: index ? "Published" : "Latest published", tone: "neutral", changes: "Immutable configuration snapshot" }));
     return h("section", { className: "workflow-simple-view" },
       h("header", null, h("div", null, h("h2", null, "Workflow revisions"), h("p", null, "Draft changes remain isolated until a revision is published."))),
-      h("div", { className: "workflow-simple-table revisions", role: "table", "aria-label": "Workflow revision history" },
-        h("div", { className: "heading", role: "row" }, h("span", null, "Revision"), h("span", null, "State"), h("span", null, "Author"), h("span", null, "Created"), h("span", null, "Changes"), h("span", null, "Actions")),
+      h("div", { className: "workflow-simple-table revisions wui-data-table", role: "table", "aria-label": "Workflow revision history" },
+        h("div", { className: "heading", role: "row" }, h("span", { role: "columnheader" }, "Revision"), h("span", { role: "columnheader" }, "State"), h("span", { role: "columnheader" }, "Author"), h("span", { role: "columnheader" }, "Created"), h("span", { role: "columnheader" }, "Changes"), h("span", { role: "columnheader" }, "Actions")),
         rows.map((row, index) => h("div", { key: row.version, role: "row" },
-          h("strong", null, `v${row.version}`),
-          h("span", { className: `status ${row.tone}` }, row.state),
-          h("span", null, row.author),
-          h("span", null, row.created),
-          h("span", null, row.changes),
+          h("strong", { role: "cell" }, `v${row.version}`),
+          h("span", { className: `status ${row.tone}`, role: "cell" }, row.state),
+          h("span", { role: "cell" }, row.author),
+          h("span", { role: "cell" }, row.created),
+          h("span", { role: "cell" }, row.changes),
           index === 0
-            ? h("span", { className: "workflow-current-revision" }, h(FluentIcon, { name: "icon-check" }), " Current revision")
-            : h("button", { type: "button", onClick: () => onRevert(row) }, h(FluentIcon, { name: "icon-history" }), " Revert to revision")
+            ? h("span", { className: "workflow-current-revision", role: "cell" }, h(FluentIcon, { name: "icon-check" }), " Current revision")
+            : h("span", { role: "cell" }, h("button", { type: "button", onClick: () => onRevert(row) }, h(FluentIcon, { name: "icon-history" }), " Revert to revision"))
         ))
       )
     );
@@ -783,20 +1194,38 @@
     const [pageMode, setPageMode] = React.useState("list");
     const [workflowId, setWorkflowId] = React.useState(starterWorkflow.id);
     const [activeView, setActiveView] = React.useState("design");
-    const [nodes, setNodes, onNodesChange] = useNodesState(createInitialNodes());
-    const [edges, setEdges, onEdgesChange] = useEdgesState(createInitialEdges());
-    const [selectedNodeId, setSelectedNodeId] = React.useState("source");
-    const [configuration, setConfiguration] = React.useState({});
+    const [nodes, setNodes, onNodesChange] = useNodesState(createInitialNodes("starter"));
+    const [edges, setEdges, onEdgesChange] = useEdgesState(createInitialEdges("starter"));
+    const [selectedNodeId, setSelectedNodeId] = React.useState("selectWorkspace");
+    const [configuration, setConfiguration] = React.useState(workflowRecipes.starter.configuration);
+    const [activeRecipeId, setActiveRecipeId] = React.useState("starter");
     const [dirty, setDirty] = React.useState(false);
     const [canPublish, setCanPublish] = React.useState(false);
     const [isNewWorkflow, setIsNewWorkflow] = React.useState(false);
     const [showDiscardDialog, setShowDiscardDialog] = React.useState(false);
     const [restoredRevision, setRestoredRevision] = React.useState(null);
     const [theme, setTheme] = React.useState(document.body.dataset.theme || "light");
+    const [flowInstance, setFlowInstance] = React.useState(null);
+    const [dropActive, setDropActive] = React.useState(false);
 
     const workflow = workflows.find((item) => item.id === workflowId) || workflows[0];
+    const changeConfiguration = (nodeId, key, value) => {
+      setConfiguration((current) => ({ ...current, [nodeId]: { ...(current[nodeId] || {}), [key]: value } }));
+      setDirty(true);
+      setCanPublish(false);
+    };
     const selectedNode = nodes.find((node) => node.id === selectedNodeId);
-    const visibleNodes = nodes.filter((node) => node.data.required || node.data.enabled);
+    const visibleNodes = nodes
+      .filter((node) => node.data.required || node.data.enabled)
+      .map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          configuration: configuration[node.id] || {},
+          onConfigurationChange: changeConfiguration,
+          onRemove: (id) => activateNode(id, false)
+        }
+      }));
     const visibleNodeIds = new Set(visibleNodes.map((node) => node.id));
     const visibleEdges = edges.filter((edge) => visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target));
 
@@ -855,17 +1284,89 @@
     }, [pageMode]);
 
     const selectNode = (id) => setSelectedNodeId(id);
+    const startPaletteDrag = (event, node) => {
+      event.currentTarget.closest(".workflow-palette-item")?.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "copyMove";
+      const payload = JSON.stringify({ nodeId: node.id, actionType: node.data.actionType || node.id, label: node.data.label });
+      event.dataTransfer.setData("application/x-packit-workflow-action", payload);
+      event.dataTransfer.setData("text/plain", payload);
+    };
+    const dragOverCanvas = (event) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+      setDropActive(true);
+    };
+    const leaveCanvas = (event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setDropActive(false);
+    };
+    const dropOnCanvas = (event) => {
+      event.preventDefault();
+      setDropActive(false);
+      if (!flowInstance) return;
+      let payload;
+      try {
+        payload = JSON.parse(event.dataTransfer.getData("application/x-packit-workflow-action") || event.dataTransfer.getData("text/plain"));
+      } catch { return; }
+      const definition = actionCatalog.find((action) => action.id === payload.actionType);
+      if (!definition) return;
+      const point = { x: event.clientX, y: event.clientY };
+      const canvasBounds = event.currentTarget.getBoundingClientRect();
+      const position = typeof flowInstance.screenToFlowPosition === "function"
+        ? flowInstance.screenToFlowPosition(point)
+        : flowInstance.project({ x: point.x - canvasBounds.left, y: point.y - canvasBounds.top });
+      setNodes((current) => current.map((node) => node.id === payload.nodeId ? {
+        ...node,
+        position,
+        data: { ...node.data, enabled: true, status: "configured" }
+      } : node));
+      setConfiguration((current) => current[payload.nodeId] ? current : { ...current, [payload.nodeId]: defaultActionConfiguration(payload.actionType) });
+      setSelectedNodeId(payload.nodeId);
+      setDirty(true);
+      setCanPublish(false);
+    };
+    const connectNodes = React.useCallback((connection) => {
+      setEdges((current) => addEdge({
+        ...connection,
+        type: "smoothstep",
+        markerEnd: { type: MarkerType.ArrowClosed },
+        className: "workflow-core-edge"
+      }, current));
+      setDirty(true);
+      setCanPublish(false);
+    }, [setEdges]);
+    const handleNodesChange = React.useCallback((changes) => {
+      onNodesChange(changes);
+      if (changes.some((change) => change.type === "position" && change.dragging === false)) {
+        setDirty(true);
+        setCanPublish(false);
+      }
+    }, [onNodesChange]);
+    const handleEdgesChange = React.useCallback((changes) => {
+      onEdgesChange(changes);
+      if (changes.some((change) => change.type === "remove")) {
+        setDirty(true);
+        setCanPublish(false);
+      }
+    }, [onEdgesChange]);
     const activateNode = (id, enabled = true) => {
-      setNodes((current) => current.map((node) => node.id === id ? { ...node, data: { ...node.data, enabled, status: enabled ? "configured" : "available" } } : node));
+      setNodes((current) => current.map((node) => {
+        const activated = current.find((candidate) => candidate.id === id);
+        const activatedType = activated?.data.actionType || id;
+        const nodeType = node.data.actionType || node.id;
+        const mutuallyExclusive = enabled && ((activatedType === "wrapPsadt" && nodeType === "unwrapPsadt") || (activatedType === "unwrapPsadt" && nodeType === "wrapPsadt"));
+        if (mutuallyExclusive) return { ...node, data: { ...node.data, enabled: false, status: "available" } };
+        return node.id === id ? { ...node, data: { ...node.data, enabled, status: enabled ? "configured" : "available" } } : node;
+      }));
       setSelectedNodeId(id);
       setDirty(true);
       setCanPublish(false);
     };
-    const resetEditor = () => {
-      setNodes(createInitialNodes());
-      setEdges(createInitialEdges());
-      setConfiguration({});
-      setSelectedNodeId("source");
+    const resetEditor = (recipeId = "starter", nextConfiguration = workflowRecipes[recipeId]?.configuration || {}) => {
+      setActiveRecipeId(recipeId);
+      setNodes(createInitialNodes(recipeId));
+      setEdges(createInitialEdges(recipeId));
+      setConfiguration(JSON.parse(JSON.stringify(nextConfiguration)));
+      setSelectedNodeId("selectWorkspace");
       setActiveView("design");
       setDirty(false);
       setCanPublish(false);
@@ -883,27 +1384,36 @@
     const requestExit = () => dirty ? setShowDiscardDialog(true) : returnToList();
     const discardChanges = () => returnToList({ discardNew: true });
     const openWorkflow = (id) => {
-      resetEditor();
       const stored = policy.state().workflows[id];
       if (!stored) return;
       const saved = stored.draft || stored.revisions[0];
+      const recipeId = saved?.recipeId || stored.recipeId || (workflowRecipes[id] ? id : "starter");
+      resetEditor(recipeId, saved?.configuration || workflowRecipes[recipeId]?.configuration || {});
       if (saved) {
-        setConfiguration(saved.configuration);
-        setNodes(createInitialNodes().map(node => ({ ...node, data: { ...node.data, enabled: node.data.required || saved.optionalIds.includes(node.id) } })));
+        const enabledIds = new Set(saved.optionalIds || []);
+        const savedNodes = saved.graph?.nodes ? hydrateWorkflowNodes(saved.graph.nodes, saved.graph.layoutVersion) : createInitialNodes(recipeId);
+        setNodes(savedNodes.map(node => ({
+          ...node,
+          data: {
+            ...node.data,
+            enabled: node.data.required || enabledIds.has(node.id),
+            status: node.data.required || enabledIds.has(node.id) ? "configured" : "available"
+          }
+        })));
+        if (saved.graph?.edges) setEdges(hydrateWorkflowEdges(saved.graph.edges));
       }
       setCanPublish(Boolean(stored.draft));
       setWorkflowId(id);
       setPageMode("editor");
       setIsNewWorkflow(false);
     };
-    const changeConfiguration = (nodeId, key, value) => {
-      setConfiguration((current) => ({ ...current, [nodeId]: { ...(current[nodeId] || {}), [key]: value } }));
-      setDirty(true);
-      setCanPublish(false);
-    };
     const revertToRevision = (revision) => {
+      const recipeId = revision.recipeId || activeRecipeId;
       const enabledOptionalIds = new Set(revision.optionalIds);
-      setNodes((current) => current.map((node) => ({
+      setActiveRecipeId(recipeId);
+      setEdges(revision.graph?.edges ? hydrateWorkflowEdges(revision.graph.edges) : createInitialEdges(recipeId));
+      const revisionNodes = revision.graph?.nodes ? hydrateWorkflowNodes(revision.graph.nodes, revision.graph.layoutVersion) : createInitialNodes(recipeId);
+      setNodes(revisionNodes.map((node) => ({
         ...node,
         data: {
           ...node.data,
@@ -912,15 +1422,15 @@
         }
       })));
       setConfiguration(JSON.parse(JSON.stringify(revision.configuration)));
-      setSelectedNodeId("source");
+      setSelectedNodeId("selectWorkspace");
       setRestoredRevision(revision.version);
       setDirty(true);
       setCanPublish(false);
       setActiveView("design");
     };
     const saveDraft = () => {
-      const optionalIds = nodes.filter(node => !node.data.required && node.data.enabled).map(node => node.id);
-      policy.saveDraft(workflow.id, { configuration, optionalIds, values: policyValues(optionalIds, configuration) });
+      const optionalIds = nodes.filter(node => node.data.enabled).map(node => node.id);
+      policy.saveDraft(workflow.id, { recipeId: activeRecipeId, configuration, optionalIds, graph: serializeWorkflowGraph(nodes, edges), values: policyValues(optionalIds, configuration) });
       setDirty(false);
       setCanPublish(true);
       setIsNewWorkflow(false);
@@ -939,7 +1449,7 @@
       const created = { id, name: "Untitled update workflow", description: "New workflow created from the PacKit required backbone.", revision: "0.1", revisions: 1, applications: 0, runs: 0, status: "Draft", modified: "Just now" };
       policy.create(id, created.name, created.description);
       setWorkflowId(id);
-      resetEditor();
+      resetEditor("starter", workflowRecipes.starter.configuration);
       setPageMode("editor");
       setDirty(true);
       setCanPublish(false);
@@ -973,14 +1483,20 @@
 
     return h(React.Fragment, null,
       sidebarRootElement && ReactDOM.createPortal(
-        h(WorkflowContextSidebar, { workflow, nodes, selectedId: selectedNodeId, onSelect: selectNode, onActivate: activateNode, onBack: requestExit, restoredRevision }),
+        h(WorkflowContextSidebar, { workflow, nodes, selectedId: selectedNodeId, onSelect: selectNode, onActivate: activateNode, onDragStart: startPaletteDrag, onBack: requestExit, restoredRevision }),
         sidebarRootElement
       ),
       h("div", { className: "workflow-workspace" },
       h("header", { className: "workflow-commandbar", role: "toolbar", "aria-label": "Workflow commands" },
         h("div", { className: "workflow-command-identity" },
           h("span", { className: "workflow-command-icon" }, h(FluentIcon, { name: "icon-workflow" })),
-          h("div", null, h("strong", null, workflow.name), h("span", null, restoredRevision ? `Unsaved draft from revision v${restoredRevision}` : `Revision v${workflow.revision}`))
+          h("div", null,
+            h("strong", null, workflow.name),
+            h("span", { className: "workflow-command-meta" },
+              h("span", null, restoredRevision ? `Unsaved draft from revision v${restoredRevision}` : `Revision v${workflow.revision}`),
+              h(HelpTip, { label: "Published revisions are immutable. Assigned applications remain pinned to their revision until an update is reviewed." })
+            )
+          )
         ),
         h("div", { className: "workflow-command-actions" },
           h("button", { type: "button", onClick: requestExit }, "Cancel"),
@@ -993,25 +1509,26 @@
           h("button", { key: item[0], id: `workflow-tab-${item[0]}`, type: "button", role: "tab", tabIndex: activeView === item[0] ? 0 : -1, className: activeView === item[0] ? "active" : "", "aria-selected": activeView === item[0], "aria-controls": `workflow-panel-${item[0]}`, onKeyDown: (event) => selectAdjacentTab(event, index), onClick: () => setActiveView(item[0]) }, h(FluentIcon, { name: item[2] }), item[1])
         )
       ),
-      h("div", { className: "policy-workflow-notice wui-info-bar informational", role: "note" },
-        h(FluentIcon, { name: "icon-info" }),
-        h("span", null, "Published revisions are immutable. Applications keep their pinned revision and exceptions until an update is reviewed. Existing versions retain their recorded configuration.")
-      ),
       activeView === "design" && h("div", { className: "workflow-design-layout", id: "workflow-panel-design", role: "tabpanel", "aria-labelledby": "workflow-tab-design", tabIndex: 0 },
-        h("section", { className: "workflow-canvas", "aria-label": "Workflow canvas" },
+        h("section", { className: `workflow-canvas ${dropActive ? "is-drop-target" : ""}`, "aria-label": "Workflow canvas" },
           h(FlowCanvas, {
             nodes: visibleNodes,
             edges: visibleEdges,
             nodeTypes,
-            onNodesChange,
-            onEdgesChange,
+            onInit: setFlowInstance,
+            onNodesChange: handleNodesChange,
+            onEdgesChange: handleEdgesChange,
+            onConnect: connectNodes,
+            onDragOver: dragOverCanvas,
+            onDragLeave: leaveCanvas,
+            onDrop: dropOnCanvas,
             onNodeClick: (_event, node) => setSelectedNodeId(node.id),
             isValidConnection,
             deleteKeyCode: null,
-            defaultViewport: { x: 105, y: 20, zoom: 0.78 },
+            defaultViewport: { x: 105, y: 20, zoom: 0.86 },
             minZoom: 0.45,
             maxZoom: 1.4,
-            nodesConnectable: false,
+            nodesConnectable: true,
             nodesFocusable: true,
             edgesFocusable: true,
             autoPanOnNodeFocus: true,
@@ -1022,7 +1539,9 @@
             h(Controls, { showInteractive: false }),
             h(MiniMap, { pannable: true, zoomable: true, nodeStrokeWidth: 3 })
           ),
-          h("div", { className: "workflow-canvas-hint" }, h(FluentIcon, { name: "icon-info" }), " Select a node to configure it. Required steps cannot be deleted.")
+          h("div", { className: "workflow-canvas-help" },
+            h(HelpTip, { label: "Drag actions from the left, connect their handles, and edit common options in place. Full configuration remains in Properties." })
+          )
         ),
         h(WorkflowInspector, { node: selectedNode, configuration: configuration[selectedNodeId] || {}, onConfigurationChange: changeConfiguration, onActivate: activateNode })
       ),

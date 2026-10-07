@@ -11,7 +11,10 @@
     { id: 'it', name: 'IT administrators', type: 'Users', details: 'Security group' },
     { id: 'production', name: 'Production devices', type: 'Devices', details: 'Dynamic device group' },
     { id: 'retired', name: 'Retired devices', type: 'Devices', details: 'Assigned device group' },
-    { id: 'exceptions', name: 'Deployment exceptions', type: 'Devices', details: 'Assigned device group' }
+    { id: 'exceptions', name: 'Deployment exceptions', type: 'Devices', details: 'Assigned device group' },
+    { id: 'packit-pilot', name: 'PacKit - Application Pilot Users', type: 'Users', details: 'Workflow-managed group' },
+    { id: 'packit-managed', name: 'PacKit - Managed Windows Devices', type: 'Devices', details: 'Workflow-managed group' },
+    { id: 'packit-retired', name: 'PacKit - Legacy Application Removal', type: 'Devices', details: 'Workflow-managed group' }
   ];
   const tags = ['Default', 'Packaging', 'Endpoint Engineering', 'Finance', 'Test'];
   const intents = {
@@ -31,6 +34,7 @@
     codes: [{code:'0',type:'Success'}, {code:'1707',type:'Success'}, {code:'3010',type:'Soft reboot'}, {code:'1641',type:'Hard reboot'}, {code:'1618',type:'Retry'}]
   });
   let state = defaults(true);
+  let managedIntents = {};
   let scope = '';
   const saved = new Map();
   const storageKey = 'packit-deployment-v1';
@@ -43,7 +47,7 @@
 
   function announce(message) { document.querySelector('#deploymentAnnouncement').textContent = message; }
   function changed(message) {
-    markVersionConfigurationDirty();
+    markVersionConfigurationDirty('deployment');
     syncSummary();
     if (message) announce(message);
   }
@@ -60,10 +64,10 @@
   function renderAssignments() {
     document.querySelector('#deploymentAssignments').innerHTML = Object.entries(intents).map(([intent, info]) => `
       <section class="deploy-intent" aria-labelledby="deploy-${intent}-title">
-        <header class="deploy-toolbar"><div class="label-with-help"><h3 id="deploy-${intent}-title">${info.name}</h3>${help(info.name, info.help)}<span class="deploy-meta">${state.assignments[intent].length}</span></div><button type="button" data-add-groups="${intent}">${icon(state.assignments[intent].length ? 'people' : 'add')} ${state.assignments[intent].length ? 'Edit groups' : 'Add groups'}</button></header>
-        ${state.assignments[intent].length ? `<table class="deploy-table"><caption class="visually-hidden">${info.name} group assignments</caption><thead><tr><th scope="col">Group</th><th scope="col">Targeting</th><th scope="col"><span class="visually-hidden">Remove</span></th></tr></thead><tbody>${state.assignments[intent].map(row => {
+        <header class="deploy-toolbar"><div class="label-with-help"><h3 id="deploy-${intent}-title">${info.name}</h3>${help(info.name, info.help)}${managedIntents[intent] ? `<button class="wui-help-tip" type="button" aria-label="${escape(managedIntents[intent].tooltip)}" data-tooltip="${escape(managedIntents[intent].tooltip)}">${icon('lock')}</button>` : ''}<span class="deploy-meta">${state.assignments[intent].length}</span></div><button type="button" ${managedIntents[intent] ? `data-edit-managed-intent="${intent}"` : `data-add-groups="${intent}"`}>${icon(managedIntents[intent] ? 'settings' : state.assignments[intent].length ? 'people' : 'add')} ${managedIntents[intent] ? 'Edit exception' : state.assignments[intent].length ? 'Edit groups' : 'Add groups'}</button></header>
+        ${state.assignments[intent].length ? `<table class="deploy-table wui-data-table"><caption class="visually-hidden">${info.name} group assignments</caption><thead><tr><th scope="col">Group</th><th scope="col">Targeting</th><th scope="col"><span class="visually-hidden">Remove</span></th></tr></thead><tbody>${state.assignments[intent].map(row => {
           const group = groups.find(group => group.id === row.id);
-          return `<tr><td><span class="deploy-group-name">${icon('people')}<span>${group.name}<small>${group.type}</small></span></span></td><td>${row.target === 'include' ? 'Included' : 'Excluded'}</td><td>${removeButton(`Remove ${group.name} from ${info.name}`, `data-remove-group="${row.id}" data-intent="${intent}"`)}</td></tr>`;
+          return `<tr><td><span class="deploy-group-name">${icon('people')}<span>${group.name}<small>${group.type}</small></span></span></td><td>${row.target === 'include' ? 'Included' : 'Excluded'}</td><td>${removeButton(`Remove ${group.name} from ${info.name}`, `data-remove-group="${row.id}" data-intent="${intent}" ${managedIntents[intent] ? 'disabled' : ''}`)}</td></tr>`;
         }).join('')}</tbody></table>` : `<p class="deploy-empty">No groups assigned.</p>`}
       </section>`).join('');
   }
@@ -143,7 +147,7 @@
     }
 
     const filtered = groups.filter(group => `${group.name} ${group.type} ${group.details}`.toLowerCase().includes(query));
-    dialog.querySelector('#deploymentPickerOptions').innerHTML = filtered.length ? `<table class="deploy-picker-table"><caption class="visually-hidden">Include or exclude groups</caption><thead><tr><th scope="col">Include</th><th scope="col">Exclude</th><th scope="col">Group</th><th scope="col">Details</th></tr></thead><tbody>${filtered.map(group => {
+    dialog.querySelector('#deploymentPickerOptions').innerHTML = filtered.length ? `<table class="deploy-picker-table wui-data-table"><caption class="visually-hidden">Include or exclude groups</caption><thead><tr><th scope="col">Include</th><th scope="col">Exclude</th><th scope="col">Group</th><th scope="col">Details</th></tr></thead><tbody>${filtered.map(group => {
       const selected = picked.get(group.id);
       const includeConflict = conflict(group.id, 'include');
       return `<tr${selected ? ` class="is-selected ${selected}"` : ''}>
@@ -213,6 +217,7 @@
     const button = event.target.closest('button');
     if (!button) return;
     if (button.dataset.addGroups) openPicker(button.dataset.addGroups, button);
+    if (button.dataset.editManagedIntent) window.packitPolicyUI?.editManagedAssignment(managedIntents[button.dataset.editManagedIntent]?.key);
     if (button.id === 'deploymentChooseTags') openPicker(null, button);
     if (button.dataset.removeGroup) {
       const intent = button.dataset.intent;
@@ -257,8 +262,27 @@
     restore(value) { state = clone(value || defaults()); render(); },
     select(app, version) {
       scope = JSON.stringify([app, version]);
+      managedIntents = {};
       state = clone(saved.get(scope) || defaults(app === 'Contoso Finance Tools' && version === '12.3.123'));
       render();
+    },
+    setManagedAssignments(items = []) {
+      managedIntents = {};
+      for (const item of items) {
+        if (!intents[item.intent]) continue;
+        managedIntents[item.intent] = item;
+        const names = String(item.groups || '').split(/[\n,]/).map(name => name.trim()).filter(Boolean);
+        state.assignments[item.intent] = names.map(name => {
+          let group = groups.find(candidate => candidate.name === name);
+          if (!group) {
+            group = { id: `workflow-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, name, type: 'Group', details: 'Workflow-managed group' };
+            groups.push(group);
+          }
+          return { id: group.id, target: 'include' };
+        });
+      }
+      renderAssignments();
+      syncSummary();
     },
     commit() {
       saved.set(scope, clone(state));

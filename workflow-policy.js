@@ -44,12 +44,18 @@
     }
     function register(definitions, nodes, catalog, history = []) {
       schema = {};
+      const actionNodeIds = new Set(nodes.filter((node) => node.category === "control" || node.category === "domain" || node.category === "primitive").map((node) => node.id));
       for (const node of nodes) for (const field of definitions[node.id] || []) {
-        schema[`${node.id}.${field.key}`] = { ...clone(field), node: node.id, group: node.label, required: node.required };
+        schema[`${node.id}.${field.key}`] = { ...clone(field), node: node.id, group: node.label, required: node.required, actionCatalog: actionNodeIds.has(node.id) };
       }
-      const valuesFor = (optionalIds, configuration = {}) => Object.fromEntries(Object.entries(schema)
-        .filter(([, field]) => field.required || optionalIds.includes(field.node))
+      const valuesFor = (optionalIds, configuration = {}) => {
+        const usesActionCatalog = optionalIds.some((nodeId) => actionNodeIds.has(nodeId));
+        return Object.fromEntries(Object.entries(schema)
+        .filter(([, field]) => usesActionCatalog
+          ? optionalIds.includes(field.node) && Object.prototype.hasOwnProperty.call(configuration[field.node] || {}, field.key)
+          : field.required || optionalIds.includes(field.node))
         .map(([key, field]) => [key, configuration[field.node]?.[field.key] ?? field.defaultValue ?? field.checked ?? field.options?.[0] ?? field.value ?? ""]));
+      };
       if (!state.workflows.guided) {
         const configuration = { requirements: { os: "Windows 10 22H2" }, detection: { method: "PowerShell script" }, publish: { target: "Microsoft Intune" }, cleanup: { action: "Remove assignments and retire", retention: "7 days" } };
         state.workflows.guided = { id: "guided", name: "Guided Intune Update", description: "Reusable update, assignment and retirement policy.", revisions: [{ version: "1.4", values: valuesFor(["wrapper"], configuration), configuration, optionalIds: ["wrapper"], author: "PacKit", created: "Included with prototype" }], draft: null };
@@ -61,7 +67,28 @@
         app.name = item.name;
         app.publisher = item.publisher;
         app.version = item.version;
-        if (isNew && item.name === "Contoso Finance Tools") app.binding = { workflowId: "guided", revision: "1.4" };
+        const previousDesiredWorkflow = app.desiredWorkflow || null;
+        app.desiredWorkflow = item.workflow || null;
+        if (previousDesiredWorkflow !== app.desiredWorkflow && !app.binding) app.workflowSeeded = false;
+        if (app.binding?.workflowId === "guided" && item.workflow !== "guided") {
+          app.binding = null;
+          app.overrides = {};
+          app.workflowSeeded = false;
+        }
+        for (const version of Object.values(app.versions || {})) {
+          if (version.binding?.workflowId !== "guided" || item.workflow === "guided") continue;
+          version.binding = null;
+          version.applicationOverrides = {};
+          version.overrides = {};
+        }
+        if (item.workflow && !app.workflowSeeded) {
+          const published = latest(item.workflow);
+          if (published) {
+            app.binding = { workflowId: item.workflow, revision: published.version };
+            app.workflowSeeded = true;
+          }
+        }
+        if (isNew && !item.workflow) app.workflowSeeded = true;
         for (const version of item.existingVersions || []) ensureVersion(item.name, version);
       }
       return valuesFor;
@@ -120,12 +147,30 @@
       const published = latest(workflowId);
       if (!published) throw new Error("Publish a revision before assigning applications.");
       app.binding = { workflowId, revision: published.version };
+      app.workflowSeeded = true;
       app.overrides = {};
       record("Workflow assigned for future versions", { application: id, workflowId, revision: published.version });
+    }
+    function replaceBinding(id, workflowId, version = null, includeVersion = false) {
+      const app = application(id);
+      const published = latest(workflowId);
+      if (!published) throw new Error("Publish a revision before assigning applications.");
+      const binding = { workflowId, revision: published.version };
+      app.binding = clone(binding);
+      app.workflowSeeded = true;
+      app.overrides = {};
+      if (version && includeVersion) {
+        const target = ensureVersion(id, version);
+        target.binding = clone(binding);
+        target.applicationOverrides = {};
+        target.overrides = {};
+      }
+      record("Workflow assignment changed", { application: id, version: includeVersion ? version : null, workflowId, revision: published.version });
     }
     function detach(id) {
       const app = application(id);
       app.binding = null;
+      app.workflowSeeded = true;
       app.overrides = {};
       record("Workflow removed for future versions", { application: id });
     }
@@ -159,11 +204,46 @@
       return clone(item);
     }
     return {
-      register, effective, setOverride, restore, compare, adopt, bind, detach, attachVersion, publish, preview,
+      register, effective, setOverride, restore, compare, adopt, bind, replaceBinding, detach, attachVersion, publish, preview,
       schema: () => clone(schema), state: () => clone(state), latest: id => clone(latest(id) || null),
       ensureVersion: (id, version) => clone(ensureVersion(id, version)),
       saveInputs(id, version, inputs) { ensureVersion(id, version).inputs = clone(inputs); record("Version inputs saved", { application: id, version }); },
       saveDraft(id, draft) { state.workflows[id].draft = clone(draft); record("Workflow draft saved", { workflowId: id }); },
+      seedBuiltIn(item) {
+        const current = state.workflows[item.id];
+        const previousBuiltInVersion = current?.builtInVersion || null;
+        const seededVersion = item.revision.version;
+        const customRevisions = current?.revisions?.filter((entry) => entry.author !== "PacKit" && entry.created !== "Included with prototype") || [];
+        state.workflows[item.id] = {
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          recipeId: item.recipeId,
+          builtInVersion: seededVersion,
+          revisions: [clone(item.revision), ...customRevisions],
+          draft: current?.builtInVersion === seededVersion ? current?.draft || null : null
+        };
+        for (const app of Object.values(state.applications)) {
+          if (app.desiredWorkflow !== item.id) continue;
+          const migrateCurrentBuiltIn = app.binding?.workflowId === item.id
+            && (!previousBuiltInVersion || app.binding.revision === previousBuiltInVersion);
+          const migrateSeededBinding = (!app.binding && !app.workflowSeeded) || app.binding?.workflowId === "guided" || migrateCurrentBuiltIn;
+          if (migrateSeededBinding) {
+            app.binding = { workflowId: item.id, revision: seededVersion };
+            app.overrides = {};
+            for (const version of Object.values(app.versions || {})) {
+              const migrateVersionBuiltIn = version.binding?.workflowId === item.id
+                && (!previousBuiltInVersion || version.binding.revision === previousBuiltInVersion);
+              if (!version.binding || version.binding.workflowId === "guided" || migrateVersionBuiltIn) {
+                version.binding = { workflowId: item.id, revision: seededVersion };
+                version.applicationOverrides = {};
+              }
+            }
+          }
+          app.workflowSeeded = true;
+        }
+        try { storage?.setItem(storageKey, JSON.stringify(state)); } catch { /* The prototype still works when storage is unavailable. */ }
+      },
       create(id, name, description) { state.workflows[id] = { id, name, description, revisions: [], draft: null }; record("Workflow created", { workflowId: id }); },
       discard(id) { if (!latest(id)) { delete state.workflows[id]; record("Unsaved workflow discarded", { workflowId: id }); } }
     };

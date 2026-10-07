@@ -6,8 +6,8 @@
     <title>PacKit Prototype</title>
     <link rel="icon" href="./assets/branding/packit-icon.ico" type="image/x-icon" sizes="any" />
     <link rel="stylesheet" href="./assets/vendor/reactflow.css" />
-    <link rel="stylesheet" href="./styles.css?v=20260925-workflow-editor" />
-    <link rel="stylesheet" href="./winui3.css?v=20260925-workflow-editor" />
+    <link rel="stylesheet" href="./styles.css?v=20261007-version-workflow-alignment" />
+    <link rel="stylesheet" href="./winui3.css?v=20261007-version-workflow-alignment" />
     <link rel="stylesheet" href="./workflow-policy.css" />
     <link rel="stylesheet" href="./deployment.css" />
     <link rel="stylesheet" href="./prototype-lock.css" />
@@ -162,7 +162,7 @@
                     <button class="filter-chip" type="button" id="statusFilter" aria-haspopup="menu" aria-expanded="false">All statuses<span class="fluent icon-chevron-down"></span></button>
                     <div class="status-menu" id="statusMenu" role="menu" aria-label="Filter by status" aria-hidden="true">
                       <button type="button" role="menuitemradio" aria-checked="true" data-status="all">All statuses</button>
-                      <button type="button" role="menuitemradio" aria-checked="false" data-status="success">Uploaded to Intune</button>
+                      <button type="button" role="menuitemradio" aria-checked="false" data-status="success">Published to a platform</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-status="issue">Configuration issues</button>
                       <button type="button" role="menuitemradio" aria-checked="false" data-status="failed">Upload failed</button>
                     </div>
@@ -170,7 +170,7 @@
                 </div>
 
                 <div class="list-card">
-                  <div class="app-list" id="appList" role="listbox" aria-label="Applications"></div>
+                  <div class="app-list wui-data-table" id="appList" role="listbox" aria-label="Applications"></div>
                 </div>
               </div>
             </div>
@@ -198,8 +198,10 @@
                 <div class="signature-settings" id="signatureSettings">
                   <section class="signature-section" aria-labelledby="certificateConfigurationTitle">
                     <header class="signature-section-heading">
-                      <h2 id="certificateConfigurationTitle">Signing identity</h2>
-                      <p>Choose where PacKit gets the code-signing certificate.</p>
+                      <div class="label-with-help">
+                        <h2 id="certificateConfigurationTitle">Signing identity</h2>
+                        <button class="wui-help-tip" type="button" aria-label="Choose where PacKit gets the code-signing certificate." data-tooltip="Choose where PacKit gets the code-signing certificate."><span class="fluent icon-help" aria-hidden="true"></span></button>
+                      </div>
                     </header>
                     <div class="signature-method-list" role="radiogroup" aria-label="Signing method">
                       <section class="signature-method-card selected" data-signature-method-card="store">
@@ -232,7 +234,14 @@
                             <label class="wide">Endpoint<input id="trustedSigningEndpoint" type="url" placeholder="https://your-account.codesigning.azure.net" /></label>
                             <label>Account name<input id="trustedSigningAccount" placeholder="Account name" /></label>
                             <label>Certificate profile<input id="trustedSigningCertificate" placeholder="Certificate profile name" /></label>
-                            <label class="wide">Correlation ID <small>Optional</small><input id="trustedSigningCorrelation" placeholder="Correlation ID for tracking" /></label>
+                            <div class="signature-optional-toggle">
+                              <span id="trustedSigningCorrelationToggleLabel">Use correlation ID</span>
+                              <label class="automation-toggle">
+                                <input id="trustedSigningCorrelationToggle" type="checkbox" role="switch" aria-labelledby="trustedSigningCorrelationToggleLabel" aria-controls="trustedSigningCorrelationField" aria-expanded="false" />
+                                <span class="toggle-track" aria-hidden="true"></span>
+                              </label>
+                            </div>
+                            <label class="wide" id="trustedSigningCorrelationField" hidden>Correlation ID<input id="trustedSigningCorrelation" placeholder="Correlation ID for tracking" /></label>
                           </div>
                         </div>
                       </section>
@@ -240,8 +249,10 @@
                   </section>
                   <section class="signature-section" aria-labelledby="signingOptionsTitle">
                     <header class="signature-section-heading">
-                      <h2 id="signingOptionsTitle">Signing behavior</h2>
-                      <p>Choose what PacKit signs and how signatures are timestamped.</p>
+                      <div class="label-with-help">
+                        <h2 id="signingOptionsTitle">Signing behavior</h2>
+                        <button class="wui-help-tip" type="button" aria-label="Choose what PacKit signs and how signatures are timestamped." data-tooltip="Choose what PacKit signs and how signatures are timestamped."><span class="fluent icon-help" aria-hidden="true"></span></button>
+                      </div>
                     </header>
                     <div class="signature-options-card">
                       <label class="signature-setting-row">
@@ -250,11 +261,11 @@
                       </label>
                       <label class="signature-check-row">
                         <input id="signDetectionScripts" type="checkbox" checked />
-                        <span><strong>Sign detection method scripts before uploading to Intune</strong><small>Signs generated PowerShell detection scripts with the configured identity.</small></span>
+                        <span><span class="label-with-help"><strong>Sign detection method scripts before uploading to Intune</strong><button class="wui-help-tip" type="button" aria-label="Signs generated PowerShell detection scripts with the configured identity." data-tooltip="Signs generated PowerShell detection scripts with the configured identity."><span class="fluent icon-help" aria-hidden="true"></span></button></span></span>
                       </label>
                       <label class="signature-check-row">
                         <input id="signPsadtScripts" type="checkbox" checked />
-                        <span><strong>Sign PSADT scripts before uploading to Intune</strong><small>Signs toolkit scripts after placeholder replacement and before publication.</small></span>
+                        <span><span class="label-with-help"><strong>Sign PSADT scripts before uploading to Intune</strong><button class="wui-help-tip" type="button" aria-label="Signs toolkit scripts after placeholder replacement and before publication." data-tooltip="Signs toolkit scripts after placeholder replacement and before publication."><span class="fluent icon-help" aria-hidden="true"></span></button></span></span>
                       </label>
                     </div>
                   </section>
@@ -290,8 +301,10 @@
                     <header class="daemon-page-header ia-page-header">
                       <span class="daemon-page-icon ia-page-icon" aria-hidden="true"><span class="fluent icon-daemon"></span></span>
                       <div class="ia-page-heading">
-                        <h1>Automation Daemon</h1>
-                        <p>Runs scheduled and on-demand workflows in the background, even while PacKit is closed.</p>
+                        <div class="label-with-help">
+                          <h1>Automation Daemon</h1>
+                          <button class="wui-help-tip" type="button" aria-label="Runs scheduled and on-demand workflows in the background, even while PacKit is closed." data-tooltip="Runs scheduled and on-demand workflows in the background, even while PacKit is closed."><span class="fluent icon-help" aria-hidden="true"></span></button>
+                        </div>
                       </div>
                       <div class="daemon-refresh-group">
                         <small id="daemonLastChecked">Checked just now</small>
@@ -302,7 +315,7 @@
                     <section class="automation-card daemon-service-card" aria-labelledby="daemonStatusTitle">
                       <div class="daemon-service-summary">
                         <span class="daemon-status-icon status success" id="daemonStatusIcon"><span class="fluent icon-check"></span></span>
-                        <span><strong id="daemonStatusTitle">Daemon running</strong><small id="daemonStatusDescription">Workflows can run on schedule or on demand.</small></span>
+                        <span><strong id="daemonStatusTitle">Daemon running</strong><small id="daemonStatusDescription" hidden></small></span>
                       </div>
                       <div class="daemon-actions" role="group" aria-label="Daemon controls">
                         <button type="button" id="toggleDaemon" data-daemon-action><span class="daemon-stop-glyph" id="toggleDaemonIcon" aria-hidden="true"></span><span id="toggleDaemonLabel">Stop</span></button>
@@ -318,17 +331,17 @@
                     <div class="daemon-content-grid">
                       <section class="automation-card daemon-settings-card">
                         <header>
-                          <div><h2>Runtime settings</h2><p>Configure how often the daemon checks for work and which Intune uploader it uses.</p></div>
+                          <div class="label-with-help"><h2>Runtime settings</h2><button class="wui-help-tip" type="button" aria-label="Configure how often the daemon checks for work and which Intune uploader it uses." data-tooltip="Configure how often the daemon checks for work and which Intune uploader it uses."><span class="fluent icon-help" aria-hidden="true"></span></button></div>
                         </header>
                         <div class="daemon-settings-form">
-                          <label>Poll interval
+                          <div class="daemon-setting-field">
+                            <span class="label-with-help"><label for="daemonPollInterval">Poll interval</label><button class="wui-help-tip" type="button" aria-label="How often PacKit checks for queued workflow runs." data-tooltip="How often PacKit checks for queued workflow runs."><span class="fluent icon-help" aria-hidden="true"></span></button></span>
                             <span class="daemon-number-field"><input class="number-box" id="daemonPollInterval" type="number" min="1" max="300" step="1" value="5" inputmode="numeric" /><span>seconds</span></span>
-                            <small>How often PacKit checks for queued workflow runs.</small>
-                          </label>
-                          <label>Intune uploader script
+                          </div>
+                          <div class="daemon-setting-field">
+                            <span class="label-with-help"><label for="daemonUploaderPath">Intune uploader script</label><button class="wui-help-tip" type="button" aria-label="Leave blank to use the PACKIT_INTUNE_UPLOAD_SCRIPT environment variable." data-tooltip="Leave blank to use the PACKIT_INTUNE_UPLOAD_SCRIPT environment variable."><span class="fluent icon-help" aria-hidden="true"></span></button></span>
                             <input id="daemonUploaderPath" type="text" value="C:\PacKit\UploadIntunewinFile.ps1" placeholder="Use PACKIT_INTUNE_UPLOAD_SCRIPT" />
-                            <small>Leave blank to use the PACKIT_INTUNE_UPLOAD_SCRIPT environment variable.</small>
-                          </label>
+                          </div>
                         </div>
                         <footer class="daemon-settings-footer">
                           <span class="daemon-save-state" id="daemonSettingsState" role="status"><span class="fluent icon-check"></span> Settings saved</span>
@@ -337,7 +350,7 @@
                       </section>
 
                       <section class="automation-card daemon-environment-card">
-                        <header><div><h2>Host environment</h2><p>Configuration detected on this device.</p></div></header>
+                        <header><div class="label-with-help"><h2>Host environment</h2><button class="wui-help-tip" type="button" aria-label="Configuration detected on this device." data-tooltip="Configuration detected on this device."><span class="fluent icon-help" aria-hidden="true"></span></button></div></header>
                         <dl>
                           <div><dt>Graph token</dt><dd><span class="status issue"><span class="fluent icon-warning"></span> Not set</span><code>PACKIT_GRAPH_TOKEN</code></dd></div>
                           <div><dt>Intune uploader</dt><dd>Configured</dd></div>
@@ -357,14 +370,16 @@
                     <header class="ia-page-header">
                       <span class="ia-page-icon" aria-hidden="true"><span class="fluent icon-history"></span></span>
                       <div class="ia-page-heading">
-                        <h1>Run History</h1>
-                        <p>Review workflow executions, previews, failures, and diagnostic logs.</p>
+                        <div class="label-with-help">
+                          <h1>Run History</h1>
+                          <button class="wui-help-tip" type="button" aria-label="Review workflow executions, failures, and diagnostic logs." data-tooltip="Review workflow executions, failures, and diagnostic logs."><span class="fluent icon-help" aria-hidden="true"></span></button>
+                        </div>
                       </div>
                       <div class="ia-page-actions"><button type="button"><span class="fluent icon-download"></span> Export logs</button></div>
                     </header>
                     <div class="ia-page-body history-page-body">
                     <section class="automation-card history-list-card">
-                      <div class="run-history-table" role="table" aria-label="Automation run history">
+                      <div class="run-history-table wui-data-table" role="table" aria-label="Automation run history">
                       <div class="run-row heading" role="row"><span role="columnheader">Workflow</span><span role="columnheader">Application</span><span role="columnheader">Trigger</span><span role="columnheader">Started</span><span role="columnheader">Status</span><span role="columnheader">Logs</span></div>
                       <div class="run-row" role="row"><span role="cell">Guided Intune Update</span><span role="cell">Contoso Finance Tools</span><span role="cell">Manual approval</span><span role="cell">Today, 10:12</span><span class="status success" role="cell"><span class="fluent icon-check"></span> Completed</span><span role="cell"><button type="button">Open</button></span></div>
                       <div class="run-row" role="row"><span role="cell">Ring-based Pilot Rollout</span><span role="cell">Google Chrome</span><span role="cell">Scheduled</span><span role="cell">Yesterday, 09:00</span><span class="status issue" role="cell"><span class="fluent icon-warning"></span> Needs review</span><span role="cell"><button type="button">Open</button></span></div>
@@ -373,17 +388,6 @@
                       </div>
                     </section>
 
-                    <section class="automation-card extensibility-card">
-                    <h3>Future workflow areas</h3>
-                    <div class="future-chip-list">
-                      <span>Assignment workflows</span>
-                      <span>PSADT workflows</span>
-                      <span>Marketplace workflows</span>
-                      <span>Version history</span>
-                      <span>Workflow inheritance</span>
-                      <span>Git synchronization</span>
-                    </div>
-                    </section>
                     </div>
                   </div>
                 </section>
@@ -561,11 +565,11 @@
                 <button class="more-btn" type="button" aria-label="More"><span class="fluent icon-more"></span></button>
               </div>
               <div class="version-list" id="versionList">
-                <button class="version active" type="button" aria-current="page" data-version="12.3.123">12.3.123 <span class="status success"><span class="fluent icon-check"></span> Upload success</span></button>
-                <button class="version" type="button" data-version="12.3.122">12.3.122 <span><span class="fluent icon-check"></span> Upload success</span></button>
-                <button class="version" type="button" data-version="12.3.121">12.3.121 <span><span class="fluent icon-check"></span> Upload success</span></button>
-                <button class="version" type="button" data-version="12.3.120">12.3.120 <span><span class="fluent icon-check"></span> Upload success</span></button>
-                <button class="version" type="button" data-version="12.3.119">12.3.119 <span><span class="fluent icon-check"></span> Upload success</span></button>
+                <button class="version active" type="button" aria-current="page" data-version="12.3.123">12.3.123 <span class="status success"><span class="fluent icon-check"></span> Published to Intune</span></button>
+                <button class="version" type="button" data-version="12.3.122">12.3.122 <span class="status success"><span class="fluent icon-check"></span> Published to Intune and MECM</span></button>
+                <button class="version" type="button" data-version="12.3.121">12.3.121 <span class="status success"><span class="fluent icon-check"></span> Published to Intune and MECM</span></button>
+                <button class="version" type="button" data-version="12.3.120">12.3.120 <span class="status success"><span class="fluent icon-check"></span> Published to Intune and MECM</span></button>
+                <button class="version" type="button" data-version="12.3.119">12.3.119 <span class="status success"><span class="fluent icon-check"></span> Published to Intune and MECM</span></button>
               </div>
               <div class="version-empty-note" id="versionEmptyNote" hidden>
                 <span class="fluent icon-info" aria-hidden="true"></span>
@@ -582,13 +586,11 @@
             <article class="detail-main">
               <section class="context-command-region" aria-label="Version commands">
                 <div class="command-context-left">
-                  <span class="app-icon-tile small" id="commandAppIcon" style="--tile-bg: var(--wui-app-icon-default);">CF</span>
                   <span class="command-version-title">
-                    <strong id="commandAppName">Contoso Finance Tools</strong>
-                    <small id="commandContextMeta">Version 12.3.123</small>
+                    <strong id="commandContextMeta">Version 12.3.123</strong>
                   </span>
                   <span class="command-inline-controls" id="commandInlineControls"></span>
-                  <span class="new-label status success" id="commandStatus"><span class="fluent icon-check"></span> Upload success</span>
+                  <span class="new-label status success" id="commandStatus"><span class="fluent icon-check"></span> Published to Intune</span>
                 </div>
                 <div class="command-bar" id="contextCommandBar" data-command-context="version"></div>
               </section>
@@ -597,7 +599,7 @@
                 <button class="tab active" id="overviewTab" role="tab" aria-selected="true" aria-controls="overviewPanel" tabindex="0" type="button" data-tab="overview"><span class="fluent icon-info"></span> Package</button>
                 <button class="tab" id="installTab" role="tab" aria-selected="false" aria-controls="installPanel" tabindex="-1" type="button" data-tab="install"><span class="fluent icon-settings"></span> Install</button>
                 <button class="tab" id="deploymentTab" role="tab" aria-selected="false" aria-controls="deploymentPanel" tabindex="-1" type="button" data-tab="deployment"><span class="fluent icon-people"></span> Deployment</button>
-                <button class="tab" id="reviewTab" role="tab" aria-selected="false" aria-controls="reviewPanel" tabindex="-1" type="button" data-tab="review"><span class="fluent icon-check"></span> Review</button>
+                <button class="tab" id="reviewTab" role="tab" aria-selected="false" aria-controls="reviewPanel" tabindex="-1" type="button" data-tab="review"><span class="fluent icon-check"></span> Publication record</button>
               </nav>
 
               <section class="configuration-empty-state" id="configurationEmptyState" aria-labelledby="configurationEmptyTitle" hidden>
@@ -625,12 +627,6 @@
               </section>
 
               <div class="tab-panel active overview-panel" id="overviewPanel">
-                <section class="version-identity-summary" aria-labelledby="versionIdentityTitle">
-                  <span class="app-icon-tile" id="applicationIconPreview" style="--tile-bg: var(--wui-app-icon-default);">CF</span>
-                  <span><small>Application identity</small><strong id="versionIdentityTitle">Contoso Finance Tools</strong><span>Contoso · Finance workstation utilities packaged for Intune deployment</span></span>
-                  <span class="provenance-label"><span class="fluent icon-lock"></span> Inherited</span>
-                  <button type="button" id="openApplicationDetails">Application details <span class="fluent icon-arrow-right"></span></button>
-                </section>
                 <section class="expander automation-template-summary" id="automationTemplateSummary">
                   <header><strong>Applied automation workflow</strong><button type="button" aria-label="Collapse Applied automation workflow" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="automation-template-content">
@@ -665,7 +661,7 @@
                     <button class="wui-info-bar-close" type="button" data-dismiss-message aria-label="Dismiss message" title="Dismiss"><span class="fluent icon-dismiss"></span></button>
                   </div>
                 </section>
-                <section class="expander version-automation-record" id="versionAutomationRecord">
+                <section class="expander version-automation-record" id="versionAutomationRecord" tabindex="-1">
                   <header><strong id="versionAutomationRecordTitle">Automation record for version 12.3.123</strong><button type="button" aria-label="Collapse Automation record" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="version-record-content">
                     <div class="version-record-heading">
@@ -727,16 +723,11 @@
                   </div>
                 </section>
                 <section class="expander">
-                  <header><strong>Package summary</strong><button type="button" aria-label="Collapse Package summary" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
+                  <header><strong>Package details</strong><button type="button" aria-label="Collapse Package details" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid">
                     <label>Version<input id="packageVersionInput" value="12.3.123" /></label>
                     <label>Product Code<span class="readonly"><span id="productCode">{0E1653D1-AB8F-39C6-9FDB-38895E6FF7A1}</span><button class="inline-icon-button" id="copyProductCode" type="button" aria-label="Copy product code" title="Copy product code"><span class="fluent icon-copy"></span></button></span></label>
                     <label>Architecture<span class="readonly" id="packageArchitecture">x86</span></label>
-                  </div>
-                  <div class="configuration-summary-grid" aria-label="Version configuration summary">
-                    <button type="button" data-summary-target="install"><span class="summary-icon"><span class="fluent icon-settings"></span></span><span><small>Installation</small><strong id="installationSummaryMethod">PSADT wrapper</strong><em id="installationSummaryDetail">Payload commands configured</em></span><span class="status success"><span class="fluent icon-check"></span> Ready</span></button>
-                    <button type="button" data-summary-target="install"><span class="summary-icon"><span class="fluent icon-detection"></span></span><span><small>Detection</small><strong>Custom PowerShell script</strong><em>Windows 10 1607 or later</em></span><span class="status success"><span class="fluent icon-check"></span> Ready</span></button>
-                    <button type="button" data-summary-target="deployment"><span class="summary-icon"><span class="fluent icon-people"></span></span><span><small>Deployment</small><strong>5 group assignments</strong><em>2 scope tags</em></span><span class="status success"><span class="fluent icon-check"></span> Ready</span></button>
                   </div>
                   <div class="source-row">
                     <strong>Source Folder</strong>
@@ -757,15 +748,30 @@
               </div>
 
               <div class="tab-panel review-panel" id="reviewPanel">
+                <section class="review-configuration-summary" aria-labelledby="reviewConfigurationTitle">
+                  <header class="review-section-heading">
+                    <span><small>Effective configuration</small><h2 id="reviewConfigurationTitle">Version configuration</h2><p>Resolved from package inputs, workflow defaults, and any recorded exceptions.</p></span>
+                    <span class="provenance-label" id="reviewConfigurationSource"><span class="fluent icon-lock"></span> Inherited from workflow</span>
+                  </header>
+                  <div class="configuration-summary-grid" aria-label="Effective version configuration">
+                    <button type="button" data-summary-target="install"><span class="summary-icon"><span class="fluent icon-settings"></span></span><span><small>Installation</small><strong id="installationSummaryMethod">PSADT wrapper</strong><em id="installationSummaryDetail">Payload commands configured</em></span><span class="status issue"><span class="fluent icon-warning"></span> Not validated</span></button>
+                    <button type="button" data-summary-target="install"><span class="summary-icon"><span class="fluent icon-detection"></span></span><span><small>Detection</small><strong>Custom PowerShell script</strong><em>Script verification is pending</em></span><span class="status issue"><span class="fluent icon-warning"></span> Not validated</span></button>
+                    <button type="button" data-summary-target="deployment"><span class="summary-icon"><span class="fluent icon-people"></span></span><span><small>Deployment</small><strong>5 group assignments</strong><em>2 scope tags</em></span><span class="status success"><span class="fluent icon-check"></span> Configured</span></button>
+                  </div>
+                </section>
+                <section class="wui-info-bar informational review-change-status" id="reviewPendingChange" role="status" tabindex="-1" hidden>
+                  <span class="fluent icon-info" aria-hidden="true"></span>
+                  <span class="wui-info-bar-content"><strong id="reviewPendingChangeTitle"></strong><small id="reviewPendingChangeDescription"></small></span>
+                </section>
                 <section class="review-readiness" aria-labelledby="reviewReadinessTitle">
                   <div class="review-readiness-heading">
-                    <span class="review-ready-icon"><span class="fluent icon-check"></span></span>
-                    <span><small>Publication readiness</small><h2 id="reviewReadinessTitle">This version is ready for review</h2><p>Required package, installation, detection, and deployment settings are configured.</p></span>
+                    <span class="review-ready-icon review-pending-icon"><span class="fluent icon-warning"></span></span>
+                    <span><small>Publication readiness</small><h2 id="reviewReadinessTitle">Validation is required before publishing</h2><p>Configuration is complete, but installation and detection still need validation.</p></span>
                   </div>
                   <dl class="readiness-checklist">
                     <div><dt><span class="fluent icon-check"></span> Package</dt><dd>Source and identity detected</dd></div>
-                    <div><dt><span class="fluent icon-check"></span> Install</dt><dd>Wrapped payload configured</dd></div>
-                    <div><dt><span class="fluent icon-check"></span> Detection</dt><dd>Custom script selected</dd></div>
+                    <div class="readiness-pending"><dt><span class="fluent icon-warning"></span> Install</dt><dd>Payload validation pending</dd></div>
+                    <div class="readiness-pending"><dt><span class="fluent icon-warning"></span> Detection</dt><dd>Script verification pending</dd></div>
                     <div><dt><span class="fluent icon-check"></span> Deployment</dt><dd>Assignments and scope ready</dd></div>
                   </dl>
                 </section>
@@ -881,7 +887,7 @@
                   <summary><span>Return codes</span><span class="deploy-meta" id="deploymentCodeCount"></span><span class="fluent icon-chevron-down" aria-hidden="true"></span></summary>
                   <div class="deploy-body">
                     <div class="deploy-toolbar"><span class="label-with-help">Installer results<button class="wui-help-tip" type="button" aria-label="About return codes" data-tooltip="Map the exit code received by Intune to success, failure, a restart, or retry. With PSADT, this is the code returned by the wrapper. Unlisted codes are treated as failures."><span class="fluent icon-help" aria-hidden="true"></span></button></span><button type="button" id="deploymentAddCode"><span class="fluent icon-add" aria-hidden="true"></span> Add return code</button></div>
-                    <table class="deploy-table deploy-codes"><caption class="visually-hidden">Installer return code mappings</caption><thead><tr><th scope="col">Return code</th><th scope="col">Code type</th><th scope="col"><span class="visually-hidden">Remove</span></th></tr></thead><tbody id="deploymentCodeRows"></tbody></table>
+                    <table class="deploy-table deploy-codes wui-data-table"><caption class="visually-hidden">Installer return code mappings</caption><thead><tr><th scope="col">Return code</th><th scope="col">Code type</th><th scope="col"><span class="visually-hidden">Remove</span></th></tr></thead><tbody id="deploymentCodeRows"></tbody></table>
                     <div id="deploymentCodeError" class="wui-info-bar error" role="alert" hidden></div>
                   </div>
                 </details>
@@ -897,8 +903,8 @@
                 <section class="expander">
                   <header><strong>Requirements</strong><span class="required-label">Required</span><button type="button" aria-label="Collapse Requirements" aria-expanded="true"><span class="fluent icon-chevron-up"></span></button></header>
                   <div class="form-grid two">
-                    <label>Operating System Architecture<select><option>64-bit</option><option>32-bit</option></select></label>
-                    <label>Minimum Operating System<input value="Windows 10 1607" /></label>
+                    <label>Operating System Architecture<select id="requirementsArchitecture"><option>64-bit</option><option>32-bit</option></select></label>
+                    <label>Minimum Operating System<select id="requirementsMinimumOs"><option>Windows 10 1607</option><option>Windows 10 1809</option><option>Windows 10 21H2</option><option>Windows 10 22H2</option><option>Windows 11 21H2</option><option>Windows 11 22H2</option><option>Windows 11 23H2</option><option>Windows 11 24H2</option></select></label>
                   </div>
                 </section>
                 <section class="expander">
@@ -971,7 +977,7 @@
                   <button class="active" role="tab" aria-selected="true" aria-controls="guidedStrategyPage" tabindex="0" type="button" data-strategy-tab="guided"><span class="fluent icon-automation"></span> Guided Automation Mode</button>
                   <button role="tab" aria-selected="false" aria-controls="testStrategyPage" tabindex="-1" type="button" data-strategy-tab="test"><span class="fluent icon-test"></span> Test</button>
                   <button role="tab" aria-selected="false" aria-controls="assignmentStrategyPage" tabindex="-1" type="button" data-strategy-tab="assignment"><span class="fluent icon-people"></span> Assignment Behaviour</button>
-                  <button role="tab" aria-selected="false" aria-controls="previewStrategyPage" tabindex="-1" type="button" data-strategy-tab="preview"><span class="fluent icon-eye"></span> Preview</button>
+                  <button role="tab" aria-selected="false" aria-controls="previewStrategyPage" tabindex="-1" type="button" data-strategy-tab="preview"><span class="fluent icon-eye"></span> Next version</button>
                 </nav>
 
                 <div class="strategy-page" id="guidedStrategyPage">
@@ -1079,19 +1085,19 @@
 
                 <div class="strategy-page" id="previewStrategyPage">
                   <header class="preview-intro">
-                    <h2>Preview automated update</h2>
-                    <p>Review the next version, update rules, and ring assignments before confirming.</p>
+                    <h2>Review next version</h2>
+                    <p>Review the planned package and rollout after an update candidate is selected. This does not change the current version.</p>
                   </header>
                   <div class="preview-summary-grid">
                     <section class="preview-card version-flow">
                       <h3><span>Version</span><button class="wui-help-tip" type="button" aria-label="Shows the current package version and the next version PacKit will prepare when the workflow runs." data-tooltip="Shows the current package version and the next version PacKit will prepare when the workflow runs."><span class="fluent icon-help" aria-hidden="true"></span></button></h3>
-                      <div><span><small>Current version</small><strong>12.3.123</strong><small class="version-success"><span class="fluent icon-check"></span> Upload success</small></span><span class="fluent icon-arrow-right"></span><span><small>Automated</small><strong class="next-version-label">Next version</strong><small>New</small></span></div>
+                      <div><span><small>Current version</small><strong>12.3.123</strong><small class="version-success"><span class="fluent icon-check"></span> Published to Intune</small></span><span class="fluent icon-arrow-right"></span><span><small>Proposed</small><strong class="next-version-label">Next version</strong><small>Update candidate</small></span></div>
                     </section>
                     <section class="preview-card">
                       <h3><span>App objects</span><button class="wui-help-tip" type="button" aria-label="Summarizes which management-platform application objects will be created or changed by this update." data-tooltip="Summarizes which management-platform application objects will be created or changed by this update."><span class="fluent icon-help" aria-hidden="true"></span></button></h3>
                       <ul class="scan-list">
                         <li><strong>Next version</strong><span>New main app object</span></li>
-                        <li><strong>12.3.123</strong><span>Current object modified</span></li>
+                        <li><strong>12.3.123</strong><span>Current version remains published</span></li>
                       </ul>
                     </section>
                     <section class="preview-card">
@@ -1106,7 +1112,7 @@
                   </div>
                   <section class="preview-card assignment-impact">
                     <header><h3><span>Assignment impact</span><button class="wui-help-tip" type="button" aria-label="Compares the current and planned assignment state for each deployment ring before any changes are published." data-tooltip="Compares the current and planned assignment state for each deployment ring before any changes are published."><span class="fluent icon-help" aria-hidden="true"></span></button></h3><span>Assignment source: <strong>Guided Intune Update workflow</strong></span></header>
-                    <div class="ring-impact-table">
+                    <div class="ring-impact-table wui-data-matrix">
                       <span>Ring</span><span>Required</span><span>Available</span><span>Uninstall</span><span>Existing installation</span>
                       <div class="ring-list">
                         <strong>Pilot ring<small>42 devices</small></strong>
@@ -1122,7 +1128,7 @@
                   <section class="preview-card rollout-card">
                     <h3><span>Rollout timeline</span><button class="wui-help-tip" type="button" aria-label="Shows when each deployment ring starts and when assignments from the previous version are cleaned up." data-tooltip="Shows when each deployment ring starts and when assignments from the previous version are cleaned up."><span class="fluent icon-help" aria-hidden="true"></span></button></h3>
                     <div class="rollout-timeline">
-                      <span><strong>Publish</strong><small>Create next version</small></span>
+                      <span><strong>Create draft</strong><small>Prepare next version</small></span>
                       <span class="timeline-arrow" aria-hidden="true"><span class="fluent icon-arrow-right"></span></span>
                       <span><strong>Pilot ring</strong><small>Starts immediately</small></span>
                       <span class="timeline-arrow" aria-hidden="true"><span class="fluent icon-arrow-right"></span></span>
@@ -1149,15 +1155,15 @@
                   <label class="version-filter">Filter by version<select><option>All versions</option><option>12.3.123</option><option>12.3.121</option></select></label>
                 </div>
                 <div class="history-view active" id="packageHistory">
-                  <div class="history-table package-history" role="table" aria-label="Application and package history">
-                    <div class="history-row heading" role="row"><span>Action</span><span>Version</span><span>Date & Time</span><span>User</span><span>Status</span><span>Details</span></div>
-                    <div class="history-row" role="row"><span>Publish to Intune</span><span>12.3.123</span><span>13.02.2026. 10:20:23</span><span>John Doe</span><span class="status success"><span class="fluent icon-check"></span> Upload success</span><span>-</span></div>
-                    <div class="history-row" role="row"><span>Publish to MECM</span><span>12.3.123</span><span>13.02.2026. 10:20:23</span><span>John Doe</span><span class="status failed"><span class="fluent icon-dismiss"></span> Upload to MECM failed</span><span>Wrong Credentials</span></div>
-                    <div class="history-row" role="row"><span>PSADT updated</span><span>12.3.123</span><span>13.02.2026. 10:09:10</span><span>John Doe</span><span class="status success"><span class="fluent icon-check"></span> Upload success</span><span>-</span></div>
-                    <div class="history-row" role="row"><span>PSADT created</span><span>12.3.123</span><span>13.02.2026. 10:07:23</span><span>Jane Doe</span><span class="status issue"><span class="fluent icon-warning"></span> Configuration issues</span><span>Package issues detected</span></div>
-                    <div class="history-row" role="row"><span>Package upgrade</span><span>12.3.122</span><span>13.02.2026. 10:04:12</span><span>Jane Doe</span><span class="status success"><span class="fluent icon-check"></span> Upload success</span><span>-</span></div>
-                    <div class="history-row" role="row"><span>Documentation available</span><span>12.3.121</span><span>12.02.2026. 9:54:12</span><span>Jane Doe</span><span>-</span><span><button type="button"><span class="fluent icon-folder"></span> Open File</button></span></div>
-                    <div class="history-row" role="row"><span>Application created</span><span>12.3.121</span><span>12.02.2026. 9:54:12</span><span>Jane Doe</span><span class="linkish">New</span><span>-</span></div>
+                  <div class="history-table package-history wui-data-table" role="table" aria-label="Application and package history">
+                    <div class="history-row heading" role="row"><span role="columnheader">Action</span><span role="columnheader">Version</span><span role="columnheader">Date & Time</span><span role="columnheader">User</span><span role="columnheader">Status</span><span role="columnheader">Details</span></div>
+                    <div class="history-row" role="row"><span role="cell">Publish to Intune</span><span role="cell">12.3.123</span><span role="cell">13.02.2026. 10:20:23</span><span role="cell">John Doe</span><span class="status success" role="cell"><span class="fluent icon-check"></span> Published to Intune</span><span role="cell">-</span></div>
+                    <div class="history-row" role="row"><span role="cell">Publish to MECM</span><span role="cell">12.3.123</span><span role="cell">13.02.2026. 10:20:23</span><span role="cell">John Doe</span><span class="status failed" role="cell"><span class="fluent icon-dismiss"></span> Upload to MECM failed</span><span role="cell">Wrong Credentials</span></div>
+                    <div class="history-row" role="row"><span role="cell">PSADT updated</span><span role="cell">12.3.123</span><span role="cell">13.02.2026. 10:09:10</span><span role="cell">John Doe</span><span class="status success" role="cell"><span class="fluent icon-check"></span> Completed</span><span role="cell">-</span></div>
+                    <div class="history-row" role="row"><span role="cell">PSADT created</span><span role="cell">12.3.123</span><span role="cell">13.02.2026. 10:07:23</span><span role="cell">Jane Doe</span><span class="status issue" role="cell"><span class="fluent icon-warning"></span> Configuration issues</span><span role="cell">Package issues detected</span></div>
+                    <div class="history-row" role="row"><span role="cell">Package upgrade</span><span role="cell">12.3.122</span><span role="cell">13.02.2026. 10:04:12</span><span role="cell">Jane Doe</span><span class="status success" role="cell"><span class="fluent icon-check"></span> Published to Intune and MECM</span><span role="cell">-</span></div>
+                    <div class="history-row" role="row"><span role="cell">Documentation available</span><span role="cell">12.3.121</span><span role="cell">12.02.2026. 9:54:12</span><span role="cell">Jane Doe</span><span role="cell">-</span><span role="cell"><button type="button"><span class="fluent icon-folder"></span> Open File</button></span></div>
+                    <div class="history-row" role="row"><span role="cell">Application created</span><span role="cell">12.3.121</span><span role="cell">12.02.2026. 9:54:12</span><span role="cell">Jane Doe</span><span class="linkish" role="cell">New</span><span role="cell">-</span></div>
                   </div>
                 </div>
                 <div class="history-view" id="deviceHistory">
@@ -1167,14 +1173,14 @@
                     <span class="status issue"><strong>18</strong> pending</span>
                     <span class="status failed"><strong>6</strong> failed</span>
                   </div>
-                  <div class="history-table device-history" role="table" aria-label="Assigned device install status">
-                    <div class="history-row heading" role="row"><span>Device</span><span>Primary user</span><span>Assignment</span><span>Check-in</span><span>Install status</span><span>Details</span></div>
-                    <div class="history-row" role="row"><span>RO-BUH-LT-0231</span><span>Andrei Popescu</span><span>Required</span><span>18.05.2026. 10:14:22</span><span class="status success"><span class="fluent icon-check"></span> Installed</span><span>Exit code 0</span></div>
-                    <div class="history-row" role="row"><span>RO-BUH-LT-0188</span><span>Maria Ionescu</span><span>Required</span><span>18.05.2026. 10:09:41</span><span class="status issue"><span class="fluent icon-warning"></span> Pending sync</span><span>Waiting for device check-in</span></div>
-                    <div class="history-row" role="row"><span>RO-CLJ-DT-0042</span><span>Device shared</span><span>Available</span><span>18.05.2026. 09:58:10</span><span class="status failed"><span class="fluent icon-dismiss"></span> Install failed</span><span>0x87D1041C detection failed</span></div>
-                    <div class="history-row" role="row"><span>RO-IAS-LT-0119</span><span>Irina Stan</span><span>Required</span><span>18.05.2026. 09:41:33</span><span class="status success"><span class="fluent icon-check"></span> Installed</span><span>Detected after restart</span></div>
-                    <div class="history-row" role="row"><span>RO-TMS-LT-0204</span><span>Victor Neagu</span><span>Uninstall</span><span>18.05.2026. 09:22:07</span><span class="status success"><span class="fluent icon-check"></span> Uninstalled</span><span>Superseded version removed</span></div>
-                    <div class="history-row" role="row"><span>RO-BUH-VM-0077</span><span>QA Lab</span><span>Required</span><span>18.05.2026. 08:57:44</span><span class="status failed"><span class="fluent icon-dismiss"></span> Install failed</span><span>Device offline during install window</span></div>
+                  <div class="history-table device-history wui-data-table" role="table" aria-label="Assigned device install status">
+                    <div class="history-row heading" role="row"><span role="columnheader">Device</span><span role="columnheader">Primary user</span><span role="columnheader">Assignment</span><span role="columnheader">Check-in</span><span role="columnheader">Install status</span><span role="columnheader">Details</span></div>
+                    <div class="history-row" role="row"><span role="cell">RO-BUH-LT-0231</span><span role="cell">Andrei Popescu</span><span role="cell">Required</span><span role="cell">18.05.2026. 10:14:22</span><span class="status success" role="cell"><span class="fluent icon-check"></span> Installed</span><span role="cell">Exit code 0</span></div>
+                    <div class="history-row" role="row"><span role="cell">RO-BUH-LT-0188</span><span role="cell">Maria Ionescu</span><span role="cell">Required</span><span role="cell">18.05.2026. 10:09:41</span><span class="status issue" role="cell"><span class="fluent icon-warning"></span> Pending sync</span><span role="cell">Waiting for device check-in</span></div>
+                    <div class="history-row" role="row"><span role="cell">RO-CLJ-DT-0042</span><span role="cell">Device shared</span><span role="cell">Available</span><span role="cell">18.05.2026. 09:58:10</span><span class="status failed" role="cell"><span class="fluent icon-dismiss"></span> Install failed</span><span role="cell">0x87D1041C detection failed</span></div>
+                    <div class="history-row" role="row"><span role="cell">RO-IAS-LT-0119</span><span role="cell">Irina Stan</span><span role="cell">Required</span><span role="cell">18.05.2026. 09:41:33</span><span class="status success" role="cell"><span class="fluent icon-check"></span> Installed</span><span role="cell">Detected after restart</span></div>
+                    <div class="history-row" role="row"><span role="cell">RO-TMS-LT-0204</span><span role="cell">Victor Neagu</span><span role="cell">Uninstall</span><span role="cell">18.05.2026. 09:22:07</span><span class="status success" role="cell"><span class="fluent icon-check"></span> Uninstalled</span><span role="cell">Superseded version removed</span></div>
+                    <div class="history-row" role="row"><span role="cell">RO-BUH-VM-0077</span><span role="cell">QA Lab</span><span role="cell">Required</span><span role="cell">18.05.2026. 08:57:44</span><span class="status failed" role="cell"><span class="fluent icon-dismiss"></span> Install failed</span><span role="cell">Device offline during install window</span></div>
                   </div>
                 </div>
               </div>
@@ -1375,9 +1381,9 @@
       </div>
     </main>
     <script src="./prototype-lock.js"></script>
-    <script src="./workflow-policy.js"></script>
-    <script src="./deployment.js"></script>
-    <script src="./script.js?v=20260925-workflow-editor"></script>
+    <script src="./workflow-policy.js?v=20261007-version-workflow-alignment"></script>
+    <script src="./deployment.js?v=20261007-version-workflow-alignment"></script>
+    <script src="./script.js?v=20261007-ready-status-icon"></script>
     <script src="./assets/vendor/react.production.min.js"></script>
     <script src="./assets/vendor/react-dom.production.min.js"></script>
     <script>
@@ -1388,8 +1394,8 @@
       };
     </script>
     <script src="./assets/vendor/reactflow.umd.js"></script>
-    <script src="./workflow-editor.js?v=20260925-workflow-editor"></script>
-    <script src="./workflow-policy-ui.js"></script>
+    <script src="./workflow-editor.js?v=20261007-version-workflow-alignment"></script>
+    <script src="./workflow-policy-ui.js?v=20261007-version-workflow-alignment"></script>
     <script src="./prototype-routes.js"></script>
   </body>
 </html>
